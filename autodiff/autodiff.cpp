@@ -1,97 +1,206 @@
-﻿/*
-Basic datastructure chain rule:
-Container<Real> f(T<Real>);
-Has derivative
-Container<T<Real>> ∇f(T<Real>);
-
-Now, C++ can't yet match Container to nested types, so we'll have to hack it, but for now
-let's pretend it can match X<Real> like this:
-list<Vec<Real>>:  X<.> := list<Vec<.>>
-Real:             X<.> := Identity<.>  where Identity is like a 1-element container
-
-So it works fine for normal scalar/vector setup:
-Real f(Vec<Real,N>) // Match is to Identity<Real> f(Vec<Real,N>), so Container==Identity
-has derivative
-Identity<Vec<Real,N>> ∇f(Vec<Real,N>)
-i.e.
-Vec<Real,N> ∇f(Vec<Real,N>)
-as required.
-
-Now, try
-Vec<Real,M> f(Vec<Real,N>)
-it has derivative
-Vec<Vec<Real,N>,M> ∇f(Vec<Real,N>)
-so Vec<Vec<>> is the Jacobian.  As written this implies jagged storage for non-fixed-size vectors,
-but we can specialize Vec<Vec<>> to act like a matrix, so don't fret.
-
-Now the case that normally trips up the casual differentiator:
-Mat<Real,M,N> f(Vec<Real,D>)
-has derivative
-Mat<Vec<Real,D>,M,N> ∇f(Vec<Real,D>)
-Normally one would go all tensorial at this point, but it really is a pain.   This is just the
-same as the Vec<Vec> case above.
-
-And now for something exotic.  We have some arbitrary struct
-template <class R> struct Foo {
-Matrix<R,3,3> A;
-Vec<R,3> b;
-}
-and a function
-list<Real> f(Foo<Real> x)
-What's its derivative?  Same as above:
-list<Foo<Real>> ∇f(Foo<Real> x)
-The derivative of the second entry of the list with respect to the (1,2) element
-of x.A is just ++l.begin()->A(1,2)
-
-!! Chain Rule
-Many derivatives one encounters in practice arise from application of the chain rule.   In this
-arbitrary data structures scheme, the chain rule works out pretty simply.   We have two functions
-Container1<Real> f(T1<Real>);
-T1<Real> g(T2<Real>);
-which we compose to make function h
-Container1<Real> h(T2<Real> x) {
-return f(g(x));
-}
-and notice that "of course", the return type of g matches the argument type of f, otherwise we
-couldn't have composed them.
-We can see the datatype of ∇h easily as above:
-Container1<T2<Real>> ∇h(T2<Real> x)
-But what's in the function body?
-{
-Container1<T1<Real>> gradf = ∇f(g(x));
-T1<T2<Real>> gradg = ∇g(x);
-return DOT(gradf, gradg); // Call DOT(Container<T1<Stuff>>, T1<OtherStuff>)
-}
-
-
-
-*/
-
+﻿
 #include <cmath>
+#include <cassert>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <iterator>
 
-template <typename T>
-struct numeric_traits {
-	static T zeros_of_shape(T) {
-		return T(0);
-	}
+#include "Vec.h"
+
+typedef double Real;
+
+template <class T> struct Foo : public Vec<T, 3> {};
+template <class T> struct Gar : public Vec<T, 3> {};
+template <class T> struct Bee : public Vec<T, 3> {};
+template <class T> struct Cee : public Vec<T, 3> {
+  template <class U>
+  Cee<T>& operator=(U const& that) { Vec<T, 3>::operator=(that); return *this; }
+};
+template <> struct Cee<Real> : public Vec<Real, 3> {
+  Cee() { 
+    (*this)[0] = 1.1; 
+    (*this)[1] = 5.2; 
+    (*this)[2] = 7.3; 
+  }
+template <class U>
+  Cee<Real>& operator=(U const& that) { Vec<Real, 3>::operator=(that); return *this; }
 };
 
-template <class T>
-struct Vec {
-	typedef T element_type;
+template <class T> struct Dee : public Vec<T, 3> { 
+  Dee() {}; 
+  template <class U> 
+  explicit Dee(U const& that) : Vec<T, 3>(that) {} 
 
-	Vec(size_t = 0);
-	Vec(T, ...);
-	size_t size() const;
-	T& operator[](size_t);
-
-	Vec<T>& operator+=(Vec<T> const&);
-
-	T* begin();
-	T* end();
-	T const* begin() const;
-	T const* end() const;
+  template <class U>
+  Dee& operator=(U const& that) { Vec<T, 3>::operator=(that); return *this; }
 };
+
+template <class T> struct Eee : public Vec<T, 3> {
+  Eee() { (*this)[0] = 1.1; (*this)[1] = 5.2; (*this)[2] = 7.3; }
+  template <class U>
+  Eee& operator=(U const& that) { Vec<T, 3>::operator=(that); return *this; }
+};
+
+#include <boost/range/counting_range.hpp>
+auto inds = boost::counting_range<int>(0, 3);
+#if 0
+
+
+
+// Implementing dot product between a
+//    Foo<Gar<Bee<Cee<Real>>>> ∇f
+// and a 
+//    Bee<Cee<Dee<Eee<Real>>>> ∇g
+// when we know the container over which we must multiply-accumulate is the Bee<Cee>.
+// The output will be a 
+//    Foo<Gar<.>> of Dee<Eee<Real>>
+// So the dotting will ultimately involve products Real*Dee<Eee<Real>>
+// The dotter needs information like:
+//   M    the depth of Bee<Cee<.>> 
+//   N    the depth of the Foo<Gar<.>> up as far as the Bee<Cee<.>>
+//
+//  The out parameter is appropriately sized and zero-filled before the call.
+//  Thus the sequence of calls should be:
+//
+//   <2,2>(FGBC, BCDE, FGDE*) ... (*out)[i] = GDE() = dot<1,2>:
+//   <1,2>(GBC, BCDE, GDE*)   ... (*out)[i] = DE()
+//   <0,2>(BC, BCDE, DE*)     ... (*out) += dot(C, CDE)
+//   <0,1>(C, CDE, DE*)       ... (*out) += Real*DE = dot<0,0>
+//   <0,0>(Real, DE, DE*)       ... (*out) = Real*DE
+//
+//  Other examples:
+//   <1,0>(Vec<Real>, Real, V<R>*)  (*out)[i] += a[i]*b
+template <int N, int M>
+struct Dotter {
+  // N>0, M>0
+  template <template <class AT, int NN, class XX> class A, 
+            class B, 
+            class AT, class CT, 
+            int NN, class XX, int MM, class YY>
+  static void dot(A<AT, NN, XX> const& a, B const& b, A<CT, MM, YY>* out)
+  {
+    for (int i : inds)
+      Dotter<N - 1, M>::dot(a[i], b, &(*out)[i]);
+  }
+};
+
+
+template <int M>
+struct Dotter<0, M>
+{
+  template <class A, class B, class C>
+  static void dot(A const& a, B const& b, C* out)
+  {
+    for (int i : inds)
+      Dotter<0, M - 1>::dot(a[i], b[i], out);
+  }
+};
+
+template <>
+struct Dotter<0, 0>
+{
+  template <class A, class B, class C>
+  static void dot(A const& a, B const& b, C* out)
+  {
+    *out += a*b;
+  }
+};
+
+void ff()
+{
+
+}
+
+
+template <class A, class B>
+auto dot00(A const& a, B const& b) -> decltype(A()*B())
+{
+}
+
+template <class B>
+B dot00(Real const& a, B const& b)
+{
+  return B(a*b);
+}
+
+Cee<Dee<Eee<Real>>> cde;
+auto a1 = dot00(Real(), cde[0]);
+
+template <class DE>
+DE dot01(Cee<Real> const& a, Cee<DE> const& b)
+{
+  DE out;
+  for (int i : inds)
+    out += dot00(a[i], b[i]);
+  return out;
+}
+
+auto a2 = dot01(Cee<Real>(), Cee<Dee<Eee<Real>>>());
+
+template <class C, class CDE>
+auto dot02(Bee<C> const& a, Bee<CDE> const& b)-> decltype(dot01(a[0], b[0]))
+{
+  typedef decltype(dot01(a[0], b[0])) elt_t;
+  elt_t out;
+  for (int i : inds)
+    out += dot01(a[i], b[i]);
+  return out;
+}
+
+Bee<Cee<Real>> bc;
+Bee<Cee<Dee<Eee<Real>>>> bcde;
+auto a3 = dot02(bc, bcde);
+
+template <class BC, class CDE>
+auto dot12(Gar<BC> const& a, Bee<CDE> const& b)->Gar<decltype(dot02(a[0],b))>
+{
+  typedef decltype(dot02(a[0], b)) elt_t;
+  Gar<elt_t> out;
+  for (int i : inds)
+    out[i] = dot02(a[i], b);
+  return out;
+}
+
+Gar<Dee<Eee<Real>>> dot(Gar<Bee<Cee<Real>>> const& a, Bee<Cee<Dee<Eee<Real>>>> const& b)
+{
+  return dot12<Bee<Cee<Real>>, Cee<Dee<Eee<Real>>>>(a, b);
+}
+
+template <class ABC, class CDE>
+auto dot22(Foo<ABC> const& a, Bee<CDE> const& b)->Foo<decltype(dot12(a[0],b))>
+{
+  typedef decltype(dot12(a[0], b)) elt_t;
+  Foo<elt_t> out;
+  for (int i : inds)
+    out[i] = dot12(a[i], b);
+  return out;
+}
+
+
+#if 0
+Foo<Gar<Real>> f(Bee<Cee<Real>>);
+Foo<Gar<Bee<Cee<Real>>>> ∇f(Bee<Cee<Real>>);
+
+Bee<Cee<Real>> g(Dee<Eee<Real>> x);
+Bee<Cee<Dee<Eee<Real>>>> ∇g(Dee<Eee<Real>> x);
+
+Foo<Gar<Real>> h(Dee<Eee<Real>> x) 
+{ 
+  return f(g(x));
+}
+
+Foo<Gar<Dee<Eee<Real>>>> ∇h(Dee<Eee<Real>> x)
+{
+  return dot22(∇f(g(x)), ∇g(x));
+}
+
+void test()
+{
+  ∇h(Dee<Eee<Real>>());
+}
+
+#endif
 
 template <typename T>
 struct numeric_traits<Vec<T>> {
@@ -106,6 +215,8 @@ struct numeric_traits<Vec<T>> {
 
 template <>
 struct Vec<void> {
+  typedef void value_type;
+
 	Vec() {}
 	Vec(size_t) {}
 };
@@ -114,6 +225,8 @@ template <class T>
 struct Mat /* : public Vec<Vec<T>> */ {
 	typedef T element_type;
 
+	Mat() {}
+	Mat(Zeros_t) {}
 	Mat(size_t, size_t) {}
 	Mat(Vec<T>) {}
 	Mat(Vec<T>, Vec<T>) {}
@@ -152,7 +265,8 @@ struct tuple<T, Ts...> {
 	T head;
 	tuple<Ts...> tail;
 
-	tuple() {}
+	tuple(){}
+	tuple(T head, Ts... tail):head(head), tail(tail) {}
 
 	/* Doh.  This doesn't work -- T is different for the tail.head
 	T& operator[](int i) { if (i == 0) return head; else return tail[i - 1]; }  */
@@ -161,14 +275,15 @@ struct tuple<T, Ts...> {
 	//auto second()->decltype(tail.head&) { return tail.head; }
 };
 
-template <class T> Vec<T> operator-(Vec<T>, Vec<T>) {}
-template <class T> Vec<T> operator+(Vec<T>, Vec<T>) {}
-template <class T> Vec<T> operator*(Mat<T>, Vec<T>) {}
-template <class T> Vec<T> operator*(T a, Vec<T> b) { return b; }
+template <typename... Ts>
+tuple<Ts...> make_tuple(const Ts&... ts) {
+	return tuple<Ts...>(ts...);
+}
+//tuple<T<R>,U<R>> make_tuple(T<R>, U<R>) {}
+//tuple<T<T<R>>,U<U<R>>> grad1_make_tuple(T<R>, U<R>) {}
 
-template <class T>
-Vec<T> operator+(Vec<T> a, Vec<void>) { return a; }
-// template <class T> Vec<void> operator+(Vec<T>, Vec<void> b) { return b; }
+//---------------------------------------------------------------------------------
+
 
 template <class T>
 struct Unit {
@@ -181,6 +296,9 @@ struct Unit {
 	T* end() { return &val + 1; }
 	T const* end() const { return &val + 1; }
 };
+
+
+#if 0
 
 typedef double R;
 
@@ -208,10 +326,8 @@ Vec3<tuple<Mat3x3<R>, Vec3<R>>> ∇mmul(tuple<Mat3x3<R>, Vec3<R>>) {
 Vec3<Mat3x3<R>>	∇₁mmul(Mat3x3<R> M, Vec3<R> v) { return ∇mmul(M, v).head; }
 Vec3<Vec3<R>>	∇₂mmul(Mat3x3<R> M, Vec3<R> v) { return ∇mmul(M, v).tail.head; }
 
-//tuple<T,U> make_tuple(T<R>, U<R>) {}
-//tuple<T<T<R>>,U<U<R>>> grad1_make_tuple(T<R>, U<R>) {}
 
-Vec3<R> b() { return{ 1, 2, 3 }; }
+Vec3<R> b() { return vec<R>( 1, 2, 3 ); }
 Vec3<void> ∇b() { return Vec3<void>(0); }
 
 // Dot function for general containers.
@@ -221,8 +337,7 @@ struct Dot {
 	template <template <typename AX> class Container1, typename AT, typename BT>
 	Container1<BT> operator()(Container1<Dottee<AT>> const& a, Dottee<BT> const& b) {
 		// Assert Dottee_of_X is indeed a Dottee...
-		typedef decltype(AT()*BT()) ret_t;
-		Container1<BT> ret = numeric_traits<Container1<BT>>::zeros_of_shape(*a.begin());
+		Container1<BT> ret = numeric_traits<Container1<BT>>::zeros_of_shape(a);
 
 		auto ap = a.begin();
 		auto retp = ret.begin();
@@ -265,70 +380,23 @@ void f() {
 	Dot<Vec>()(c, b);
 
 	Vec<Vec<Vec<R>>> d;
-	Dot<Vec>()(d, d);
+//	Dot<Vec>()(d, d);
 	
 	/*
 	This can't work because Vec_Vec doesn't have a vectorizing begin(), end().
 	Dot<Vec_Vec>()(d, d);
 	*/
 }
-#if 0
 
-template <template <typename X> class Dottee, template <typename X> class Container1, typename AT, typename BT>
-Container1<BT> DOT(Container1<Dottee<AT>> const& A, Dottee<BT> const& B)  {
+template <template <typename Dottee_A1> class Container1, template <typename BX> class Dottee, class AT, class BT>
+Container1<BT> DOT(Container1<Dottee<AT>> const& a, Dottee<BT> const& b) {
+	return Dot<Dottee>()(a, b);
 }
 
-template <template <typename X> class Dottee, template <typename X> class Container1, typename AT>
-Container1<void> DOT(Container1<Dottee<AT>> const& A, Dottee<void> const& B)  {
+template <template <typename Dottee_A1> class Container1, template <typename BX> class Dottee, class AT>
+Container1<void> DOT(Container1<Dottee<AT>> const& a, Dottee<void> const& b) {
 	return Container1<void>();
 }
-
-// Dot function for nontrivial Container1, Container2
-//template <template <typename X> class Dottee, template <typename X> class Container1, template <typename X> class Container2, typename T>
-//Container1<Container2<T>> DOTCC(Container1<Dottee<T>> const& A, Dottee<Container2<T>> const& B)  {
-//	typedef Container2::element_type V; // Assert V == T
-//	Container1<Container2<T>> ret;
-//
-//	auto retp = ret.begin();
-//	const auto in1p = A.begin();
-//	for (; retp != ret.end(); ++retp, ++in1p) {
-//		Dottee<T> const& Ai = *in1p;
-//
-//		auto dottee1p = Ai.begin();
-//		auto dottee2p = B.begin();
-//		*retp = Container2::Zero;
-//		while (dottee2p != B.end()) {
-//			*retp += DOT(*dottee1p, *dottee2p);
-//			++dottee1p;
-//			++dottee2p;
-//		}
-//	}
-//
-//	return ret;
-//}
-
-// Dot function for the case where Container1 is the Unit container.
-template <template <typename X> class Dottee, typename AT, typename BT>
-BT DOT(Dottee<AT> const& A, Dottee<BT> const& B)
-{
-	BT ret = numeric_traits<BT>::zeros_of_shape(*B.begin());
-
-	for (auto aip = A.begin(); aip != A.end(); ++aip)
-	for (auto bp = B.begin(); bp != B.end(); ++bp)
-		ret += DOT(*aip, *bp);
-
-	return ret;
-}
-
-// 	Container1<Container2<T>> dot(Container1<Dottee<T>> a, Dottee<Container2<T>> b):
-//  matching Identity1<Identity3<R>> dot(Id1<Id2<R>>, Id2<Id3<R>>)
-R DOT(R a, R b)
-{
-	return a * b;
-}
-
-Vec3<R> v(1, 2, 3);
-Vec<Vec<R>> a = DOT(v, v);
 
 Vec3<R> f(Vec3<R> a) {
 	auto Rot = exp2mat(a);
@@ -345,7 +413,7 @@ Vec3<Vec3<R>> ∇f(Vec3<R> a) {
 
 R sqr(R a) { return a*a; }
 
-Vec2<R> pi(Vec3<R> X)
+Vec2<R> pi(Vec3<R> const& X)
 {
 	Vec2<R> ret(2u);
 	ret[0] = X[0] / X[2];
@@ -353,54 +421,176 @@ Vec2<R> pi(Vec3<R> X)
 	return ret;
 }
 
-Vec3<Vec3<R>> ∇pi(Vec3<R> X)
+Vec3<Vec3<R>> ∇pi(Vec3<R> const& X)
 {
-	Vec<Vec3<R>> ret(2u);
-	//	ret[0] = { 1 / X[2], 0, -X[0] / sqr(X[2]) };
-	ret[1] = { 0, 1 / X[2], -X[0] / sqr(X[2]) };
+	Vec<Vec3<R>> ret(2);
+	R x = X[0];
+	R y = X[1];
+	R z = X[2];
+	R sz = 1 / z;
+	R szz = sz*sz;
+
+	ret[0] = vec<R>(sz,  0, -x * szz);
+	ret[1] = vec<R>( 0, sz, -y * szz);
 	return ret;
 }
 
-#if 0
 Mat3x3<R> exp2mat(Vec3<R> w)
 {
-	double w1 = w[0];
-	double w2 = w[1];
-	double w3 = w[2];
-	double t1 = w1*w1;
-	double t2 = w2*w2;
-	double t3 = w3*w3;
-	double t4 = t1 + t2 + t3;
-	if (t4 == 0) {
-		return Mat3x3<R>::Id(3);
-	}
-	double t5 = std::sqrt(t4);
-	double t6 = std::cos(t5);
-	double t14 = std::sin(t5);
-	double t7 = 1.0 - t6;
-	double t8 = 1 / t4;
-	double t9 = t3*t8;
-	double t10 = t2*t8;
-	double t16 = 1 / t5;
-	double t17 = t14*w3*t16;
-	double t19 = t8*w1;
-	double t20 = t7*w2*t19;
-	double t23 = t14*w2*t16;
-	double t24 = t7*w3;
-	double t25 = t24*t19;
-	double t28 = t1*t8;
-	double t33 = t14*w1*t16;
-	double t35 = t24*t8*w2;
-	return{
-		{ 1.0 + t7*(-t9 - t10), -t17 + t20, t23 + t25 },
-		{ t17 + t20, 1.0 + t7*(-t9 - t28), -t33 + t35 },
-		{ -t23 + t25, t33 + t35, 1.0 + t7*(-t10 - t28) }
-	};
+	double x1 = w[0];
+	double x2 = w[1];
+	double x3 = w[2];
+
+	double t2 = x2*x2;
+	double t3 = x1*x1;
+	double t4 = x3*x3;
+	double t5 = t2 + t3 + t4;
+	double t6 = 1.0 / t5;
+	double t7 = std::sqrt(t5);
+	double t8 = std::cos(t7);
+	double t9 = t8 - 1.0;
+	double t10 = std::sin(t7);
+	double t11 = 1.0 / t7;
+	double t12 = t10*t11*x3;
+	double t13 = t4*t6;
+	double t14 = t10*t11*x1;
+	double t15 = t3*t6;
+	double t16 = t2*t6;
+	double t17 = t6*t6;
+	double t18 = t13 + t16;
+	double t19 = t11*t11*t11;
+	double t20 = t6*t8*x1*x3;
+	double t21 = t3*t10*t19*x2;
+	double t22 = t3*t9*t17*x2*2.0;
+	double t23 = t4*t17*x1*2.0;
+	double t24 = t13 + t15;
+	double t25 = t10*t19*x1*x2;
+	double t26 = t3*t10*t19*x3;
+	double t27 = t3*t9*t17*x3*2.0;
+	double t28 = t10*t11;
+	double t29 = t3*t6*t8;
+	double t30 = t9*t17*x1*x2*x3*2.0;
+	double t31 = t10*t19*x1*x2*x3;
+	double t32 = t3*t17*x1*2.0;
+	double t33 = t2*t17*x1*2.0;
+	double t34 = t15 + t16;
+	double t35 = t6*t8*x2*x3;
+	
+	return Mat3x3<R>(
+		vec<R>(t9*t18 + 1.0, t12 - t6*t9*x1*x2, -t10*t11*x2 - t6*t9*x1*x3),
+		vec<R>(-t12 - t6*t9*x1*x2, t9*t24 + 1.0, t14 - t6*t9*x2*x3),
+		vec<R>(t10*t11*x2 - t6*t9*x1*x3, -t14 - t6*t9*x2*x3, t9*t34 + 1.0)
+		);
 }
 
 Mat3x3<Vec3<R>> ∇exp2mat(Vec3<R> w)
 {
-	//... some stuff
+	double x1 = w[0];
+	double x2 = w[1];
+	double x3 = w[2];
+
+	double t2 = x2*x2;
+	double t3 = x1*x1;
+	double t4 = x3*x3;
+	double t5 = t2 + t3 + t4;
+	double t6 = 1.0 / t5;
+	double t7 = std::sqrt(t5);
+	double t8 = std::cos(t7);
+	double t9 = t8 - 1.0;
+	double t10 = std::sin(t7);
+	double t11 = 1.0 / t7;
+	double t12 = t10*t11*x3;
+	double t13 = t4*t6;
+	double t14 = t10*t11*x1;
+	double t15 = t3*t6;
+	double t16 = t2*t6;
+	double t17 = t6*t6;
+	double t18 = t13 + t16;
+	double t19 = t11*t11*t11;
+	double t20 = t6*t8*x1*x3;
+	double t21 = t3*t10*t19*x2;
+	double t22 = t3*t9*t17*x2*2.0;
+	double t23 = t4*t17*x1*2.0;
+	double t24 = t13 + t15;
+	double t25 = t10*t19*x1*x2;
+	double t26 = t3*t10*t19*x3;
+	double t27 = t3*t9*t17*x3*2.0;
+	double t28 = t10*t11;
+	double t29 = t3*t6*t8;
+	double t30 = t9*t17*x1*x2*x3*2.0;
+	double t31 = t10*t19*x1*x2*x3;
+	double t32 = t3*t17*x1*2.0;
+	double t33 = t2*t17*x1*2.0;
+	double t34 = t15 + t16;
+	double t35 = t6*t8*x2*x3; 
+	double t36 = t2*t10*t19*x1;
+	double t37 = t2*t9*t17*x1*2.0;
+	double t38 = t4*t17*x2*2.0;
+	double t39 = t6*t8*x1*x2;
+	double t40 = t2*t10*t19;
+	double t41 = t2*t10*t19*x3;
+	double t42 = t2*t9*t17*x3*2.0;
+	double t43 = t2*t17*x2*2.0;
+	double t44 = t3*t17*x2*2.0;
+	double t45 = t10*t19*x2*x3;
+	double t46 = t4*t6*t8;
+	double t47 = t4*t17*x3*2.0;
+	double t48 = t10*t19*x1*x3;
+	double t49 = t4*t10*t19*x1;
+	double t50 = t4*t9*t17*x1*2.0;
+	double t51 = t4*t10*t19*x2;
+	double t52 = t4*t9*t17*x2*2.0;
+	double t53 = t3*t17*x3*2.0;
+	double t54 = t2*t17*x3*2.0;
+
+	Mat3x3<Vec3<R>> ret(Zeros());
+	auto p = ret.begin();
+
+	(*p)[0] = -t9*(t23 + t33) - t10*t11*t18*x1;
+	(*p)[1] = t20 + t21 + t22 - t6*t9*x2 - t10*t19*x1*x3;
+	(*p)[2] = t25 + t26 + t27 - t6*t9*x3 - t6*t8*x1*x2;
+	++p;
+	(*p)[0] = -t20 + t21 + t22 + t48 - t6*t9*x2;
+	(*p)[1] = -t9*(t23 + t32 - t6*x1*2.0) - t10*t11*t24*x1;
+	(*p)[2] = t28 + t29 + t30 + t31 - t3*t10*t19;
+	++p;
+	(*p)[0] = -t25 + t26 + t27 + t39 - t6*t9*x3;
+	(*p)[1] = -t28 - t29 + t30 + t31 + t3*t10*t19;
+	(*p)[2] = -t9*(t32 + t33 - t6*x1*2.0) - t10*t11*t34*x1;
+	++p;
+	(*p)[0] = -t9*(t38 + t43 - t6*x2*2.0) - t10*t11*t18*x2;
+	(*p)[1] = t35 + t36 + t37 - t6*t9*x1 - t10*t19*x2*x3;
+	(*p)[2] = -t28 + t30 + t31 + t40 - t2*t6*t8;
+	++p;
+	(*p)[0] = -t35 + t36 + t37 + t45 - t6*t9*x1;
+	(*p)[1] = -t9*(t38 + t44) - t10*t11*t24*x2;
+	(*p)[2] = -t25 + t39 + t41 + t42 - t6*t9*x3;
+	++p;
+	(*p)[0] = t28 + t30 + t31 - t40 + t2*t6*t8;
+	(*p)[1] = t25 - t39 + t41 + t42 - t6*t9*x3;
+	(*p)[2] = -t9*(t43 + t44 - t6*x2*2.0) - t10*t11*t34*x2;
+	++p;
+	(*p)[0] = -t9*(t47 + t54 - t6*x3*2.0) - t10*t11*t18*x3;
+	(*p)[1] = t28 + t30 + t31 + t46 - t4*t10*t19;
+	(*p)[2] = -t35 + t45 + t49 + t50 - t6*t9*x1;
+	++p;
+	(*p)[0] = -t28 + t30 + t31 - t46 + t4*t10*t19;
+	(*p)[1] = -t9*(t47 + t53 - t6*x3*2.0) - t10*t11*t24*x3;
+	(*p)[2] = t20 - t48 + t51 + t52 - t6*t9*x2;
+	++p;
+	(*p)[0] = t35 - t45 + t49 + t50 - t6*t9*x1;
+	(*p)[1] = -t20 + t48 + t51 + t52 - t6*t9*x2;
+	(*p)[2] = -t9*(t53 + t54) - t10*t11*t34*x3;
+	
+	return ret;
+}
+
+Vec<Vec<R>> ∇(Vec<R> const& x)
+{
+	Vec<Vec<R>> ret = numeric_traits<Vec<Vec<R>>>::zeros_of_shape(x);
+	for (size_t i = 0; i < x.size(); ++i)
+		ret[i][i] = 1;
+	return ret;
 }
 
 
@@ -411,42 +601,67 @@ Vec2<R> project(Vec3<R> rotation, Vec3<R> translation, Vec3<R> X, Vec5<R> kappa)
 	R cy = kappa[2];
 	R k1 = kappa[3];
 	R k2 = kappa[4];
-	Mat3x3<R> K = { { f, 0, cx }, { 0, f, cy }, { 0, 0, 1 } };
-	Vec2<R> p = pi(K*(Rot*X + translation));
+	Mat3x3<R> K = Mat3x3<R>(
+		vec<R>(f, 0, cx),
+		vec<R>(0, f, cy),
+		vec<R>(0, 0, 1));
+	// ICE:	Mat3x3<R> K = { { f, 0, cx }, { 0, f, cy }, { 0, 0, 1 } };
+	Vec2<R> p = pi(mmul(K, mmul(Rot, X) + translation));
+
+	return p;
 }
 
-Vec3<Vec3<R>> ∇(Vec3<R> x)
-{
-	return{ Vec3<R> { 1, 0, 0 }, Vec3<R> { 0, 1, 0 }, Vec3<R> { 0, 0, 1 } };
-}
+tuple < Vec2<Vec3<R>>, Vec2<Vec3<R>>, Vec2<Vec3<R>>, Vec2<Vec<R>> > ∇project(Vec3<R> rotation, Vec3<R> translation, Vec3<R> X, Vec<R> kappa) {
+	auto ∇rotation = ∇(rotation);
+	auto ∇translation = ∇(translation);
+	auto ∇X = ∇(X);
+	auto ∇kappa = ∇(kappa);
 
-Vec2<tuple<Vec3<R>, Vec3<R>, Vec3<R>, Vec<R>>> ∇project(Vec3<R> rotation, Vec3<R> translation, Vec3<R> X, Vec<R> kappa) {
 	Mat3x3<R> Rot = exp2mat(rotation);
 	auto ∇Rot = ∇exp2mat(rotation);
+
 	R f = kappa[0];
+	auto ∇f = ∇kappa[0];  // ∇index(kappa,0)
 	R cx = kappa[1];
+	auto ∇cx = ∇kappa[1];
 	R cy = kappa[2];
+	auto ∇cy = ∇kappa[2];
 	R k1 = kappa[3];
+	auto ∇k1 = ∇kappa[3];
 	R k2 = kappa[4];
-	Vec<R> ef = { 1, 0, 0, 0, 0 };
-	Vec<R> ecx = { 0, 1, 0, 0, 0 };
-	Vec<R> ecy = { 0, 0, 1, 0, 0 };
-	Vec<R> ek1 = { 0, 0, 0, 1, 0 };
-	Vec<R> ek2 = { 0, 0, 0, 0, 1 };
-	Vec<R> e0 = Vec<R>::Zero;
-	Mat3x3<R> K = { { f, 0, cx }, { 0, f, cy }, { 0, 0, 1 } };
-	Mat3x3<Vec<R>> ∇K = { { ef, e0, ecx }, { e0, ef, ecy }, { e0, e0, e0 } };
+	auto ∇k2 = ∇kappa[4];
+	Vec<R> e0 = numeric_traits<Vec<R>>::zeros_of_shape(∇f);
+	Mat3x3<R> K = Mat3x3<R>(
+		vec<R>(f, 0, cx),
+		vec<R>(0, f, cy),
+		vec<R>(0, 0, 1));
+	Mat3x3<Vec<R>> ∇K = Mat3x3<Vec<R>>(
+		vec<Vec<R>>(∇f, e0, ∇cx),
+		vec<Vec<R>>(e0, ∇f, ∇cy),
+		vec<Vec<R>>(e0, e0, e0));
 
 	Vec3<R> xcam = mmul(Rot, X) + translation;
-	auto ∇X = ∇(X);
 
-	auto ∇xcam = DOT(∇₁mmul(Rot, X), ∇Rot) + DOT(∇₂mmul(Rot, X), ∇X);
+	auto ∇_Rot_xcam = DOT(∇₁mmul(Rot, X), ∇Rot);
+	auto ∇_X_xcam = DOT(∇₂mmul(Rot, X), ∇X);
+	auto ∇_translation_xcam = ∇translation;
 
 	Vec3<R> xhomg = mmul(K, xcam);
-	auto ∇xhomg = DOT(∇₁mmul(K, xcam), ∇K) + DOT(∇₂mmul(K, xcam), ∇xcam);
+	// ∇xhomg = DOT(∇₁mmul(K, xcam), ∇K) + DOT(∇₂mmul(K, xcam), ∇xcam);
+	auto ∇_K_xhomg = DOT(∇₁mmul(K, xcam), ∇K);
+	auto ∇_Rot_xhomg = DOT(∇₂mmul(K, xcam), ∇_Rot_xcam);
+	auto ∇_X_xhomg = DOT(∇₂mmul(K, xcam), ∇_X_xcam);
+	auto ∇_translation_xhomg = DOT(∇₂mmul(K, xcam), ∇_translation_xcam);
 
 	Vec2<R> p = pi(xhomg);
-	Vec2<Vec3<R>> dpdR = DOT(∇pi(xhomg), ∇xhomg);
+	auto ∇_K_p = DOT(∇pi(xhomg), ∇_K_xhomg);
+	auto ∇_Rot_p = DOT(∇pi(xhomg), ∇_Rot_xhomg);
+	auto ∇_X_p = DOT(∇pi(xhomg), ∇_X_xhomg);
+	auto ∇_translation_p = DOT(∇pi(xhomg), ∇_translation_xhomg);
+
+	auto g = make_tuple(∇_Rot_p, ∇_translation_p, ∇_X_p, ∇_K_p);
+
+	return g;
 }
 
 Vec<Vec2<R>> residuals(Vec<Vec3<R>> rotations, Vec<Vec3<R>> translations, Vec<Vec3<R>> Xs, Vec<R> kappas,
@@ -454,21 +669,50 @@ Vec<Vec2<R>> residuals(Vec<Vec3<R>> rotations, Vec<Vec3<R>> translations, Vec<Ve
 {
 	int nR = ms.size();
 	Vec<Vec2<R>> ret(nR);
-	for (int i = 0; i < ms.size(); ++i) {
+	for (size_t i = 0; i < ms.size(); ++i) {
 		int f = frames[i];
 		int p = points[i];
 		ret[i] = project(rotations[f], translations[f], Xs[p], kappas) - ms[i];
 	}
+	return ret;
 }
 
-
-
-/**/
 #endif
+
 #endif
 
 int main(int argc, char* argv[])
 {
+  auto v123 = vec(1., 2., 3.);
+  auto v357 = vec(3., 5., 7.);
+  auto v713 = vec(7., 11., 13.);
+
+  Vec<Vec<Real, 3>, 3> a = vec(v123, v713, v357);
+  Vec<Vec<Real, 3>, 3> b = vec(v123, v713, v123);
+
+  Real c = 0;
+  Vec<Vec<Real, 3>, 3> vvc = Zeros(3);
+/*  Dotter<2, 0>::dot(a, 2.0, &vvc);
+
+  Vec<Real,3> vc = Zeros(3);
+  Dotter<1, 1>::dot(a, b, &vvc);
+
+  Foo<Gar<Bee<Cee<Real>>>> a5;
+  Bee<Cee<Dee<Eee<Real>>>> b6;
+  Foo<Gar<Dee<Eee<Real>>>> fb = dot22(a5, b6);
+
+  Foo<Gar<Dee<Eee<Real>>>> fb2;
+  Dotter<2,2>::dot(a5, b6, &fb2);
+
+  /*
+	Vec3<R> rotation = vec<R>(1,-2,3);
+	Vec3<R> translation = vec<R>(11, 12, 13);
+	Vec3<R> X = vec<R>(.1, .3, .5);
+	Vec<R> kappa = vec<R>(1.4, 0.01, 0.02, 0, 0);
+
+	Vec2<R> p = project(rotation, translation, X, kappa);
+
+	auto ∇p = ∇project(rotation, translation, X, kappa);
+	  */
 	return 0;
 }
-

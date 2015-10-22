@@ -11,5 +11,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="autodiff.cpp" />
+    <ClCompile Include="Vec_test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Differentiating Containers.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="container_depth.h" />
+    <ClInclude Include="Vec.h" />
+    <ClInclude Include="Count.h" />
+    <ClInclude Include="copy.h" />
   </ItemGroup>
 </Project>
