@@ -1,26 +1,24 @@
 
-#include <iostream>
 #include "Vec.h"
 
-template <class T>
-struct vector_printer {
-  const T& t;
-  vector_printer(const T& t) :t(t) {}
-};
-
-template <class T>
-std::ostream& operator<<(std::ostream& s, vector_printer<T> const& t)
+template <class Container_U, class Container_V>
+auto dot_too_generic(Container_U const& u, Container_V const& v) ->
+decltype(*std::begin(u) * *std::begin(v))
 {
-  s << "[ ";
-  std::copy(std::begin(t.t), std::end(t.t), std::ostream_iterator<decltype(*std::begin(t.t))>(s, " "));
-  return s << "]";
-
+  typedef decltype(*std::begin(u) * *std::begin(v)) ret_t;
+  ret_t accum{ 0 };
+  for (auto pu = std::begin(u), pv = std::begin(u); pu != std::end(u); ++pu, ++pv)
+    accum += *pu * *pv;
+  return accum;
 }
 
-template <class T>
-vector_printer<T> pr(const T& t) {
-  return vector_printer<T>(t);
+void f()
+{
+  Vec<double, 3> a;
+  Vec<double, 3> b;
+  double d = dot_too_generic(a, b);
 }
+
 
 int main(int argc, char const* const* argv)
 {
@@ -37,7 +35,9 @@ int main(int argc, char const* const* argv)
         std::cout << pr(c) << std::endl;
         std::cout << pr(d) << std::endl;
 
-        Vec<Real> e = b + a;
+        Vec<Real> e = a + a;
 
         std::cout << pr(e) << std::endl;
+
+        std::cout << dot_too_generic(a, a) << std::endl;
 }

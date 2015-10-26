@@ -2,33 +2,34 @@
 
 #### Introduction
 
-In mathematics, we know how to compute the derivative of a function which 
+In mathematics, we know how to compute the derivative of a function which
 takes a vector as argument and returns a vector.  We call it the _Jacobian
 matrix_.
 
-      vec<Real>  f(vec<Real> x);
-      mat<Real> ∇f(vec<Real> x); // Jacobian is ∇f
+    vec<Real>  f(vec<Real> x);
+    mat<Real> ∇f(vec<Real> x); // Jacobian is ∇f
 
 This remains easy for scalar functions of matrices and matrix functions of
 scalars:
 
-      mat<Real>  f(Real x);
-      mat<Real> ∇f(Real x); // Also written f' or \dot{f}
+    mat<Real>  f(Real x);
+    mat<Real> ∇f(Real x); // Also written f' or \dot{f}
 
-      Real       f(mat<Real> x);
-      mat<Real> ∇f(mat<Real> x);
+    Real       trace(mat<Real> x);
+    mat<Real> ∇trace(mat<Real> x);
 
-But often you meet a matrix function of vector argument.  It's 
+But often you meet a matrix
+function of vector argument.  It's
 straightforward to say "it returns a tensor":
 
-      mat<Real> f(vec<Real> x);
-      tensor<Real> ∇f(vec<Real> x);
+    mat<Real> f(vec<Real> x);
+    tensor<Real> ∇f(vec<Real> x);
 
-but keeping track of the indices often involves one in intricate 
-bookkeeping, nasty tensorial analogues of the transpose, and anyway, 
-not everything is a matrix, even in MATLAB.
-
-
+but keeping track of the indices often involves one in intricate
+bookkeeping, nasty tensorial analogues of the transpose, and anyway,
+not everything is a matrix, even in MATLAB.  Furthermore, we would
+like a definition of derivative that does not require us to introduce
+new datatypes to hold the result.
 
 #### Containers
 
@@ -36,22 +37,22 @@ A more natural sort of function to deal with in C++ might be like this:
 
       vec<Real> f(list<mat<Real>> P)
 
-We would like a definition of ∇f which works for all such cases.  Well,
-it's super easy.   Each of the `Real`s in the output will have a 
+We would like a definition of `∇f` which works for all such cases.  Well,
+it's super easy: every `Real` in the output will have a
 derivative for each `Real` in the input.  That is, we replace `Real` in
 the return type by `list<mat<Real>>` from the function argument
 
       vec<list<mat<Real>>> ∇f(list<mat<Real>> P)
 
-and the i'th entry of the returned `vec` is simply the list of matrices 
-of derivatives of the original i'th entry with respect to the input reals.  
-In terms of general containers `Container1` and `Container2` we relate 
+and the i'th entry of the returned `vec` is simply the list of matrices
+of derivatives of the original i'th entry with respect to the input reals.
+In terms of general containers `Container1` and `Container2` we relate
 `f` and `∇f` like this:
 
     Container2<Real>             f(Container1<Real>)
     Container2<Container1<Real>> ∇f(Container1<Real>)
 
-Of course, simply defining something like this is easy, and could be 
+Of course, simply defining something like this is easy, and could be
 done however one likes.   The value of the definition is in whether or
 not it simplifies our lives.  Let's first look at a couple of standard
 examples and then look at where this really helps—in the chain rule.
@@ -59,17 +60,17 @@ examples and then look at where this really helps—in the chain rule.
 
 ##### Example: Matrix function of vector arguments
 
-In the "tensor" example above, the new rule leads to a natural 
+In the "tensor" example above, the new rule leads to a natural
 alternative:
 
       mat<Real>      f(vec<Real>)
       mat<vec<Real>> ∇f(vec<Real>)
 
-The matrix of vectors may look like it's no more than an inefficient way of 
+The matrix of vectors may look like it's no more than an inefficient way of
 storing a non-[jagged](http://stackoverflow.com/tags/jagged-arrays/info)
 3D array or tensor, but don't worry about the jaggedness for the moment.
-For one thing, these functions are most frequently encountered with 
-fixed-size arrays.  For example, the 
+For one thing, these functions are frequently encountered with
+fixed-size arrays.  For example, the
 [exponential map](https://en.wikipedia.org/wiki/Rotation_matrix#Exponential_map)
 might have signature
 
@@ -80,7 +81,7 @@ Then its gradient
 
      mat<vec<Real,3>,3,3> ∇exp2mat(vec<Real,3>)
 
-will be stored just as efficiently as it would have been in a fixed-size 
+will be stored just as efficiently as it would have been in a fixed-size
 3x3x3 tensor.
 
 
@@ -91,21 +92,23 @@ But now let's look at a potentially worrying (function, derivative) pair:
       vec<Real>      sin(vec<Real>)
       vec<vec<Real>> ∇sin(vec<Real>)
 
-Shouldn't that gradient `∇sin` be a matrix, not a vector of vectors?   
-Not by our rules, and as you'll see, it won't matter.   In fact, the 
-special case matrix-vector mutiplication will naturally drop out of the 
-chain rule, and we'll help the compiler to remove inefficient computation
-and storage.
+Shouldn't that gradient `∇sin` be a matrix, not a vector of vectors?
+Not by our rules, and as you'll see, it won't matter.  In fact, the
+special case matrix-vector mutiplication will naturally drop out of
+the chain rule, and we'll help the compiler to remove inefficient
+computation and storage.  And note that this definition doesn't
+require a new datatype: if all you had were vecs, you would not need
+another type to represent derivatives.
 
 
 
 
 #### The chain rule
 
-As promised, the full advantage of this containerized view is not really 
+As promised, the full advantage of this containerized view is not really
 apparent until we see the chain rule in action.  Consider the function
 
-      Real f(vec<Real> x) {
+      Real trace_of_rot(vec<Real> x) {
         return trace(exp2mat(x));
       }
 
@@ -114,77 +117,136 @@ The declarations of `trace` and its gradient are standard:
       Real trace(mat<Real> M)
       mat<Real> ∇trace(mat<Real> M)
 
-Note that I've dropped the fixed-size (e.g. 3x3) annotations.   Without 
-even looking at the definition of `f`, we know the signature of its 
-derivative:
+Note that I've dropped the fixed-size (e.g. 3x3) annotations.  Without
+even looking at the definition of `trace_of_rot`, we know the
+signature of its derivative:
 
-      vec<Real> ∇f(vec<Real> x) {
+      vec<Real> ∇trace_of_rot(vec<Real> x) {
         return ...;
       }
 
 Let's now try to discover what goes in that return statement.
 
-Now, before applying the container chain rule, let's look at a scalar 
-function and its derivative:
+Now, before applying the container chain rule, let's pretend
+everything is a scalar and just take derivatives:
 
->  <math>f(x) = h(g(x))</math><br/>
->  <math>f'(x)= h'(g(x)) * g'(x)</math>
+    trace_of_rot(x) = trace(exp2mat(x))
+    trace_of_rot'(x)= trace'(exp2mat(x)) * exp2mat'(x)
 
 So let's just try to write that derivative with grads:
 
-      ∇f(x) = ∇h(g(x)) * ∇g(x)
+    ∇trace_of_rot(x)= ∇trace(exp2mat(x)) * ∇exp2mat(x)
 
-We can immediately see that even for simple functions `h` and `g`, that 
-that multiplication is ambiguous: if `∇h` and `∇g` are vectors, what 
-multiplication is meant?   Dot product?  Outer product?   If you've done
-this sort of thing before, you'll be worrying about matrix transposes,
-order of multiplication, and probably rolling the word 
-&ldquo;tensor&rdquo; around in your mouth.   It is a lovely word.  Anyway,
+The thing that goes wrong is the multiply...  So what multiply is
+intended here?  Matrix product?  Outer product?  Dot product? If
+you've done this sort of thing before, you'll be worrying about matrix
+transposes, order of multiplication, and probably rolling the word
+&ldquo;tensor&rdquo; around in your mouth.  It is a lovely word.
+
+In fact, it's very simple.  It's always a dot product.  And for a
+general type Container<T>, dot product of A and B means multiplying
+all the elements of A by the corresponding elemet of B and
+accumulating the result.  More generally, we will have 
+
+    dot(Container<U>, Container<V>) -> typeof U*V
+
+So let's go back to trace_of_rot, and expand the code with some type
+declarations just to see what's happening.
+    
+    mat<Real>      val_exp2mat = exp2mat(x);
+    mat<vec<Real>> grad_exp2mat = ∇exp2mat(x);
+
+    Real           val_trace = trace(val_exp2mat);
+    mat<Real>      grad_trace = ∇trace(val_exp2mat);
+
+    vec<Real>      grad_trace_of_rot = dot(grad_trace, grad_exp2mat);
+
+So that dot has signature
+
+    dot(mat<Real>, mat<vec<Real>>) -> typeof Real * vec<Real>
+
+And it's the matrix dot, i.e. dot(A,B) = trace(A*B'), or more simply,
+the one where you add up every element of the elementwise product.  An
+outline implementation might be:
+
+    T dot(mat<U> u, mat<V> v) 
+    {
+       ret_t accum{ 0 };
+       for (auto pu = std::begin(u), pv = std::begin(u); pu != std::end(u); ++pu, ++pv)
+         accum += *pu * *pv;
+       return accum;
+    }
+
+But of course, if you just implement begin() and end() on your matrix to visit all elements, you can just use a generic version:
+
+    T dot(mat<U> u, mat<V> v) 
+    {
+       T total = 0;
+       for(size_t i = 0; i < u.rows(); ++i)
+         for(size_t j = 0; j < u.cols(); ++j)
+	   total += u(i,j) * v(i,j);
+       return total;
+    }
+
+
+
+    list<mat<Real>>      val_exp2mat = exp2mat(x);
+    list<mat<vec<Real>>> grad_exp2mat = ∇exp2mat(x);
+
+    Real                 val_trace = trace(val_exp2mat);
+    list<mat<Real>>      grad_trace = ∇trace(val_exp2mat);
+
+    vec<Real>      grad_trace_of_rot = dot(grad_trace, grad_exp2mat);
+
+    dot(list<mat<Real>>, list<mat<vec<Real>>>) -> typeof Real * vec<Real>
+
+
+  Anyway,
 to cut to the chase, the general chain rule with depth-N containers is
 
       ∇f(x) = dot( ∇h(g(x)), ∇g(x) )
 
-with one twist: for &ldquo;deeper&rdquo; containers (e.g. `list<vec<T>>`), 
+with one twist: for &ldquo;deeper&rdquo; containers (e.g. `list<vec<T>>`),
 one needs to specify an additional depth parameter (see below).  For now,
 let's get back to our example.
 
-The basic rule of dotting any container is that you multiply and add 
-all of its elements, whatever shape it has.  So the dot product of matrix 
+The basic rule of dotting any container is that you multiply and add
+all of its elements, whatever shape it has.  So the dot product of matrix
 and matrix is still a scalar:
 
 xx
       Real dot(mat<Real>, mat<Real>)
-      
+
 The most general depth-1 form will be in terms of three containers:
 
-      C1<C3<Real>> dot(C1<Container<Real>>, Container<C3<Real>>) 
+      C1<C3<Real>> dot(C1<Container<Real>>, Container<C3<Real>>)
          ...
          out[i] += dot(a[i], b[i])
 
-Let's try it with our example, where `h` is `trace` and `g` is 
+Let's try it with our example, where `h` is `trace` and `g` is
 `exp2mat`.  The types of their gradients are recalled first.
 
-                      mat<Real>        mat<vec<Real>> 
+                      mat<Real>        mat<vec<Real>>
                    ------v--------      -----v-----
       return dot(∇trace(exp2mat(x)),   ∇exp2mat(x));
-  
+
 The dot product is between a `mat<Real>` and a `mat<vec<Real>>`, so its
 return type is whatever you get when you multiply `Real*vec<Real>`, i.e.
-a `vec<Real>`, which is what we promised before the "`...`" above.  
-How did the compiler select the right dot?   Answers later at [unification].  For the moment, let's talk about 
+a `vec<Real>`, which is what we promised before the "`...`" above.
+How did the compiler select the right dot?   Answers later at [unification].  For the moment, let's talk about
 efficiency.
 
 ##### Efficiency
 
-You may have noticed that the programmer who wrote `f` missed some 
+You may have noticed that the programmer who wrote `f` missed some
 significant optimizations.   The main point is that the derivative of
-`trace` has a particularly simple form: it's the identity, whatever the 
+`trace` has a particularly simple form: it's the identity, whatever the
 input.  So `∇f`'s return line is effectively
 
       return dot(Identity, ∇exp2mat(x))
 
-meaning that only the diagonal elements of `∇exp2mat(x)` need ever be 
-computed.  Luckily we can help the compiler to fix this for us.  The 
+meaning that only the diagonal elements of `∇exp2mat(x)` need ever be
+computed.  Luckily we can help the compiler to fix this for us.  The
 full signature of the called functions in the code is as follows:
 
       mat<Real,3,3,Mat_Identity> ∇trace(mat<Real,3,3,Mat_GENERAL> M);
@@ -193,19 +255,19 @@ and the call to `dot` is the specialized
 
       dot(mat<T1,R1,C1,Mat_Identity> a, mat<T2,R2,C2,Mat_GENERAL> b)
 
-which extracts only the diagonal elements of its second argument, 
+which extracts only the diagonal elements of its second argument,
 giving the compile-time information needed to optimize the call.
 
 #### Arbitrary structs
 
-And now for something a little more exotic.  We have some arbitrary 
+And now for something a little more exotic.  We have some arbitrary
 struct
 
 
 
 
 
-      template <class R> 
+      template <class R>
       struct Foo {
         Matrix<R,3,3> A;
         Vec<R,3> b;
@@ -219,8 +281,8 @@ What's its derivative?  Same as above:
 
       list<Foo<Real>> ∇f(Foo<Real> x)
 
-The derivative of the second entry of the list with respect to the 
-(1,2) element of `x.A` is just 
+The derivative of the second entry of the list with respect to the
+(1,2) element of `x.A` is just
 
       list<Foo<Real>> ∇l = ∇f(x)
       std::cout << "Your derivative: " << ++∇l.begin()->A(1,2);
@@ -234,9 +296,9 @@ Also easy.
 
 
 ##### Unification
-[unification]: 
+[unification]:
 
-Matching this to our generic dot, we can only do it if `Container` is 
+Matching this to our generic dot, we can only do it if `Container` is
 `mat`
 
 Tricky case 1:
@@ -247,17 +309,17 @@ Tricky case 1:
       list<vec<Real>> g(mat<Real> x)
       list<vec<mat<Real>>> ∇g(mat<Real> x)
 
-      set<Foo<Real>> h(mat<Real> x) { 
-        return f(g(x)) 
+      set<Foo<Real>> h(mat<Real> x) {
+        return f(g(x))
       }
-      set<Foo<mat<Real>>> ∇h(mat<Real> x) { 
+      set<Foo<mat<Real>>> ∇h(mat<Real> x) {
         return dot(∇f(g(x)), ∇g(x), g);
       }
 
       dot(set<Foo<list<vec<Real>>>>, list<vec<mat<Real>>>)
 
-Here, container is "obviously" `list<vec>` because that's as much of 
-the second argument as you can match to the first.  But what if the 
+Here, container is "obviously" `list<vec>` because that's as much of
+the second argument as you can match to the first.  But what if the
 containers had had the same types...
 
       dot(vec<vec<vec<vec<Real>>>>, vec<vec<vec<Real>>>)
@@ -268,17 +330,17 @@ Then simple matching on the types could choose any of
       vec<vec>
       vec<vec<vec>>
 
-And only the second one is correct.   To fix this, we need to tell `dot` 
+And only the second one is correct.   To fix this, we need to tell `dot`
 how many containers to strip from the second argument.
 
 
 
-So the chain rule of 
+So the chain rule of
 
 
 Now, C++ can't yet match Container to nested types, so we'll have to hack it, but for now
 let's pretend it can match `X<Real>` like this:
-  
+
   list<Vec<Real>>:  X<.> := list<Vec<.>>
   Real:             X<.> := Identity<.>  where Identity is like a 1-element container
 

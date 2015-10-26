@@ -10,49 +10,34 @@
 
 typedef double Real;
 
-template <class T> struct Foo : public Vec<T, 3> {};
-template <class T> struct Gar : public Vec<T, 3> {};
-template <class T> struct Bee : public Vec<T, 3> {};
-template <class T> struct Cee : public Vec<T, 3> {
-  template <class U>
-  Cee<T>& operator=(U const& that) { Vec<T, 3>::operator=(that); return *this; }
-};
-template <> struct Cee<Real> : public Vec<Real, 3> {
-  Cee() { 
-    (*this)[0] = 1.1; 
-    (*this)[1] = 5.2; 
-    (*this)[2] = 7.3; 
-  }
-template <class U>
-  Cee<Real>& operator=(U const& that) { Vec<Real, 3>::operator=(that); return *this; }
+#define DECLARE_CONTAINER(Name)\
+template <class T> struct Name : public Vec<T, 3> {\
+  Name() {};\
+  template <class U>\
+  explicit Name(U const& that) : Vec<T, 3>(that) {}\
+\
+  template <class U>\
+  Name& operator=(U const& that) { Vec<T, 3>::operator=(that); return *this; }\
 };
 
-template <class T> struct Dee : public Vec<T, 3> { 
-  Dee() {}; 
-  template <class U> 
-  explicit Dee(U const& that) : Vec<T, 3>(that) {} 
-
-  template <class U>
-  Dee& operator=(U const& that) { Vec<T, 3>::operator=(that); return *this; }
-};
-
-template <class T> struct Eee : public Vec<T, 3> {
-  Eee() { (*this)[0] = 1.1; (*this)[1] = 5.2; (*this)[2] = 7.3; }
-  template <class U>
-  Eee& operator=(U const& that) { Vec<T, 3>::operator=(that); return *this; }
-};
+DECLARE_CONTAINER(Bee)
+DECLARE_CONTAINER(Cee)
+DECLARE_CONTAINER(Dee)
+DECLARE_CONTAINER(Eee)
+DECLARE_CONTAINER(Foo)
+DECLARE_CONTAINER(Gar)
 
 #include <boost/range/counting_range.hpp>
 auto inds = boost::counting_range<int>(0, 3);
-#if 0
-
-
 
 // Implementing dot product between a
 //    Foo<Gar<Bee<Cee<Real>>>> ∇f
 // and a 
 //    Bee<Cee<Dee<Eee<Real>>>> ∇g
-// when we know the container over which we must multiply-accumulate is the Bee<Cee>.
+// when we know the container over which we must multiply-accumulate is the Bee<Cee>
+// because we have
+//    Bee<Cee<Real>> g_val;
+//
 // The output will be a 
 //    Foo<Gar<.>> of Dee<Eee<Real>>
 // So the dotting will ultimately involve products Real*Dee<Eee<Real>>
@@ -71,46 +56,204 @@ auto inds = boost::counting_range<int>(0, 3);
 //
 //  Other examples:
 //   <1,0>(Vec<Real>, Real, V<R>*)  (*out)[i] += a[i]*b
+
+// Notes:
+// 1. Has general form 
+//     dot(C1<C2<Real>>, C2<C3<Real>>) -> C1<C3<Real>>
+//    and by stripping C1s, get to 
+//     dot(C2<Real>, C2<C3<Real>>) -> C3<Real>
+//    and by dotting through C2s, get to 
+//     dot(Real, C3<Real>) -> C3<Real>
+// 2. Can't use template templates because number of template parameters need to match,
+//    i.e. a Vec<typename, size_t, typename> can't match a "template Container<typename>".
+//    There are so many ways on might need to use those that we just can't....
+// 3. For safety (i.e. decent error messages), maybe make user define dot00?
+
 template <int N, int M>
 struct Dotter {
-  // N>0, M>0
-  template <template <class AT, int NN, class XX> class A, 
-            class B, 
-            class AT, class CT, 
-            int NN, class XX, int MM, class YY>
-  static void dot(A<AT, NN, XX> const& a, B const& b, A<CT, MM, YY>* out)
+  //     dot(C1<C2<Real>>, C2<C3<Real>>) -> C1<C3<Real>>
+  template <class C1_of_C2,
+            class C2_of_C3,
+            class C1_of_C3>
+  static void dot(C1_of_C2 const& a, C2_of_C3 const& b, C1_of_C3* out)
   {
-    for (int i : inds)
-      Dotter<N - 1, M>::dot(a[i], b, &(*out)[i]);
+    auto ia = std::begin(a);
+    auto iout = std::begin(*out);
+    for (;ia != std::end(a); ++ia, ++iout)
+       Dotter<N - 1, M>::dot(*ia, b, &*iout);
   }
 };
-
 
 template <int M>
 struct Dotter<0, M>
 {
-  template <class A, class B, class C>
-  static void dot(A const& a, B const& b, C* out)
+  //     dot(C2<Real>, C2<C3<Real>>) -> C3<Real>
+  template <class C2_of_Real, class C2_of_C3_of_Real, class C3_of_Real>
+  static void dot(C2_of_Real const& a, C2_of_C3_of_Real const& b, C3_of_Real* out)
   {
-    for (int i : inds)
-      Dotter<0, M - 1>::dot(a[i], b[i], out);
+    // Don't zero "out" here, it was created as zero.
+    // This way we can continually accumulate into it until we exhaust C2.
+    auto ia = std::begin(a);
+    auto ib = std::begin(b);
+    for (; ia != std::end(a); ++ia, ++ib)
+      Dotter<0, M - 1>::dot(*ia, *ib, out);
+  }
+
+  template <class C2_of_C3_of_Real, class C3_of_Real>
+  static void dot(Real const& a, C2_of_C3_of_Real const& b, C3_of_Real* out)
+  {
+    static_assert(false, "Dotting too deep on first argument.  You have a Dotter<M,N> where M is too big.");
   }
 };
 
+//     dot(Real, C3<Real>) -> C3<Real>
 template <>
 struct Dotter<0, 0>
 {
   template <class A, class B, class C>
   static void dot(A const& a, B const& b, C* out)
   {
-    *out += a*b;
+    *out += a * b;
   }
 };
 
-void ff()
+
+Dee<Eee<Real>> dot00(Real a, Dee<Eee<Real>> b)
 {
+  return Dee<Eee<Real>> {a*b};
+}
+
+static double fill_value;
+template <class Container>
+void do_fill_inc(Container* c) {
+  for (auto& pc : *c)
+    do_fill_inc(&pc);
+  fill_value += 1;
+}
+
+template <>
+void do_fill_inc(Real* c) {
+  *c = fill_value;
+  fill_value += .1;
+}
+
+// FUNGROUP deep_fill
+// Fill every Scalar in a recursive container of Scalar with a given value
+template <class Container, class Scalar>
+void deep_fill(Container* c, Scalar const& val) {
+  for (auto& pc : *c)
+    deep_fill(&pc, val);
+}
+
+template <class Scalar>
+void deep_fill(Scalar* c, Scalar const& val) {
+  *c = val;
+}
+// END deep_fill
+
+void test_dotter_1()
+{
+  // Dot of
+  Foo< Bee<Cee<Real>> > grad_f;
+  Bee<Cee< Dee<Real> >> grad_g;
+  // when we know the container over which we must multiply-accumulate is the Bee<Cee>.
+  // The output will be a...
+  Foo< Dee<Real> > out;
+  deep_fill(&out, Real{ 0 });
+  // So the dotting will ultimately involve products Real*Dee<Eee<Real>>
+
+  // First fill the containers.
+  fill_value = 0;  do_fill_inc(&grad_f);
+  fill_value = -20;  do_fill_inc(&grad_g);
+
+  std::cout << "DOT:\n";
+  std::cout << "A = " << grad_f << "\n";
+  std::cout << "B = " << grad_g << "\n";
+
+  // Declare the dotter.  First arg is depth of C1 in grad_f, second is depth of C2.
+  Dotter<1, 2>::dot(grad_f, grad_g, &out);
+
+  std::cout << "DOT1 = " << out << std::endl;
+
+  // Compare to hand-coded
+  Foo< Dee<Real> > out2; deep_fill(&out2, Real{ 0 });
+
+  for (int i : inds)
+    for (int j : inds)
+      for (int k : inds)
+        out2[i] += grad_f[i][j][k] * grad_g[j][k];
+
+  std::cout << "DOT0 = " << out2 << std::endl;
 
 }
+
+void test_dotter()
+{
+  // Dot of
+  Foo<Gar< Bee<Cee<Real>> >> grad_f;
+  Bee<Cee< Dee<Eee<Real>> >> grad_g;
+  // when we know the container over which we must multiply-accumulate is the Bee<Cee>.
+  // The output will be a...
+  Foo<Gar< Dee<Eee<Real>> >> out;
+  deep_fill(&out, Real{ 0 });
+  // So the dotting will ultimately involve products Real*Dee<Eee<Real>>
+
+  // First fill the containers.
+  fill_value = 0;  do_fill_inc(&grad_f);
+  fill_value = -20;  do_fill_inc(&grad_g);
+
+  std::cout << "DOT:\n";
+  std::cout << "A = " << grad_f << "\n";
+  std::cout << "B = " << grad_g << "\n";
+
+  // Declare the dotter.
+  Dotter<2, 2>::dot(grad_f, grad_g, &out);
+
+  std::cout << "DOT = " << out << std::endl;
+}
+
+
+int main(int argc, char* argv[])
+{
+  auto v123 = vec(1., 2., 3.);
+  auto v357 = vec(3., 5., 7.);
+  auto v713 = vec(7., 11., 13.);
+
+  Vec<Vec<Real, 3>, 3> a = vec(v123, v713, v357);
+  Vec<Vec<Real, 3>, 3> b = vec(v123, v713, v123);
+
+  std::cout << pr(a) << std::endl;
+  
+  test_dotter_1();
+
+  Real c = 0;
+  Vec<Vec<Real, 3>, 3> vvc = Zeros(3);
+  /*  Dotter<2, 0>::dot(a, 2.0, &vvc);
+
+  Vec<Real,3> vc = Zeros(3);
+  Dotter<1, 1>::dot(a, b, &vvc);
+
+  Foo<Gar<Bee<Cee<Real>>>> a5;
+  Bee<Cee<Dee<Eee<Real>>>> b6;
+  Foo<Gar<Dee<Eee<Real>>>> fb = dot22(a5, b6);
+
+  Foo<Gar<Dee<Eee<Real>>>> fb2;
+  Dotter<2,2>::dot(a5, b6, &fb2);
+
+  /*
+  Vec3<R> rotation = vec<R>(1,-2,3);
+  Vec3<R> translation = vec<R>(11, 12, 13);
+  Vec3<R> X = vec<R>(.1, .3, .5);
+  Vec<R> kappa = vec<R>(1.4, 0.01, 0.02, 0, 0);
+
+  Vec2<R> p = project(rotation, translation, X, kappa);
+
+  auto ∇p = ∇project(rotation, translation, X, kappa);
+  */
+  return 0;
+}
+
+#if 0
 
 
 template <class A, class B>
@@ -680,39 +823,3 @@ Vec<Vec2<R>> residuals(Vec<Vec3<R>> rotations, Vec<Vec3<R>> translations, Vec<Ve
 #endif
 
 #endif
-
-int main(int argc, char* argv[])
-{
-  auto v123 = vec(1., 2., 3.);
-  auto v357 = vec(3., 5., 7.);
-  auto v713 = vec(7., 11., 13.);
-
-  Vec<Vec<Real, 3>, 3> a = vec(v123, v713, v357);
-  Vec<Vec<Real, 3>, 3> b = vec(v123, v713, v123);
-
-  Real c = 0;
-  Vec<Vec<Real, 3>, 3> vvc = Zeros(3);
-/*  Dotter<2, 0>::dot(a, 2.0, &vvc);
-
-  Vec<Real,3> vc = Zeros(3);
-  Dotter<1, 1>::dot(a, b, &vvc);
-
-  Foo<Gar<Bee<Cee<Real>>>> a5;
-  Bee<Cee<Dee<Eee<Real>>>> b6;
-  Foo<Gar<Dee<Eee<Real>>>> fb = dot22(a5, b6);
-
-  Foo<Gar<Dee<Eee<Real>>>> fb2;
-  Dotter<2,2>::dot(a5, b6, &fb2);
-
-  /*
-	Vec3<R> rotation = vec<R>(1,-2,3);
-	Vec3<R> translation = vec<R>(11, 12, 13);
-	Vec3<R> X = vec<R>(.1, .3, .5);
-	Vec<R> kappa = vec<R>(1.4, 0.01, 0.02, 0, 0);
-
-	Vec2<R> p = project(rotation, translation, X, kappa);
-
-	auto ∇p = ∇project(rotation, translation, X, kappa);
-	  */
-	return 0;
-}

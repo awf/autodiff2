@@ -1,3 +1,4 @@
+#pragma once
 
 #include <iterator>
 #include <cassert>
@@ -9,7 +10,7 @@
 template <typename T>
 struct numeric_traits {
   static T zeros_of_shape(T) {
-    return T(0);
+    return T{ 0 };
   }
 };
 
@@ -33,6 +34,8 @@ struct numeric_traits_binary<int, double> : public numeric_traits_binary_double 
 template <>
 struct numeric_traits_binary<double, double> : public numeric_traits_binary_double { };
 
+// Class standing for a matrix of Zeros, but not to fully interop with vec and mat, 
+// just to act as a tag.
 struct Zeros_t {
   size_t dims[2];
   Zeros_t(size_t dims_[2]) { std::copy(dims_, dims_ + sizeof dims / sizeof dims[0], dims); }
@@ -252,7 +255,7 @@ struct Vec<T, Size, Vec_ZE> {
 template <typename T, typename... Ts>
 auto vec(T t, Ts ... ts) -> Vec<T, 1 + sizeof...(Ts)> {
   Vec<T, 1 + sizeof...(Ts)> v;
-  copy(v.begin(), t, ts...);
+  vcopy(v.begin(), t, ts...);
   return v;
 }
 
@@ -280,6 +283,7 @@ struct run_add {
   R operator()(U const& a, V const& b)
   {
     // assert on sizes
+    assert(a.size() == b.size());
     R ret{ a.size() };
     for (size_t i = 0; i < a.size(); ++i)
       ret[i] = a[i] + b[i];
@@ -288,44 +292,77 @@ struct run_add {
 };
 
 
-#define DECLARE_ADD(A, B, Ret) 
-auto operator+(A const& a, B const& b) -> Ret
-{
-  return run_add<decltype(a + b)>()(a, b);
+#define DECLARE_ADD_2(AT, AN, ACT, BT, BN, BCT, Ret_T, Ret_N, Ret_CT) \
+auto operator+(Vec<AT, AN, ACT> const& a, Vec<BT, BN, BCT> const& b) -> Vec<Ret_T, Ret_N, Ret_CT>\
+{\
+  return run_add<decltype(a+b)>()(a, b);\
 }
+
+#define DECLARE_ADD(AT, AN, ACT, BT, BN, BCT, Ret_N, Ret_CT) \
+  DECLARE_ADD_2(AT,AN,ACT,BT,BN,BCT,decltype(a[0] + b[0]),Ret_N,Ret_CT)
+
+#define ADD_CT(CTa, CTb) typename CT_traits<CTa, CTb>::result_of_add
 
 // Add: Fixedsize, Anysize -> Fixedsize
 template <class T, int N, class CTa, class U, class CTb>
-auto operator+(Vec<T, N, CTa> const& a, Vec<U, 0, CTb> const& b) -> Vec<typename numeric_traits_binary<T,U>::result_of_add, N, typename CT_traits<CTa, CTb>::result_of_add>
-{
-  return run_add<decltype(a + b)>()(a, b);
-}
+DECLARE_ADD(T, N, CTa, U, 0, CTb, N, ADD_CT(CTa, CTb))
 
 // Add: Anysize, Fixedsize -> Fixedsize
 template <class T, int N, class CTa, class U, class CTb>
-auto operator+(Vec<T, 0, CTa> const& a, Vec<U, N, CTb> const& b) -> Vec<typename numeric_traits_binary<T, U>::result_of_add, N, typename CT_traits<CTa, CTb>::result_of_add>
-{
-  return run_add<decltype(a + b)>()(a, b);
-}
+DECLARE_ADD(T, 0, CTa, U, N, CTb, N, ADD_CT(CTa, CTb))
 
 // Add: Anysize, Anysize -> Anysize
 template <class T, class CTa, class U, class CTb>
-auto operator+(Vec<T, 0, CTa> const& a, Vec<U, 0, CTb> const& b) -> Vec<typename numeric_traits_binary<T, U>::result_of_add, 0, typename CT_traits<CTa, CTb>::result_of_add>
-{
-  return run_add<decltype(a+b)>()(a,b);
-}
+DECLARE_ADD(T, 0, CTa, U, 0, CTb, 0, ADD_CT(CTa, CTb))
+
+// Add: Fixedsize, Fixedsize -> Fixedsize
+template <class T, int N, class CTa, class U, int M, class CTb>
+DECLARE_ADD(T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
+
+
 
 // template <class T> Vec<T> operator+(Vec<T> a, Vec<void>) { return a; }
 
 // template <class T> Vec<void> operator+(Vec<T>, Vec<void> b) { return b; }
 
 
-//template <typename T, int N, class X>
-//struct numeric_traits<Vec<T, N, X>> {
-//
-//  template <typename T1, int N1, class X1>
-//  static Vec<T, N, X> zeros_of_shape(Vec<T1, N1, X1>& x) {
-//    return Zeros(;
-//  }
-//};
+template <typename T, int N, class X>
+struct numeric_traits<Vec<T, N, X>> {
 
+  template <typename T1, int N1, class X1>
+  static Vec<T, N, X> zeros_of_shape(Vec<T1, N1, X1>& x) {
+    return Vec<T, N, X> { Zeros_t(N1, 0) };
+  }
+};
+
+////
+
+#include <iostream>
+
+template <class T>
+struct vector_printer {
+  const T& t;
+  vector_printer(const T& t) :t(t) {}
+};
+
+template <class T>
+vector_printer<T> pr(const T& t) {
+  return vector_printer<T>(t);
+}
+
+template <class T>
+std::ostream& operator<<(std::ostream& s, vector_printer<T> const& t)
+{
+  s << "{ ";
+  auto b = std::begin(t.t);
+  auto pe = std::end(t.t);
+  --pe;
+  std::copy(b, pe, std::ostream_iterator<decltype(*b)>(s, ", "));
+  return s << *pe << "}";
+}
+
+template <class T, int N, class CT>
+std::ostream& operator<<(std::ostream& s, Vec<T, N, CT> const& t)
+{
+  return s << pr(t);
+}
