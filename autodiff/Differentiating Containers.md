@@ -404,3 +404,7 @@ Comonadic functional attribute evaluation
 Tarmo Uustalu, Varmo Vene
 http://www.cs.ioc.ee/~tarmo/papers/tfp05-book.pdf
 
+
+## More scribbles
+
+Container<Real> f(Real)

@@ -5,11 +5,17 @@
 
 #include "copy.h"
 
+// TODO better inference of scalars vs containers..
+typedef double Real;
+
 ///////////////---------------------------
 
 template <typename T>
 struct numeric_traits {
-  static T zeros_of_shape(T) {
+  static T zero() {
+    return T{ 0 };
+  }
+  static T zeros_of_shape(T const& that) {
     return T{ 0 };
   }
 };
@@ -113,7 +119,7 @@ struct Vec<T, Size, Vec_GE> {
 
   template <class U, int S, class C>
   Vec& operator=(Vec<U, S, C> const& that) {
-    if (Size != that.n) throw "oik";
+    assert(Size == that.size());
     std::copy(that.begin(), that.end(), storage);
     return *this;
   }
@@ -132,6 +138,13 @@ struct Vec<T, Size, Vec_GE> {
       (*this)[i] += that;
     return *this;
   }
+
+  // Same datatype, filled with 
+  template <class S>
+  Vec<S, Size, Vec_GE> shape_clone() const { return Vec<S, Size, Vec_GE>(); }
+
+  template <class S>
+  Vec<S, Size, Vec_GE> zeroed_clone() const { return Vec<S, Size, Vec_ZE>(Size); }
 
   T* begin() { return storage; }
   T* end() { return storage + Size; }
@@ -181,6 +194,14 @@ struct Vec<T, 0, Vec_GE> {
 
   Vec<T>& operator+=(Vec<T> const&);
 
+  template <class S>
+  Vec<S, 0, Vec_GE> shape_clone() const { return Vec<S, 0, Vec_GE>(n); }
+ 
+  /**
+  template <class S>
+  Vec<S, 0, Vec_GE> zeroed_clone() const { }
+  */
+
   T* begin() { return storage; }
   T* end() { return storage + n; }
   T const* begin() const { return storage; }
@@ -228,6 +249,12 @@ struct Vec<T, 0, Vec_ZE> {
   size_t size() const { return n; }
   T operator[](size_t i) const { return Zero(); }
 
+  template <class S>
+  Vec<S, 0, Vec_ZE> shape_clone() const { return Vec<S, 0, Vec_GE>(n); }
+
+  template <class S>
+  Vec<S, 0, Vec_ZE> zeroed_clone() const { return Vec<S, 0, Vec_ZE>(n); }
+
   typedef counting_iterator < T > iter_t;
   iter_t begin() const { return iter_t(0, Zero()); }
   iter_t end() const { return iter_t(n, Zero()); }
@@ -241,10 +268,19 @@ template <class T, int Size>
 struct Vec<T, Size, Vec_ZE> {
   typedef T value_type;
 
-  static T Zero() { return T{ 0 }; }
+  explicit Vec() {}
+  explicit Vec(size_t size) { assert(size == Size); }
+
+  static T Zero() { return numeric_traits<T>::zero(); }
 
   size_t size() const { return Size; }
   T operator[](size_t i) const { return Zero(); }
+
+  template <class S>
+  Vec<S, Size, Vec_ZE> shape_clone() const { return Vec<S, Size, Vec_ZE>(); }
+
+  template <class S>
+  Vec<S, Size, Vec_ZE> zeroed_clone() const { return Vec<S, Size, Vec_ZE>(); }
 
   typedef counting_iterator < T > iter_t;
   iter_t begin() const { return iter_t{ 0, Zero() }; }
@@ -325,16 +361,6 @@ DECLARE_ADD(T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
 
 // template <class T> Vec<void> operator+(Vec<T>, Vec<void> b) { return b; }
 
-
-template <typename T, int N, class X>
-struct numeric_traits<Vec<T, N, X>> {
-
-  template <typename T1, int N1, class X1>
-  static Vec<T, N, X> zeros_of_shape(Vec<T1, N1, X1>& x) {
-    return Vec<T, N, X> { Zeros_t(N1, 0) };
-  }
-};
-
 ////
 
 #include <iostream>
@@ -366,3 +392,95 @@ std::ostream& operator<<(std::ostream& s, Vec<T, N, CT> const& t)
 {
   return s << pr(t);
 }
+
+
+template <typename T, int Size, typename CT>
+struct numeric_traits<Vec<T,Size,CT>> {
+  static Vec<T, Size, Vec_ZE> zero() {
+    return Vec<T, Size, Vec_ZE>();
+  }
+
+  static Vec<T, Size, Vec_ZE> zeros_of_shape(Vec<T, Size, CT> const & that) {
+    return Vec<T, Size, Vec_ZE>{that.size()};
+  }
+};
+
+// FUNGROUP deep_fill
+// Fill every Scalar in a recursive container of Scalar with a given value
+template <class Container, class Scalar>
+void deep_fill(Container* c, Scalar const& val) {
+  for (auto& pc : *c)
+    deep_fill(&pc, val);
+}
+
+template <class Scalar>
+void deep_fill(Scalar* c, Scalar const& val) {
+  *c = val;
+}
+// END deep_fill
+
+// DOT PRODUCT.
+// If everything works as intended, this code is now fast for all combinations of
+// Fixedness and ContentType
+template <class T1, int Size1, class CT1, class T2, int Size2, class CT2>
+auto dot(Vec<T1, Size1, CT1> const& a, Vec<T2, Size2, CT2> const& b) -> decltype(a[0] * b[0] + a[0] * b[0])
+{
+  typedef decltype(a[0] * b[0] + a[0] * b[0]) ret_t;
+
+  assert(a.size() == b.size());
+  if (a.size() == 0)
+    return numeric_traits<ret_t>::zero();
+
+  ret_t out = a[0] * b[0];
+  for (size_t i = 1; i < a.size(); ++i)
+    out += a[i] * b[i];
+  return out;
+}
+
+// FLATTEN
+template <class CT1, int Size>
+Real* flatten(Vec<Real, Size, CT1> const& a, Real* out)
+{
+  Real* p = out;
+  for (auto val : a)
+    *out++ = val;
+  return out;
+}
+
+template <class T, int Size, class CT1>
+Real* flatten(Vec<T, Size, CT1> const& a, Real* out)
+{
+  for (auto val : a)
+    out = flatten(val, out);
+  return out;
+}
+
+template <int Size, class CT1>
+Vec<Real, Size, CT1>  flatten(Vec<Real, Size, CT1> const& a)
+{
+  return a;
+}
+
+// TODO speed up for fixed size inputs
+template <class T1, int Size, class CT1>
+Vec<Real, 0, CT1>  flatten(Vec<T1, Size, CT1> const& a)
+{
+  size_t out_size = 0;
+  for (auto val : a)
+    out_size += flatten(val).size();
+
+  Vec<Real, 0, CT1> out{ out_size };
+  flatten(a, &out[0]);
+  return out;
+}
+
+void test_flatten()
+{
+  auto a = vec(1., 2.);
+  auto b = vec(3., 5.);
+  auto c = vec(a, b);
+  assert(flatten(c).size() == 4);
+  assert(flatten(c)[3] == 5);
+}
+
+// 
