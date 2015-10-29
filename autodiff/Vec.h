@@ -2,8 +2,12 @@
 
 #include <iterator>
 #include <cassert>
+#include <array>
+#include <vector>
+#include <iostream>
 
 #include "copy.h"
+#include "counting_iterator.h"
 
 // TODO better inference of scalars vs containers..
 typedef double Real;
@@ -114,13 +118,13 @@ struct Vec<T, Size, Vec_GE> {
   template <class U, int S, class C>
   Vec(Vec<U, S, C> const& that) {
     assert(that.size() == Size);
-    std::copy(that.begin(), that.end(), storage);
+    std::copy(that.begin(), that.end(), storage.begin());
   }
 
   template <class U, int S, class C>
   Vec& operator=(Vec<U, S, C> const& that) {
     assert(Size == that.size());
-    std::copy(that.begin(), that.end(), storage);
+    std::copy(that.begin(), that.end(), storage.begin());
     return *this;
   }
 
@@ -139,20 +143,26 @@ struct Vec<T, Size, Vec_GE> {
     return *this;
   }
 
-  // Same datatype, filled with 
+  // A vector of the same size, elements uninitialized
   template <class S>
   Vec<S, Size, Vec_GE> shape_clone() const { return Vec<S, Size, Vec_GE>(); }
 
+  // A vector of the same size, elements initialized to zero
   template <class S>
   Vec<S, Size, Vec_GE> zeroed_clone() const { return Vec<S, Size, Vec_ZE>(Size); }
 
-  T* begin() { return storage; }
-  T* end() { return storage + Size; }
-  T const* begin() const { return storage; }
-  T const* end() const { return storage + Size; }
+  typedef typename std::array<T, Size>::const_iterator const_iterator;
+  typedef typename std::array<T, Size>::iterator iterator;
 
-private:
-  T storage[Size];
+  iterator begin() { return storage.begin(); }
+  iterator end() { return storage.end(); }
+  const_iterator begin() const { return storage.begin(); }
+  const_iterator end() const { return storage.end(); }
+
+  //private:
+  //template <class U1, size_t Size1, class CT1> friend struct Vec<U1,Size1,CT1>;
+
+  std::array<T, Size> storage;
 };
 
 // Variable-size vector, general contents
@@ -160,82 +170,55 @@ template <class T>
 struct Vec<T, 0, Vec_GE> {
   typedef T value_type;
 
-  Vec(Vec<T, 0, Vec_GE>&& that) : n(that.n), storage(that.storage) { that.storage = 0; }
-  explicit Vec(size_t n) : n(n), storage(new T[n]) {}
-  ~Vec() { delete[] storage; }
+  explicit Vec(size_t n) : storage(n) {}
 
-  size_t size() const { return n; }
+  Vec(Vec<T, 0, Vec_GE>&& that) : storage(that.storage) {}
+
+  template <class U, int S, class C>
+  Vec(Vec<U, S, C> const& that): storage(that.size()) {
+    std::copy(that.begin(), that.end(), storage.begin());
+  }
+
+  template <class U, int S, class C>
+  Vec& operator=(Vec<U, S, C> const& that) {
+    assert(size() == 0 || size() == that.size());
+    storage.resize(that.size());
+    std::copy(that.begin(), that.end(), storage.begin());
+    return *this;
+  }
+
+  Vec& operator=(Vec<T, 0, Vec_GE>&& that) {
+    storage = that.storage;
+    return *this;
+  }
+
+  size_t size() const { return storage.size(); }
 
   T& operator[](size_t i) { return storage[i]; }
   T const& operator[](size_t i) const { return storage[i]; }
 
-  template <class U, size_t Size, class CT>
-  Vec(Vec<U, Size, CT> const& that) : n(that.size()), storage(new T[n]) {
-    //std::copy(that.begin(), that.end(), storage);
-    for (size_t i = 0; i < n; ++i) storage[i] = that[i];
-  }
-
-  template <class U, size_t Size, class C>
-  Vec& operator=(Vec<U, Size, C> const& that) {
-    if (n != that.size()) throw "oik";
-    std::copy(that.begin(), that.end(), storage);
-    return *this;
-  }
-
-  Vec& operator=(Vec<T, 0>&& that) {
-    if (this != &that) {
-      delete[] storage;
-      this->n = that.n;
-      this->storage = that.storage;
-      that.storage = 0;
-    }
-    return *this;
-  }
 
   Vec<T>& operator+=(Vec<T> const&);
 
   template <class S>
-  Vec<S, 0, Vec_GE> shape_clone() const { return Vec<S, 0, Vec_GE>(n); }
+  Vec<S, 0, Vec_GE> shape_clone() const { return Vec<S, 0, Vec_GE>(size()); }
  
   /**
   template <class S>
   Vec<S, 0, Vec_GE> zeroed_clone() const { }
   */
 
-  T* begin() { return storage; }
-  T* end() { return storage + n; }
-  T const* begin() const { return storage; }
-  T const* end() const { return storage + n; }
+  typedef typename std::vector<T>::const_iterator const_iterator;
+  typedef typename std::vector<T>::iterator iterator;
 
-private:
-  size_t n;
-  T* storage;
-};
+  iterator begin() { return storage.begin(); }
+  iterator end() { return storage.end(); }
+  const_iterator begin() const { return storage.begin(); }
+  const_iterator end() const { return storage.end(); }
 
-template <class T>
-struct counting_iterator {
-  typedef typename counting_iterator<T> this_t;
-  size_t count;
-  T retval;
-  counting_iterator(size_t n, T retval) : count(n), retval(retval) {}
-  this_t & operator++(int) { this_t ret = *this;  ++count; return ret; }
-  this_t & operator++() { ++count; return *this; }
-
-  template <class U>
-  bool operator==(const U& that) const { return count == that.count; }
-
-  template <class U>
-  bool operator!=(const U& that) const { return count != that.count; }
-
-  typedef std::forward_iterator_tag iterator_category;
-  typedef int difference_type;
-  typedef difference_type distance_type;	// retained
-
-  T operator*() { return retval; }
-
-  typedef T value_type;
-  typedef T* pointer;
-  typedef T& reference;
+//private:
+  //template <class U1, size_t Size1, class CT1> friend struct Vec<U1,Size1,CT1>;
+  std::vector<T> storage;
 };
 
 // Variable-size vector, all zeros
@@ -250,7 +233,7 @@ struct Vec<T, 0, Vec_ZE> {
   T operator[](size_t i) const { return Zero(); }
 
   template <class S>
-  Vec<S, 0, Vec_ZE> shape_clone() const { return Vec<S, 0, Vec_GE>(n); }
+  Vec<S, 0, Vec_ZE> shape_clone() const { return Vec<S, 0, Vec_ZE>(n); }
 
   template <class S>
   Vec<S, 0, Vec_ZE> zeroed_clone() const { return Vec<S, 0, Vec_ZE>(n); }
@@ -287,6 +270,7 @@ struct Vec<T, Size, Vec_ZE> {
   iter_t end() const { return iter_t{ Size, Zero() }; }
 };
 
+// FUNCTION: vec
 // Create vector from argument list
 template <typename T, typename... Ts>
 auto vec(T t, Ts ... ts) -> Vec<T, 1 + sizeof...(Ts)> {
@@ -295,8 +279,8 @@ auto vec(T t, Ts ... ts) -> Vec<T, 1 + sizeof...(Ts)> {
   return v;
 }
 
-
 // -------------------------- OPERATORS -----------------------------------
+// OPERATOR: double * Vec
 template <class T, int N, class CT>
 Vec<T, N, CT> operator*(double a, Vec<T, N, CT> const& b)
 {
@@ -306,15 +290,8 @@ Vec<T, N, CT> operator*(double a, Vec<T, N, CT> const& b)
   return out;
 }
 
-template <class T> Vec<T> operator-(Vec<T> const& a, Vec<T> const& b) {
-  Vec<T> ret{ a.size() };
-  for (size_t i = 0; i < a.size(); ++i)
-    ret[i] = a[i] - b[i];
-  return ret;
-}
-
-template <class R>
-struct run_add {
+template <class R, class Functor>
+struct run_elementwise_binary {
   template <class U, class V>
   R operator()(U const& a, V const& b)
   {
@@ -322,7 +299,7 @@ struct run_add {
     assert(a.size() == b.size());
     R ret{ a.size() };
     for (size_t i = 0; i < a.size(); ++i)
-      ret[i] = a[i] + b[i];
+      ret[i] = a[i] + b[i];  // TODO proper functor
     return ret;
   }
 };
@@ -331,7 +308,7 @@ struct run_add {
 #define DECLARE_ADD_2(AT, AN, ACT, BT, BN, BCT, Ret_T, Ret_N, Ret_CT) \
 auto operator+(Vec<AT, AN, ACT> const& a, Vec<BT, BN, BCT> const& b) -> Vec<Ret_T, Ret_N, Ret_CT>\
 {\
-  return run_add<decltype(a+b)>()(a, b);\
+  return run_elementwise_binary<decltype(a+b), void>()(a, b);\
 }
 
 #define DECLARE_ADD(AT, AN, ACT, BT, BN, BCT, Ret_N, Ret_CT) \
@@ -356,14 +333,7 @@ template <class T, int N, class CTa, class U, int M, class CTb>
 DECLARE_ADD(T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
 
 
-
-// template <class T> Vec<T> operator+(Vec<T> a, Vec<void>) { return a; }
-
-// template <class T> Vec<void> operator+(Vec<T>, Vec<void> b) { return b; }
-
-////
-
-#include <iostream>
+// GROUP: STREAMS
 
 template <class T>
 struct vector_printer {
@@ -393,6 +363,7 @@ std::ostream& operator<<(std::ostream& s, Vec<T, N, CT> const& t)
   return s << pr(t);
 }
 
+// ENDGROUP: streams
 
 template <typename T, int Size, typename CT>
 struct numeric_traits<Vec<T,Size,CT>> {
@@ -483,4 +454,5 @@ void test_flatten()
   assert(flatten(c)[3] == 5);
 }
 
-// 
+// ENDGROUP flatten
+

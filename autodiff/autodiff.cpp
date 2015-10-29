@@ -52,7 +52,7 @@ void test_dotter_1()
   {
     Vec<double, 3> a = vec(7, 2, 3);
     Vec<double, 3> b = vec(5, 11, 13);
-    double d1 = Dotter<0, 1>::dot_inferring(a, b);
+    double d1 = Dotter<0, 1>::dot(a, b);
     std::cout << "VECDOT: " << a << "." << b << "=" << d1;
     assert(d1 == dot(a, b));
     std::cout << ". OK\n";
@@ -62,7 +62,7 @@ void test_dotter_1()
   {
     Vec<Vec<Real, 3>, 2> a = vec( vec(7, 2, 3), vec(17, 23, 31) );
     Vec<Vec<Real, 3>, 2> b = vec( vec(43, 11, 5), vec(19, 29, 37) );
-    double d1 = Dotter<0, 2>::dot_inferring(a, b);
+    double d1 = Dotter<0, 2>::dot(a, b);
     std::cout << "VECDOT1: " << a << "." << b << "=" << d1;
 
     double d_gt = dot(flatten(a), flatten(b));
@@ -70,11 +70,11 @@ void test_dotter_1()
     assert(d1 == d_gt);
     std::cout << ". OK\n";
 
-    dot_inferring_helper<Vec<Vec<Real, 3>, 2>, Vec<Vec<Real, 3>, 2>, Real> dih;
-    BOOST_STATIC_ASSERT(dih.C1_depth == 0);
-    BOOST_STATIC_ASSERT(dih.C2_depth == 2);
+    typedef dot_inferring_helper<Vec<Vec<Real, 3>, 2>, Vec<Vec<Real, 3>, 2>, Real> dih;
+    BOOST_STATIC_ASSERT(dih::C1_depth == 0);
+    BOOST_STATIC_ASSERT(dih::C2_depth == 2);
 
-    Real d2 = dot_inferring(a, b, b[0][0]);
+    Real d2 = gdot(a, b, b[0][0]);
     std::cout << "VECDOT2: =" << d2;
 
     assert(d2 == d_gt);
@@ -82,8 +82,12 @@ void test_dotter_1()
   }
 
   // Dot of
-  Foo< Bee<Cee<Real>> > grad_f;
+  Dee<Real> x;
+  Bee<Cee<Real>> g;
   Bee<Cee< Dee<Real> >> grad_g;
+
+  Foo<Real> f; // f(g)
+  Foo< Bee<Cee<Real>> > grad_f;
   // when we know the container over which we must multiply-accumulate is the Bee<Cee>.
   // The output will be a...
   Foo< Dee<Real> > out;
@@ -99,12 +103,12 @@ void test_dotter_1()
   std::cout << "B = " << grad_g << "\n";
 
   // Declare the dotter.  First arg is depth of C1 in grad_f, second is depth of C2.
-  Dotter<1, 2>::dot(grad_f, grad_g, &out);
+  Dotter<1, 2>::dot3(grad_f, grad_g, &out);
 
   std::cout << "DOT1 = " << out << std::endl;
 
   // Inferred dotter.  First arg is depth of C1 in grad_f, second is depth of C2.
-  auto out0a = Dotter<1, 2>::dot_inferring(grad_f, grad_g);
+  auto out0a = Dotter<1, 2>::dot(grad_f, grad_g);
   Foo< Dee<Real> > out0 = Foo< Dee<Real> >{ out0a };
   std::cout << "INFER. = " << out0 << std::endl;
 
@@ -141,7 +145,7 @@ void test_dotter()
   std::cout << "B = " << grad_g << "\n";
 
   // Declare the dotter.
-  Dotter<2, 2>::dot(grad_f, grad_g, &out);
+  Dotter<2, 2>::dot3(grad_f, grad_g, &out);
 
   std::cout << "DOT = " << out << std::endl;
 }
