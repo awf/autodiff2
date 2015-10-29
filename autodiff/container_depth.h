@@ -1,3 +1,35 @@
+#include <boost/type_traits.hpp>
+
+// container_depth<Container, Target>
+// Count how many dereferences of Container::begin() are needed to find a Target.
+// e.g. container_depth<list<mat<double>>, double>::depth  == 2
+// e.g. container_depth<list<mat<double>>, mat<double>>::depth  == 1
+// e.g. container_depth<list<mat<double>>, char*>::depth  == assert fail.
+
+
+template <class Container, class Target_t>
+struct container_depth {
+  static Container f() {}
+  typedef typename Container::value_type value_t;
+  static constexpr size_t depth = 1 + container_depth<value_t, Target_t>::depth;
+};
+
+template <class Target_t>
+struct container_depth<Target_t, Target_t> {
+  static constexpr size_t depth = 0;
+};
+
+#define CONTAINER_DEPTH(Container, Target_t) container_depth<Container, Target_t>::depth
+
+void test_container_depth()
+{
+  BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<double>, double) == 1);
+  // BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<double>, int) == 1); // This should not compile...
+  BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<Vec<double>>, double) == 2);
+  BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<Vec<double>>, Vec<double>) == 1);
+}
+
+/*
 template <class T>
 struct container_depth {
   static const size_t depth = 0;
@@ -20,3 +52,4 @@ struct container_depth<Container<T, N, Ts...>> {
 static_assert(container_depth<std::vector<std::list<double>>>::depth == 2, "container_depth test fail");
 //static_assert(container_depth<Vec<Vec<float, 3, Vec_ZE>, 2>>::depth == 2, "container_depth test fail");
 //static_assert(container_depth<double>::depth == 0, "container_depth fail");
+*/

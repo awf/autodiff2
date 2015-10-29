@@ -52,7 +52,7 @@ void test_dotter_1()
   {
     Vec<double, 3> a = vec(7, 2, 3);
     Vec<double, 3> b = vec(5, 11, 13);
-    double d1 = Dotter<0, 1>::dot(a, b);
+    double d1 = Dotter<0, 1, decltype(a), decltype(b)>::dot(a, b);
     std::cout << "VECDOT: " << a << "." << b << "=" << d1;
     assert(d1 == dot(a, b));
     std::cout << ". OK\n";
@@ -62,7 +62,7 @@ void test_dotter_1()
   {
     Vec<Vec<Real, 3>, 2> a = vec( vec(7, 2, 3), vec(17, 23, 31) );
     Vec<Vec<Real, 3>, 2> b = vec( vec(43, 11, 5), vec(19, 29, 37) );
-    double d1 = Dotter<0, 2>::dot(a, b);
+    double d1 = Dotter<0, 2, decltype(a), decltype(b)>::dot(a, b);
     std::cout << "VECDOT1: " << a << "." << b << "=" << d1;
 
     double d_gt = dot(flatten(a), flatten(b));
@@ -103,12 +103,12 @@ void test_dotter_1()
   std::cout << "B = " << grad_g << "\n";
 
   // Declare the dotter.  First arg is depth of C1 in grad_f, second is depth of C2.
-  Dotter<1, 2>::dot3(grad_f, grad_g, &out);
+  Dotter<1, 2, decltype(grad_f), decltype(grad_g)>::dot3(grad_f, grad_g, &out);
 
   std::cout << "DOT1 = " << out << std::endl;
 
   // Inferred dotter.  First arg is depth of C1 in grad_f, second is depth of C2.
-  auto out0a = Dotter<1, 2>::dot(grad_f, grad_g);
+  auto out0a = Dotter<1, 2, decltype(grad_f), decltype(grad_g)>::dot(grad_f, grad_g);
   Foo< Dee<Real> > out0 = Foo< Dee<Real> >{ out0a };
   std::cout << "INFER. = " << out0 << std::endl;
 
@@ -123,31 +123,6 @@ void test_dotter_1()
 
   std::cout << "DOT0 = " << out2 << std::endl;
 
-}
-
-void test_dotter()
-{
-  // Dot of
-  Foo<Gar< Bee<Cee<Real>> >> grad_f;
-  Bee<Cee< Dee<Eee<Real>> >> grad_g;
-  // when we know the container over which we must multiply-accumulate is the Bee<Cee>.
-  // The output will be a...
-  Foo<Gar< Dee<Eee<Real>> >> out;
-  deep_fill(&out, Real{ 0 });
-  // So the dotting will ultimately involve products Real*Dee<Eee<Real>>
-
-  // First fill the containers.
-  fill_value = 0;  do_fill_inc(&grad_f);
-  fill_value = -20;  do_fill_inc(&grad_g);
-
-  std::cout << "DOT:\n";
-  std::cout << "A = " << grad_f << "\n";
-  std::cout << "B = " << grad_g << "\n";
-
-  // Declare the dotter.
-  Dotter<2, 2>::dot3(grad_f, grad_g, &out);
-
-  std::cout << "DOT = " << out << std::endl;
 }
 
 
