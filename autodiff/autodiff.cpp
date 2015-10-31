@@ -11,6 +11,58 @@
 
 typedef double Real;
 
+/// ------------------------ Rodrigues
+
+#include "rodrigues.h"
+
+template <class T>
+T trace(Mat3x3<T> const& m)
+{
+  T out = m[0][0];
+  for (size_t i = 1; i < m.size(); ++i)
+    out += m[i][i];
+  return out;
+}
+
+template <class T>
+Mat3x3<T> grad_trace(Mat3x3<T> const& m)
+{
+  Mat3x3<T> out(Zeros());
+  for (size_t i = 0; i < m.size(); ++i)
+    out[i][i] = 1;
+  return out;
+}
+
+Real f(Vec3<Real> const& x)
+{
+  return trace(exp2mat(x));
+}
+
+Vec3<Real> grad_f(Vec3<Real> const& x)
+{
+  return gdot(grad_trace(exp2mat(x)), grad_exp2mat(x), x);
+}
+
+void test_chain_rule()
+{
+  Vec3<Real> x = vec(-.5, .2, .3);
+  Real fx = f(x);
+  Vec3<Real> grad = grad_f(x);
+  std::cout << "GRAD_CR = " << grad << "\n";
+
+  // Finite differences
+  double delta = 1e-6;
+  Vec3<Real> grad_fd;
+  for (size_t i = 0; i < x.size(); ++i) {
+    auto xp = x;
+    xp[i] += delta;
+    grad_fd[i] = (f(xp) - fx) / delta;
+  }
+  std::cout << "GRAD_FD = " << grad_fd << "\n";
+}
+
+
+// -------------------  Test gdot with containers
 #define DECLARE_CONTAINER(Name)\
 template <class T> struct Name : public Vec<T, 3> {\
   Name() {};\
@@ -125,57 +177,6 @@ void test_dotter_1()
 
 }
 
-/// ------------------------ Rodrigues
-
-#include "rodrigues.h"
-
-template <class T>
-T trace(Mat3x3<T> const& m)
-{
-  T out = m[0][0];
-  for (size_t i = 1; i < m.size(); ++i)
-    out += m[i][i];
-  return out;
-}
-
-template <class T>
-Mat3x3<T> grad_trace(Mat3x3<T> const& m)
-{
-  Mat3x3<T> out(Zeros());
-  for (size_t i = 0; i < m.size(); ++i)
-    out[i][i] = 1;
-  return out;
-}
-
-Real f(Vec3<Real> const& x)
-{
-  return trace(exp2mat(x));
-}
-
-Vec3<Real> grad_f(Vec3<Real> const& x)
-{
-  return gdot(grad_trace(exp2mat(x)), grad_exp2mat(x), x);
-}
-
-void test_chain_rule()
-{
-  Vec3<Real> x = vec(-.5, .2, .3);
-  Real fx = f(x);
-  Vec3<Real> grad = grad_f(x);
-  std::cout << "GRAD_CR = " << grad << "\n";
-
-  // Finite differences
-  double delta = 1e-6;
-  Vec3<Real> grad_fd;
-  for (size_t i = 0; i < x.size(); ++i) {
-    auto xp = x; 
-    xp[i] += delta;
-    grad_fd[i] = (f(xp) - fx) / delta;
-  }
-  std::cout << "GRAD_FD = " << grad_fd << "\n";
-
-
-}
 
 int main(int argc, char* argv[])
 {
