@@ -21,12 +21,14 @@ struct container_depth<Target_t, Target_t> {
 
 #define CONTAINER_DEPTH(Container, Target_t) container_depth<Container, Target_t>::depth
 
+#include <vector>
+#include <list>
 void test_container_depth()
 {
   BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<double>, double) == 1);
   // BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<double>, int) == 1); // This should not compile...
-  BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<Vec<double>>, double) == 2);
-  BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<Vec<double>>, Vec<double>) == 1);
+  BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<std::list<double>>, double) == 2);
+  BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<std::list<double>>, std::list<double>) == 1);
 }
 
 /*

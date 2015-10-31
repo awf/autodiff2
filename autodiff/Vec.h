@@ -103,24 +103,28 @@ template <class T, int Size>
 struct Vec<T, Size, Vec_GE> {
   typedef T value_type;
 
+  // Vec()
   Vec() {}
+
+  // Vec(size_t)
   explicit Vec(size_t size) { assert(size == Size); }
+
+  // Vec(Zeros)
   Vec(Zeros_t z) { 
     assert(z.dims[0] == Size || z.dims[0] == 0); 
     assert(z.dims[1] == 0); 
     for (size_t i = 0; i < Size; ++i)
       storage[i] = numeric_traits<T>::zeros_of_shape(T());
   }
-  size_t size() const { return Size; }
-  T& operator[](size_t i) { return storage[i]; }
-  T const& operator[](size_t i) const { return storage[i]; }
 
+  // Vec(Vec)
   template <class U, int S, class C>
   Vec(Vec<U, S, C> const& that) {
     assert(that.size() == Size);
     std::copy(that.begin(), that.end(), storage.begin());
   }
 
+  // Vec =(Vec)
   template <class U, int S, class C>
   Vec& operator=(Vec<U, S, C> const& that) {
     assert(Size == that.size());
@@ -128,6 +132,7 @@ struct Vec<T, Size, Vec_GE> {
     return *this;
   }
 
+  // Vec +=(Vec)
   template <class U, int ZU, class CU>
   Vec<T, Size, Vec_GE>& operator+=(Vec<U, ZU, CU> const& that) {
     assert(size() == that.size());
@@ -136,6 +141,7 @@ struct Vec<T, Size, Vec_GE> {
     return *this;
   }
 
+  // Vec +=(T)
   Vec<T, Size, Vec_GE>& operator+=(T const& that) {
     assert(size() == that.size());
     for (size_t i = 0; i < size(); ++i)
@@ -143,6 +149,14 @@ struct Vec<T, Size, Vec_GE> {
     return *this;
   }
 
+  // size()
+  size_t size() const { return Size; }
+
+  // Vec [size_t]
+  T& operator[](size_t i) { return storage[i]; }
+  T const& operator[](size_t i) const { return storage[i]; }
+
+  // Vec shape_clone()
   // A vector of the same size, elements uninitialized
   template <class S>
   Vec<S, Size, Vec_GE> shape_clone() const { return Vec<S, Size, Vec_GE>(); }
@@ -170,15 +184,19 @@ template <class T>
 struct Vec<T, 0, Vec_GE> {
   typedef T value_type;
 
+  // Vec(size_t)
   explicit Vec(size_t n) : storage(n) {}
 
+  // Vec(Vec&&)
   Vec(Vec<T, 0, Vec_GE>&& that) : storage(that.storage) {}
 
+  // Vec(Vec)
   template <class U, int S, class C>
   Vec(Vec<U, S, C> const& that): storage(that.size()) {
     std::copy(that.begin(), that.end(), storage.begin());
   }
 
+  // Vec =(Vec)
   template <class U, int S, class C>
   Vec& operator=(Vec<U, S, C> const& that) {
     assert(size() == 0 || size() == that.size());
@@ -192,8 +210,10 @@ struct Vec<T, 0, Vec_GE> {
     return *this;
   }
 
+  // size_t size()
   size_t size() const { return storage.size(); }
 
+  // Vec[size_t]
   T& operator[](size_t i) { return storage[i]; }
   T const& operator[](size_t i) const { return storage[i]; }
 
@@ -290,6 +310,17 @@ Vec<T, N, CT> operator*(double a, Vec<T, N, CT> const& b)
   return out;
 }
 
+
+// TODO generalize to args not just double
+template <class T, int N, class CT>
+Vec<T, N, CT> operator*(Vec<T, N, CT> const& a, double b)
+{
+  Vec<T, N, CT> out(a.size());
+  for (size_t i = 0; i < a.size(); ++i)
+    out[i] = a[i] * b;
+  return out;
+}
+
 template <class R, class Functor>
 struct run_elementwise_binary {
   template <class U, class V>
@@ -334,7 +365,6 @@ DECLARE_ADD(T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
 
 
 // GROUP: STREAMS
-
 template <class T>
 struct vector_printer {
   const T& t;
@@ -354,7 +384,7 @@ std::ostream& operator<<(std::ostream& s, vector_printer<T> const& t)
   auto pe = std::end(t.t);
   --pe;
   std::copy(b, pe, std::ostream_iterator<decltype(*b)>(s, ", "));
-  return s << *pe << "}";
+  return s << *pe << " }";
 }
 
 template <class T, int N, class CT>
@@ -408,6 +438,13 @@ auto dot(Vec<T1, Size1, CT1> const& a, Vec<T2, Size2, CT2> const& b) -> decltype
   return out;
 }
 
+// NORMSQ
+template <class T, int Size, class CT>
+auto normsq(Vec<T, Size, CT> const& v) -> decltype(dot(v, v))
+{
+  return dot(v, v);
+}
+
 // FLATTEN
 template <class CT1, int Size>
 Real* flatten(Vec<Real, Size, CT1> const& a, Real* out)
@@ -445,7 +482,7 @@ Vec<Real, 0, CT1>  flatten(Vec<T1, Size, CT1> const& a)
   return out;
 }
 
-void test_flatten()
+inline void test_flatten()
 {
   auto a = vec(1., 2.);
   auto b = vec(3., 5.);
@@ -455,4 +492,3 @@ void test_flatten()
 }
 
 // ENDGROUP flatten
-
