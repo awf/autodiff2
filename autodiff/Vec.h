@@ -492,3 +492,22 @@ inline void test_flatten()
 }
 
 // ENDGROUP flatten
+
+// FUN sum
+// If everything works as intended, this code is now fast for all combinations of
+// Fixedness and ContentType
+template <class T, int Size, class CT>
+auto sum(Vec<T, Size, CT> const& x) -> decltype(a[0] + a[0])
+{
+  typedef decltype(a[0] + a[0]) ret_t;
+
+  if (a.size() == 0)
+    return numeric_traits<ret_t>::zero();
+
+  ret_t out = a[0];
+  for (size_t i = 1; i < a.size(); ++i)
+    out += a[i];
+  return out;
+}
+
+// ENDFUN sum
