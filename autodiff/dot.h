@@ -36,9 +36,9 @@
 //   C2<Real> fx = f(x);
 //   C1<Real> hx = g(fx);
 //
-//   C2<C3<Real>> grad_fx = grad_f(x);
-//   C1<C2<Real>> grad_hfx = grad_g(fx);
-//   C1<C3<Real>> grad_hx = gdot(grad_hfx, grad_fx, x); // Third arg specifies C3.
+//   C2<C3<Real>> grad_fx = ?f(x);
+//   C1<C2<Real>> grad_hfx = ?g(fx);
+//   C1<C3<Real>> grad_hx = gdot(?hfx, ?fx, x); // Third arg specifies C3.
 
 // Make an instance of type C for use in decltype() calls
 #define INST(C) (*(C const*)0)

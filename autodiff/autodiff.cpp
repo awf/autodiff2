@@ -9,23 +9,18 @@
 #include "dot.h"
 #include "Vec.h"
 
-typedef double Real;
-
-/// ------------------------ Rodrigues
-
 #include "rodrigues.h"
+
+#if 1
 
 template <class T>
 T trace(Mat3x3<T> const& m)
 {
-  T out = m[0][0];
-  for (size_t i = 1; i < m.size(); ++i)
-    out += m[i][i];
-  return out;
+  return sum(diag(m));
 }
 
 template <class T>
-Mat3x3<T> grad_trace(Mat3x3<T> const& m)
+Mat3x3<T> ∇trace(Mat3x3<T> const& m)
 {
   Mat3x3<T> out(Zeros());
   for (size_t i = 0; i < m.size(); ++i)
@@ -38,16 +33,16 @@ Real f(Vec3<Real> const& x)
   return trace(exp2mat(x));
 }
 
-Vec3<Real> grad_f(Vec3<Real> const& x)
+Vec3<Real> ∇f(Vec3<Real> const& x)
 {
-  return gdot(grad_trace(exp2mat(x)), grad_exp2mat(x), x);
+  return gdot(∇trace(exp2mat(x)), ∇exp2mat(x), x);
 }
 
 void test_chain_rule()
 {
   Vec3<Real> x = vec(-.5, .2, .3);
   Real fx = f(x);
-  Vec3<Real> grad = grad_f(x);
+  Vec3<Real> grad = ∇f(x);
   std::cout << "GRAD_CR = " << grad << "\n";
 
   // Finite differences
@@ -393,4 +388,5 @@ Vec<Vec2<R>> residuals(Vec<Vec3<R>> rotations, Vec<Vec3<R>> translations, Vec<Ve
 	return ret;
 }
 
+#endif
 #endif
