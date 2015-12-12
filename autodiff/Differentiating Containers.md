@@ -26,18 +26,18 @@ Some key desiderata:
  * When a derivative is a block of zeroes, or the identity matrix, we need to make sure the compiler can see it and generate optimal code.
  * If we do it right, we will easily be able to mix handwritten, symbolically generated and autodiffed derivatives, while generating optimal code.
 
-And I'll write ``∇foo`` for the derivative of `foo` by the power of unicode.  It's not a special symbol, just a normal character that can be part of identifiers.
+And I'll write ``grad_foo`` for the derivative of `foo` by the power of unicode.  It's not a special symbol, just a normal character that can be part of identifiers.
 
 #### Introduction
 
 We always knew how to write the derivatives of scalar functions of matrix arguments:
 ```cpp
-	Real trace(Mat3x3<Real> const& m)
+	Real trace(Mat3x3<Real> m)
 	{
 	  return sum(diag(m));
 	}
 
-	Mat3x3<Real> ∇trace(Mat3x3<Real> const& m)
+	Mat3x3<Real> grad_trace(Mat3x3<Real> m)
 	{
 	  return Mat3x3<Real>::identity();
 	}
@@ -45,12 +45,12 @@ We always knew how to write the derivatives of scalar functions of matrix argume
 or matrix functions of scalars, or vector functions of vectors (or at least we thought we did, see later).
 But we always got a little bit stuck with matrix functions of vectors.
 ```cpp
-	Mat3x3<Real> rot(Vec3<Real> const& v)
+	Mat3x3<Real> rot(Vec3<Real> v)
 	{
 	  // fill in some code
 	}
 
-	???? ∇rot(Vec3<Real> const& v)
+	???? grad_rot(Vec3<Real> v)
 	{
 	  // we know the code to write -- 27 numbers, but where do they go?
 	}
@@ -75,15 +75,15 @@ Given arbitrary containers, and a function `f` written using them, like this:
 ```cpp
 	Container1<Real>               f(Container2<Real>);
 ```
-create `∇f`, such that every `Real` in the output will have a derivative for each `Real` in the input.  That is, we replace `Real` in the return type by `Container2<Real>` from the function argument:
+create `grad_f`, such that every `Real` in the output will have a derivative for each `Real` in the input.  That is, we replace `Real` in the return type by `Container2<Real>` from the function argument:
 ```cpp
-	Container1<Container2<Real>>   ∇f(Container2<Real>);
+	Container1<Container2<Real>>   grad_f(Container2<Real>);
 ```
 
-And now we can define ```∇rot```:
+And now we can define ```grad_rot```:
 ```cpp
-	Mat3x3<Real> rot(Vec3<Real> const& v);
-	Mat3x3<Vec3<Real>> ∇rot(Vec3<Real> const& v)
+	Mat3x3<Real> rot(Vec3<Real> v);
+	Mat3x3<Vec3<Real>> grad_rot(Vec3<Real> v)
 	{
 	  ...;
 	}
@@ -94,14 +94,14 @@ Now, I know you're still fretting about the tensors, but please bear with me.  F
 
 First an example.  Here's a simple function: trace of rot
 ```cpp
-	Real trace_of_rot(Vec3<Real> const& x)
+	Real trace_of_rot(Vec3<Real> x)
 	{
 	  return trace(rot(x));
 	}
 ```
 Right away we know the signature of its gradient:
 ```cpp
-	Vec3<Real> ∇trace_of_rot(Vec3<Real> const&);
+	Vec3<Real> grad_trace_of_rot(Vec3<Real>);
 ```
 but it's often difficult to see what to put in the function body.
 
@@ -112,7 +112,7 @@ Well, let's pretend everything's a scalar and just take derivatives:
 
 So let's just try to write that derivative with grads:
 
-    ∇trace_of_rot(x)= ∇trace(rot(x)) * ∇rot(x)
+    grad_trace_of_rot(x)= grad_trace(rot(x)) * grad_rot(x)
 
 The only thing that goes wrong is the multiply...  So what multiply is intended here?  Matrix product?  Outer product?  Dot product? If you've done this sort of thing before, you'll be worrying about matrix transposes, order of multiplication, and probably rolling the word &ldquo;tensor&rdquo; around in your mouth.  It is a lovely word.
 
@@ -124,10 +124,10 @@ So let's go back to `trace_of_rot`, and expand the code with some type
 declarations just to see what's happening.
 ```cpp
     mat<Real>      val_rot = rot(x);
-    mat<vec<Real>> grad_rot = ∇rot(x);
+    mat<vec<Real>> grad_rot = grad_rot(x);
 
     Real           val_trace = trace(val_rot);
-    mat<Real>      grad_trace = ∇trace(val_rot);
+    mat<Real>      grad_trace = grad_trace(val_rot);
 
     vec<Real>      grad_trace_of_rot = dot(grad_trace, grad_rot);
 ```
@@ -144,7 +144,7 @@ the one where you add up every element of the elementwise product.  But it doesn
 
 Okay, is that it?  Not quite.  Here the original function ```trace_of_rot``` returned a scalar, while our general function ```f``` returns a ```Container1<Real>``` (henceforth  abbreviated ```C1<Real>```).  The general definition of dot we will use is this:
 ```
-   dot(C1<Container<Real>>, Container<C3<Real>>) -> C1<C3<Real>> 
+   dot(C1<Container<Real>>, Container<C3<Real>>) -> C1<C3<Real>>
 ```
 In words, corresponding elements of the ```Container```s are summed, and the results are gathered into a ``C1`` of the appropriate type.
 
@@ -152,28 +152,30 @@ The last detail is implementation of this in say C++.  We can easily use templat
 ```cpp
 	dot(vec<vec<vec<vec<Real>>>>, vec<vec<vec<Real>>>) -> ???
 ```
-because `Container` could match to any of
+and `Container` could match to any of
 ```cpp
 	vec<Real>
 	vec<vec<Real>>
 	vec<vec<vec<Real>>>
 ```
-The solution is to specify how to split the second argument, and the easiest way I found was to pass an additional argument of type `C3<Real>`.  In the case of the chain rule, this is certainly lying about because it must be the point at which the composed function was evaluated.   That is, if we're doing grad of ``f(g(x))``, we must have ``x`` somewhere nearby.  Thus, the actual signature of dot, now called gdot to improve some error messages, is
+The solution is to specify how to split the second argument, and the easiest way I found was to pass an additional argument of type `C3<Real>`.  In the case of the chain rule, this is probably lying about because it must be the point at which the composed function was evaluated.   That is, if we're doing grad of ``f(g(x))``, we must have ``x`` somewhere nearby.  Thus, the actual signature of dot, now called gdot to improve some error messages, is
 ```cpp
    C1<C3<Real>> gdot(C1<Container<Real>>, Container<C3<Real>>, C3<Real>)
 ```
-And the general chain rule with depth-N containers is
+And the general chain rule is
 ```
       f(x) = h(g(x))
-      ∇f(x) = dot( ∇h(g(x)), ∇g(x), x )
+      grad_f(x) = gdot( grad_h(g(x)), grad_g(x), x )
 ```
-And to go back to our example, the definition of ``∇trace_of_rot`` is
+And to go back to our example, the definition of ``grad_trace_of_rot`` is
 ```cpp
-	Vec3<Real> ∇trace_of_rot(Vec3<Real> const& x)
+	Vec3<Real> grad_trace_of_rot(Vec3<Real>  x)
 	{
-	  return gdot(∇trace(rot(x)), ∇grad(x), x);
+	  return gdot(grad_trace(rot(x)), grad_grad(x), x);
 	}
 ```
+
+### Multiple arguments
 
 ### Efficiency
 
@@ -186,23 +188,23 @@ takes a vector as argument and returns a vector.  We call it the _Jacobian
 matrix_.
 ```cpp
 vec<Real>   f(vec<Real> x);
-mat<Real> ∇f(vec<Real> x); // Jacobian is ∇f
+mat<Real> grad_f(vec<Real> x); // Jacobian is grad_f
 ```
 
 This remains easy for scalar functions of matrices and matrix functions of
 scalars:
 ```cpp
 mat<Real>  f(Real x);
-mat<Real> ∇f(Real x); // Also written f' or \dot{f}
+mat<Real> grad_f(Real x); // Also written f' or \dot{f}
 
 Real       trace(mat<Real> x);
-mat<Real> ∇trace(mat<Real> x);
+mat<Real> grad_trace(mat<Real> x);
 ```
 
 But often you meet a matrix function of vector argument.  It's straightforward to say "it returns a tensor":
 ```cpp
 mat<Real> f(vec<Real> x);
-tensor<Real> ∇f(vec<Real> x);
+tensor<Real> grad_f(vec<Real> x);
 ```
 but keeping track of the indices often involves one in intricate
 bookkeeping, nasty tensorial analogues of the transpose, and anyway,
@@ -216,20 +218,20 @@ A more natural sort of function to deal with in C++ might be like this:
 
       vec<Real> f(list<mat<Real>> P)
 
-We would like a definition of `∇f` which works for all such cases.  Well,
+We would like a definition of `grad_f` which works for all such cases.  Well,
 it's super easy: every `Real` in the output will have a
 derivative for each `Real` in the input.  That is, we replace `Real` in
 the return type by `list<mat<Real>>` from the function argument
 
-      vec<list<mat<Real>>> ∇f(list<mat<Real>> P)
+      vec<list<mat<Real>>> grad_f(list<mat<Real>> P)
 
 and the i'th entry of the returned `vec` is simply the list of matrices
 of derivatives of the original i'th entry with respect to the input reals.
 In terms of general containers `Container1` and `Container2` we relate
-`f` and `∇f` like this:
+`f` and `grad_f` like this:
 
     Container2<Real>             f(Container1<Real>)
-    Container2<Container1<Real>> ∇f(Container1<Real>)
+    Container2<Container1<Real>> grad_f(Container1<Real>)
 
 Of course, simply defining something like this is easy, and could be
 done however one likes.   The value of the definition is in whether or
@@ -243,7 +245,7 @@ In the "tensor" example above, the new rule leads to a natural
 alternative:
 
       mat<Real>      f(vec<Real>)
-      mat<vec<Real>> ∇f(vec<Real>)
+      mat<vec<Real>> grad_f(vec<Real>)
 
 The matrix of vectors may look like it's no more than an inefficient way of
 storing a non-[jagged](http://stackoverflow.com/tags/jagged-arrays/info)
@@ -258,7 +260,7 @@ might have signature
 indicating that it operates only on 3-vectors and returns only 3x3 matrices.
 Then its gradient
 
-     mat<vec<Real,3>,3,3> ∇rot(vec<Real,3>)
+     mat<vec<Real,3>,3,3> grad_rot(vec<Real,3>)
 
 will be stored just as efficiently as it would have been in a fixed-size
 3x3x3 tensor.
@@ -269,9 +271,9 @@ will be stored just as efficiently as it would have been in a fixed-size
 But now let's look at a potentially worrying (function, derivative) pair:
 ```cpp
 vec<Real>      sin(vec<Real>)
-vec<vec<Real>> ∇sin(vec<Real>)
+vec<vec<Real>> grad_sin(vec<Real>)
 ```
-Shouldn't that gradient `∇sin` be a matrix, not a vector of vectors?
+Shouldn't that gradient `grad_sin` be a matrix, not a vector of vectors?
 Not by our rules, and as you'll see, it won't matter.  In fact, the
 special case matrix-vector mutiplication will naturally drop out of
 the chain rule, and we'll help the compiler to remove inefficient
@@ -294,13 +296,13 @@ apparent until we see the chain rule in action.  Consider the function
 The declarations of `trace` and its gradient are standard:
 
       Real trace(mat<Real> M)
-      mat<Real> ∇trace(mat<Real> M)
+      mat<Real> grad_trace(mat<Real> M)
 
 Note that I've dropped the fixed-size (e.g. 3x3) annotations.  Without
 even looking at the definition of `trace_of_rot`, we know the
 signature of its derivative:
 
-      vec<Real> ∇trace_of_rot(vec<Real> x) {
+      vec<Real> grad_trace_of_rot(vec<Real> x) {
         return ...;
       }
 
@@ -321,7 +323,7 @@ Let's try it with our example, where `h` is `trace` and `g` is
 
                       mat<Real>        mat<vec<Real>>
                    ------v--------      -----v-----
-      return dot(∇trace(rot(x)),   ∇rot(x));
+      return dot(grad_trace(rot(x)),   grad_rot(x));
 
 The dot product is between a `mat<Real>` and a `mat<vec<Real>>`, so its
 return type is whatever you get when you multiply `Real*vec<Real>`, i.e.
@@ -334,15 +336,15 @@ efficiency.
 You may have noticed that the programmer who wrote `f` missed some
 significant optimizations.   The main point is that the derivative of
 `trace` has a particularly simple form: it's the identity, whatever the
-input.  So `∇f`'s return line is effectively
+input.  So `grad_f`'s return line is effectively
 
-      return dot(Identity, ∇rot(x))
+      return dot(Identity, grad_rot(x))
 
-meaning that only the diagonal elements of `∇rot(x)` need ever be
+meaning that only the diagonal elements of `grad_rot(x)` need ever be
 computed.  Luckily we can help the compiler to fix this for us.  The
 full signature of the called functions in the code is as follows:
 
-      mat<Real,3,3,Mat_Identity> ∇trace(mat<Real,3,3,Mat_GENERAL> M);
+      mat<Real,3,3,Mat_Identity> grad_trace(mat<Real,3,3,Mat_GENERAL> M);
 
 and the call to `dot` is the specialized
 
@@ -372,18 +374,18 @@ and a function
 
 What's its derivative?  Same as above:
 
-      list<Foo<Real>> ∇f(Foo<Real> x)
+      list<Foo<Real>> grad_f(Foo<Real> x)
 
 The derivative of the second entry of the list with respect to the
 (1,2) element of `x.A` is just
 
-      list<Foo<Real>> ∇l = ∇f(x)
-      std::cout << "Your derivative: " << ++∇l.begin()->A(1,2);
+      list<Foo<Real>> grad_l = grad_f(x)
+      std::cout << "Your derivative: " << ++grad_l.begin()->A(1,2);
 
 Easy.  Or maybe we had
 
       Foo<Real> f(list<vec<Real>> x)
-      Foo<list<vec<Real>>> ∇f(list<vec<Real>> x)
+      Foo<list<vec<Real>>> grad_f(list<vec<Real>> x)
 
 Also easy.
 
@@ -397,16 +399,16 @@ Matching this to our generic dot, we can only do it if `Container` is
 Tricky case 1:
 
       set<Foo<Real>> f(list<vec<Real>> x)
-      set<Foo<list<vec<Real>>>> ∇f(list<vec<Real>> x)
+      set<Foo<list<vec<Real>>>> grad_f(list<vec<Real>> x)
 
       list<vec<Real>> g(mat<Real> x)
-      list<vec<mat<Real>>> ∇g(mat<Real> x)
+      list<vec<mat<Real>>> grad_g(mat<Real> x)
 
       set<Foo<Real>> h(mat<Real> x) {
         return f(g(x))
       }
-      set<Foo<mat<Real>>> ∇h(mat<Real> x) {
-        return dot(∇f(g(x)), ∇g(x), g);
+      set<Foo<mat<Real>>> grad_h(mat<Real> x) {
+        return dot(grad_f(g(x)), grad_g(x), g);
       }
 
       dot(set<Foo<list<vec<Real>>>>, list<vec<mat<Real>>>)
@@ -440,22 +442,22 @@ let's pretend it can match `X<Real>` like this:
 So it works fine for normal scalar/vector setup:
 Real f(Vec<Real,N>) // Match is to Identity<Real> f(Vec<Real,N>), so Container==Identity
 has derivative
-Identity<Vec<Real,N>> ∇f(Vec<Real,N>)
+Identity<Vec<Real,N>> grad_f(Vec<Real,N>)
 i.e.
-Vec<Real,N> ∇f(Vec<Real,N>)
+Vec<Real,N> grad_f(Vec<Real,N>)
 as required.
 
 Now, try
 Vec<Real,M> f(Vec<Real,N>)
 it has derivative
-Vec<Vec<Real,N>,M> ∇f(Vec<Real,N>)
+Vec<Vec<Real,N>,M> grad_f(Vec<Real,N>)
 so Vec<Vec<>> is the Jacobian.  As written this implies jagged storage for non-fixed-size vectors,
 but we can specialize Vec<Vec<>> to act like a matrix, so don't fret.
 
 Now the case that normally trips up the casual differentiator:
 Mat<Real,M,N> f(Vec<Real,D>)
 has derivative
-Mat<Vec<Real,D>,M,N> ∇f(Vec<Real,D>)
+Mat<Vec<Real,D>,M,N> grad_f(Vec<Real,D>)
 Normally one would go all tensorial at this point, but it really is a pain.   This is just the
 same as the Vec<Vec> case above.
 
@@ -471,12 +473,12 @@ return f(g(x));
 }
 and notice that "of course", the return type of g matches the argument type of f, otherwise we
 couldn't have composed them.
-We can see the datatype of ∇h easily as above:
-Container1<T2<Real>> ∇h(T2<Real> x)
+We can see the datatype of grad_h easily as above:
+Container1<T2<Real>> grad_h(T2<Real> x)
 But what's in the function body?
 {
-Container1<T1<Real>> gradf = ∇f(g(x));
-T1<T2<Real>> gradg = ∇g(x);
+Container1<T1<Real>> gradf = grad_f(g(x));
+T1<T2<Real>> gradg = grad_g(x);
 return DOT(gradf, gradg); // Call DOT(Container<T1<Stuff>>, T1<OtherStuff>)
 }
 

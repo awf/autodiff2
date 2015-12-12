@@ -1,6 +1,11 @@
 
 #include "Vec.h"
 
+//template <class T, class CT>
+//struct Vec<Vec<T, 0, CT>, 0, CT> {  // Actually use some traits to map these
+//  Vec(size_t n, Vec<T, 0, CT> const& fill_value);
+//};
+
 template <class Container_U, class Container_V>
 auto dot_too_generic(Container_U const& u, Container_V const& v) ->
 decltype(*std::begin(u) * *std::begin(v))

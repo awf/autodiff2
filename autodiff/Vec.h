@@ -497,7 +497,7 @@ inline void test_flatten()
 // If everything works as intended, this code is now fast for all combinations of
 // Fixedness and ContentType
 template <class T, int Size, class CT>
-auto sum(Vec<T, Size, CT> const& x) -> decltype(a[0] + a[0])
+auto sum(Vec<T, Size, CT> const& a) -> decltype(a[0] + a[0])
 {
   typedef decltype(a[0] + a[0]) ret_t;
 

@@ -1,11 +1,9 @@
 #pragma once
 
 #include "Vec.h"
+#include "Mat.h"
 
-template <class T>
-using Vec3 = Vec<T, 3>;
-template <class T>
-using Mat3x3 = Vec3<Vec3<T>>;
+typedef double Real;
 
 Mat3x3<Real> exp2mat(Vec3<Real> w)
 {
@@ -55,7 +53,7 @@ Mat3x3<Real> exp2mat(Vec3<Real> w)
     );
 }
 
-Mat3x3<Vec3<Real>> /*?*/grad_exp2mat(Vec3<Real> w)
+Mat3x3<Vec3<Real>> grad_exp2mat(Vec3<Real> w)
 {
   double x1 = w[0];
   double x2 = w[1];
