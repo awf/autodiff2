@@ -89,6 +89,19 @@ struct gradient_declarations_helper {
     }
     return grad_fd_transpose;
   }
+
+  //Container1_of_Container2_of_Real grad_fd(function_t f, Container2_of_Real const& x) {
+  //  Container2_of_Container1_of_Real gt = grad_fd_transpose(f, x);
+  //  Container1_of_Real fx = f(x);
+  //  Container1_of_Container2_of_Real out = shape_clone<Container2_of_Real>(fx);
+  //  auto flat_out = flat_view<Real>(out);
+  //  auto flat_in = flat_view<Real>(gt);
+  //  auto out_iter = flat_out.begin();
+  //  auto in_iter = flat_in.begin();
+  //  for (; in_iter != flat_in.end(); ++in_iter, ++out_iter)
+  //    *in_iter = *out_iter;
+  //  return out;
+  //}
 };
 
 template <class Container1_of_Real, class Container2_of_Real>

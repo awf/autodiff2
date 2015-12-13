@@ -28,8 +28,8 @@ struct nested_iterator {
   void reset_subiter()
   {
     if (i != end) {
-      subiter = i->begin();
-      subiter_end = i->end();
+      subiter = SubIter{ i->begin() };
+      subiter_end = SubIter{ i->end() };
     }
   }
 
@@ -89,15 +89,15 @@ struct flat_view_proxy<Leaf, 0> {
 template <class Container>
 struct flat_view_proxy<Container, 1> {
   // Container, not nested, just use its iters
-  typedef typename get_iterator_type<Container>::type iter_t;
+  typedef typename get_iterator_type<Container>::type iterator;
 
-  iter_t begin_;
-  iter_t end_;
+  iterator begin_;
+  iterator end_;
 
   flat_view_proxy(Container& c) :begin_(c.begin()), end_(c.end()) {}
 
-  iter_t begin() { return begin_; }
-  iter_t end() { return end_; }
+  iterator begin() { return begin_; }
+  iterator end() { return end_; }
 };
 
 template <class Container, size_t depth>
@@ -106,8 +106,7 @@ struct flat_view_proxy {
   typedef typename get_iterator_type<Container>::type container_iter_t; // If container is const, this will be a const_iterator
   typedef typename get_value_type<Container>::type value_t;
   
-  typedef flat_view_proxy<value_t, depth-1> subcontainer_t;
-  typedef typename get_iterator_type<subcontainer_t>::type subiter_t;
+  typedef typename flat_view_proxy<value_t, depth-1>::iterator subiter_t;
 
   typedef nested_iterator<container_iter_t, subiter_t> iterator;
 
@@ -121,9 +120,6 @@ struct flat_view_proxy {
   }
 
   iterator end() {
-    container_iter_t i = end_;
-    container_iter_t end = end_; // fixme
-
     return iterator{ end_, end_ };
   }
 };
@@ -134,8 +130,9 @@ flat_view_proxy<Container, CONTAINER_DEPTH(Container, Leaf)> flat_view(Container
   return flat_view_proxy<Container, CONTAINER_DEPTH(Container, Leaf)>(c);
 }
 
+
 #include <iostream>
-#include "Vec.h"
+#include "Mat.h"
 void test_deep_iterator()
 {
   test_nested_iterator();
@@ -159,4 +156,12 @@ void test_deep_iterator()
   for (auto p : flat_view<char>(d))
     std::cout << p;
   std::cout << std::endl;
+
+  // xxfixme
+  //Vec<Vec<Vec<Real,4>,3>,2> f;
+  //for (auto a : flat_view<Real>(f))
+  //  std::cout << a;
+  //std::cout << std::endl;
+
 }
+
