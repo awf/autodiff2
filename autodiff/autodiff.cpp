@@ -7,12 +7,94 @@
 #include <iterator>
 #include <functional>
 
+#include "flat_view.h"
+
 #include "dot.h"
 #include "Vec.h"
 
 #include "rodrigues.h"
 
-#if 1
+// GROUP: shape_clone
+// Shape clone: Return a container of the same size with a different content type in place of Real
+template <class Replace_t>
+Replace_t shape_clone(Real that)
+{
+  return Replace_t{};
+}
+
+// Shape clone: Return a container of the same size with a different content type in place of Real
+template <class Replace_t, int Size, typename CT>
+Vec<Replace_t, Size, CT> shape_clone(Vec<Real, Size, CT> const& that)
+{
+  Vec<Replace_t, Size, CT> ret{ that.size() };
+  return ret;
+}
+
+// Shape clone: Return a container of the same size with a different content type
+// The container may be multi-level
+template <class Replace_t, int Size, typename CT, class T>
+Vec<Replace_t, Size, CT> shape_clone(Vec<T, Size, CT> const& that)
+{
+  typedef decltype(shape_clone<Replace_t>(that[0])) new_value_type;
+  Vec<new_value_type, Size, CT> ret{ that.size() };
+  auto const& p = std::begin(that);
+  for (auto& i : ret)
+    i = shape_clone<Replace_t>(*p++);
+  return ret;
+}
+
+// ENDGROUP: shape_clone
+
+// Helper to declare the type of the gradient of a function which 
+// takes a Container2_of_Real and returns a Container1_of_Real
+template <class Container1_of_Real, class Container2_of_Real>
+struct gradient_declarations_helper {
+  typedef std::function<Container1_of_Real(Container2_of_Real const&)> function_t;
+
+  typedef decltype (shape_clone<Container2_of_Real>(std::declval<Container1_of_Real>())) Container1_of_Container2_of_Real;
+  typedef decltype (shape_clone<Container1_of_Real>(std::declval<Container2_of_Real>())) Container2_of_Container1_of_Real;
+  typedef typename Container1_of_Container2_of_Real grad_t;
+  typedef std::function<grad_t(Container2_of_Real const&)> grad_function_t;
+
+  // Compute finite-difference gradients
+  Container2_of_Container1_of_Real grad_fd_transpose(function_t f, Container2_of_Real const& x) {
+    Container2_of_Container1_of_Real grad_fd_transpose;
+
+    // grad_fd[i,j] = (fx(x+delta*e_j)[i] - f(x)[i])/delta;
+    // grad_fd[:,j] = (fx(x+delta*e_j) - f(x) )/delta;
+
+    Container1_of_Real fx = f(x);
+    double delta = 1e-6;
+    auto xp = x;
+
+    auto flat_x = flat_view<Real>(x);
+    auto x_iter = flat_x.begin();
+
+    auto flat_xp = flat_view<Real>(xp);
+    auto xp_iter = flat_xp.begin();
+
+    auto flat_out = flat_view<Container1_of_Real>(grad_fd_transpose);
+    auto out_iter = flat_out.begin();
+    for (; x_iter != flat_x.end(); ++x_iter, ++xp_iter, ++out_iter) {
+      auto xi = *x_iter;
+      *xp_iter = xi + delta;
+      double actual_delta = *xp_iter - xi;
+      Container1_of_Real fxp = f(xp);
+      *out_iter = (fxp - fx) / actual_delta;
+      *xp_iter = xi;
+    }
+    return grad_fd_transpose;
+  }
+};
+
+template <class Container1_of_Real, class Container2_of_Real>
+auto tgrad_finite_difference(std::function<Container1_of_Real(Container2_of_Real const&)> f,
+  Container2_of_Real const& x) ->
+  typename gradient_declarations_helper<Container1_of_Real, Container2_of_Real>::grad_t
+{
+  return gradient_declarations_helper<Container1_of_Real, Container2_of_Real>().grad_fd_transpose(f, x);
+}
+
 
 template <class T>
 T trace(Mat3x3<T> const& m)
@@ -23,7 +105,7 @@ T trace(Mat3x3<T> const& m)
 template <class T>
 Mat3x3<T> grad_trace(Mat3x3<T> const& m)
 {
-  Mat3x3<T> out(Zeros());
+  Mat3x3<T> out = Mat<Zero,3,3>();
   for (size_t i = 0; i < m.size(); ++i)
     out[i][i] = 1;
   return out;
@@ -48,21 +130,6 @@ Vec3<Real> grad_f(Vec3<Real> const& x)
   return gdot(grad_trace(exp2mat(x)), grad_exp2mat(x), x);
 }
 
-Vec3<Real> grad_finite_difference(std::function<Real (Vec3<Real> const&)> f, Vec3<Real> const& x)
-{
-  Vec3<Real> grad_fd;
-  Real fx = f(x);
-  double delta = 1e-6;
-  auto xp = x;
-  for (size_t i = 0; i < x.size(); ++i) {
-    xp[i] += delta;
-    grad_fd[i] = (f(xp) - fx) / (xp[i] - x[i]);
-    xp[i] = x[i];
-  }
-  return grad_fd;
-}
-
-
 void test_chain_rule()
 {
   Vec3<Real> x = vec(-.5, .2, .3);
@@ -70,10 +137,11 @@ void test_chain_rule()
   std::cout << "GRAD_CR = " << grad << "\n";
 
   // Finite differences
-  Vec3<Real> grad_fd = grad_finite_difference(f, x);
+  Vec3<Real> grad_fd = tgrad_finite_difference<Real, Vec3<Real>>(f, x);
   std::cout << "GRAD_FD = " << grad_fd << "\n";
 }
 
+#if 1
 
 // -------------------  Test gdot with containers
 #define DECLARE_CONTAINER(Name)\
@@ -191,8 +259,225 @@ void test_dotter_1()
 }
 
 
+Vec3<Real> mmul(Mat3x3<Real> const& a, Vec3<Real> const& b)
+{ 
+  return dot(a,b); 
+}
+
+Vec3<Mat3x3<Real>> grad1_mmul(Mat3x3<Real> const& a, Vec3<Real> const& b)
+{
+  Vec<Zero, 3> zero;
+  return vec( 
+    vec<Vec3<Real>>(b, zero, zero),
+    vec<Vec3<Real>>(zero, b, zero),
+    vec<Vec3<Real>>(zero, zero, b));
+}
+
+Vec3<Vec3<Real>> grad2_mmul(Mat3x3<Real> const& a, Vec3<Real> const& b)
+{
+  return a;
+}
+
+
+Vec3<Real> b() { return vec<Real>(1, 2, 3); }
+//Vec3<void> grad_b() { return Vec3<void>(); }
+
+Vec3<Real> f2(Vec3<Real> const& a) {
+  auto Rot = exp2mat(a);
+  return mmul(Rot, b());
+}
+
+Vec3<Vec3<Real>> grad_f2(Vec3<Real> const& a) {
+  auto Rot = exp2mat(a);
+  auto grad_Rot = grad_exp2mat(a);
+
+  Vec3<Real> val_b = b();
+//  Vec3<void> val_grad_b = grad_b();
+
+  auto f = mmul(Rot, val_b);
+  auto d1 = gdot(grad1_mmul(Rot, val_b), grad_Rot, a);
+  //auto d2 = gdot(grad2_mmul(Rot, val_b), val_grad_b, void());
+  return d1;// + d2
+}
+
+Real f3(Vec3<Real> const& a) {
+  auto Rot = exp2mat(a);
+  return dot(b(), mmul(Rot, b()));
+}
+
+Vec3<Real> grad_f3(Vec3<Real> const& a) {
+  auto Rot = exp2mat(a);
+  auto grad_Rot = grad_exp2mat(a);
+
+  Vec3<Real> val_b = b();
+  //  Vec3<void> val_grad_b = grad_b();
+
+  auto f = mmul(Rot, val_b);
+  auto d1 = gdot(grad1_mmul(Rot, val_b), grad_Rot, a);
+  //auto d2 = gdot(grad2_mmul(Rot, val_b), val_grad_b, void());
+  return dot(b(), d1);// + d2
+}
+
+#if 0
+Vec3<Real> f4(Mat3x3<Real> const& A)
+{
+  return mmul(A, b());
+}
+
+Vec3<Mat3x3<Real>> grad_f4(Mat3x3<Real> const& A)
+{
+  return grad1_mmul(A, b());
+}
+
+void test_f2()
+{
+  // Test grad of mmul(X,b)
+  {
+    Mat3x3<Real> A { vec(vec(1.,2.,3.), vec(7.,5.,11.), vec(13.,17.,19.)) };
+
+    auto fd = tgrad_finite_difference<Vec3<Real>, Mat3x3<Real>>(f4, A);
+    std::cout << "GradF4 FD = " << fd << std::endl;
+    std::cout << "GradF4 Hand = " << grad_f4(A) << std::endl;
+  }
+
+  Vec3<Real> a = vec(1., 2., 5.);
+  auto f2a = f2(a);
+  auto grad_f2a = grad_f2(a);
+  std::cout << "GRAD_CR = " << grad_f2a << "\n";
+
+  auto fd = transpose(tgrad_finite_difference<Vec3<Real>, Vec3<Real>>(f2, a));
+
+  // Finite differences
+  std::cout << "GRAD_FD = " << fd << "\n";
+
+}
+#endif
+
+#if 0
+
+Real sqr(Real a) { return a*a; }
+
+Vec2<Real> pi(Vec3<Real> const& X)
+{
+  Vec2<Real> ret(2u);
+  ret[0] = X[0] / X[2];
+  ret[1] = X[1] / X[2];
+  return ret;
+}
+
+Vec3<Vec3<Real>> grad_pi(Vec3<Real> const& X)
+{
+  Vec<Vec3<Real>> ret(2);
+  Real x = X[0];
+  Real y = X[1];
+  Real z = X[2];
+  Real sz = 1 / z;
+  Real szz = sz*sz;
+
+  ret[0] = vec<Real>(sz, 0, -x * szz);
+  ret[1] = vec<Real>(0, sz, -y * szz);
+  return ret;
+}
+
+Vec<Vec<Real>> grad_(Vec<Real> const& x)
+{
+  Vec<Vec<Real>> ret = numeric_traits<Vec<Vec<Real>>>::zeros_of_shape(x);
+  for (size_t i = 0; i < x.size(); ++i)
+    ret[i][i] = 1;
+  return ret;
+}
+
+
+Vec2<Real> project(Vec3<Real> rotation, Vec3<Real> translation, Vec3<Real> X, Vec5<Real> kappa) {
+  Mat3x3<Real> Rot = exp2mat(rotation);
+  Real f = kappa[0];
+  Real cx = kappa[1];
+  Real cy = kappa[2];
+  Real k1 = kappa[3];
+  Real k2 = kappa[4];
+  Mat3x3<Real> K = Mat3x3<Real>(
+    vec<Real>(f, 0, cx),
+    vec<Real>(0, f, cy),
+    vec<Real>(0, 0, 1));
+  // ICE:	Mat3x3<Real> K = { { f, 0, cx }, { 0, f, cy }, { 0, 0, 1 } };
+  Vec2<Real> p = pi(mmul(K, mmul(Rot, X) + translation));
+
+  return p;
+}
+
+tuple < Vec2<Vec3<Real>>, Vec2<Vec3<Real>>, Vec2<Vec3<Real>>, Vec2<Vec<Real>> > grad_project(Vec3<Real> rotation, Vec3<Real> translation, Vec3<Real> X, Vec<Real> kappa) {
+  auto grad_rotation = grad_(rotation);
+  auto grad_translation = grad_(translation);
+  auto grad_X = grad_(X);
+  auto grad_kappa = grad_(kappa);
+
+  Mat3x3<Real> Rot = exp2mat(rotation);
+  auto grad_Rot = grad_exp2mat(rotation);
+
+  Real f = kappa[0];
+  auto grad_f = grad_kappa[0];  // grad_index(kappa,0)
+  Real cx = kappa[1];
+  auto grad_cx = grad_kappa[1];
+  Real cy = kappa[2];
+  auto grad_cy = grad_kappa[2];
+  Real k1 = kappa[3];
+  auto grad_k1 = grad_kappa[3];
+  Real k2 = kappa[4];
+  auto grad_k2 = grad_kappa[4];
+  Vec<Real> e0 = numeric_traits<Vec<Real>>::zeros_of_shape(grad_f);
+  Mat3x3<Real> K = Mat3x3<Real>(
+    vec<Real>(f, 0, cx),
+    vec<Real>(0, f, cy),
+    vec<Real>(0, 0, 1));
+  Mat3x3<Vec<Real>> grad_K = Mat3x3<Vec<Real>>(
+    vec<Vec<Real>>(grad_f, e0, grad_cx),
+    vec<Vec<Real>>(e0, grad_f, grad_cy),
+    vec<Vec<Real>>(e0, e0, e0));
+
+  Vec3<Real> xcam = mmul(Rot, X) + translation;
+
+  auto grad__Rot_xcam = DOT(grad_₁mmul(Rot, X), grad_Rot);
+  auto grad__X_xcam = DOT(grad_₂mmul(Rot, X), grad_X);
+  auto grad__translation_xcam = grad_translation;
+
+  Vec3<Real> xhomg = mmul(K, xcam);
+  // grad_xhomg = DOT(grad_₁mmul(K, xcam), grad_K) + DOT(grad_₂mmul(K, xcam), grad_xcam);
+  auto grad__K_xhomg = DOT(grad_₁mmul(K, xcam), grad_K);
+  auto grad__Rot_xhomg = DOT(grad_₂mmul(K, xcam), grad__Rot_xcam);
+  auto grad__X_xhomg = DOT(grad_₂mmul(K, xcam), grad__X_xcam);
+  auto grad__translation_xhomg = DOT(grad_₂mmul(K, xcam), grad__translation_xcam);
+
+  Vec2<Real> p = pi(xhomg);
+  auto grad__K_p = DOT(grad_pi(xhomg), grad__K_xhomg);
+  auto grad__Rot_p = DOT(grad_pi(xhomg), grad__Rot_xhomg);
+  auto grad__X_p = DOT(grad_pi(xhomg), grad__X_xhomg);
+  auto grad__translation_p = DOT(grad_pi(xhomg), grad__translation_xhomg);
+
+  auto g = make_tuple(grad__Rot_p, grad__translation_p, grad__X_p, grad__K_p);
+
+  return g;
+}
+
+Vec<Vec2<Real>> residuals(Vec<Vec3<Real>> rotations, Vec<Vec3<Real>> translations, Vec<Vec3<Real>> Xs, Vec<Real> kappas,
+  Vec<Vec2<Real>> ms, Vec<int> frames, Vec<int> points)
+{
+  int nR = ms.size();
+  Vec<Vec2<Real>> ret(nR);
+  for (size_t i = 0; i < ms.size(); ++i) {
+    int f = frames[i];
+    int p = points[i];
+    ret[i] = project(rotations[f], translations[f], Xs[p], kappas) - ms[i];
+  }
+  return ret;
+}
+
+#endif
+
+
 int main(int argc, char* argv[])
 {
+  test_deep_iterator();
+
   auto v123 = vec(1., 2., 3.);
   auto v357 = vec(3., 5., 7.);
   auto v713 = vec(7., 11., 13.);
@@ -201,210 +486,27 @@ int main(int argc, char* argv[])
   Vec<Vec<Real, 3>, 3> b = vec(v123, v713, v123);
 
   std::cout << pr(a) << std::endl;
-  
+ 
+//  test_f2();
+
   test_dotter_1();
 
   test_chain_rule();
 
   Real c = 0;
-  Vec<Vec<Real, 3>, 3> vvc = Zeros(3);
+  Vec<Vec<Real, 3>, 3> vvc = Vec3<Vec3<Zero>>();
 
   /*
-  Vec3<R> rotation = vec<R>(1,-2,3);
-  Vec3<R> translation = vec<R>(11, 12, 13);
-  Vec3<R> X = vec<R>(.1, .3, .5);
-  Vec<R> kappa = vec<R>(1.4, 0.01, 0.02, 0, 0);
+  Vec3<Real> rotation = vec<Real>(1,-2,3);
+  Vec3<Real> translation = vec<Real>(11, 12, 13);
+  Vec3<Real> X = vec<Real>(.1, .3, .5);
+  Vec<Real> kappa = vec<Real>(1.4, 0.01, 0.02, 0, 0);
 
-  Vec2<R> p = project(rotation, translation, X, kappa);
+  Vec2<Real> p = project(rotation, translation, X, kappa);
 
   auto grad_p = grad_project(rotation, translation, X, kappa);
   */
   return 0;
 }
 
-
-#if 0
-
-typedef double R;
-
-#define Vec2 Vec 
-#define Vec3 Vec 
-#define Vec5 Vec 
-#define Mat3x3 Mat
-
-Mat3x3<R> exp2mat(Vec3<R> w);
-Mat3x3<Vec3<R>> grad_exp2mat(Vec3<R> w);
-
-Vec3<R> mmul(Mat3x3<R> a, Vec3<R> b) { return b; }
-tuple<Vec3<Mat3x3<R>>, Vec3<Vec3<R>>> grad_mmul(Mat3x3<R>, Vec3<R>)
-{
-	tuple<Vec3<Mat3x3<R>>, Vec3<Vec3<R>>> ret;
-	return ret;
-}
-
-Vec3<R> mmul(tuple<Mat3x3<R>, Vec3<R>> a) { return mmul(a.head, a.tail.head); }
-Vec3<tuple<Mat3x3<R>, Vec3<R>>> grad_mmul(tuple<Mat3x3<R>, Vec3<R>>) {
-	Vec3<tuple<Mat3x3<R>, Vec3<R>>> ret;
-	return ret;
-}
-
-Vec3<Mat3x3<R>>	grad_₁mmul(Mat3x3<R> M, Vec3<R> v) { return grad_mmul(M, v).head; }
-Vec3<Vec3<R>>	grad_₂mmul(Mat3x3<R> M, Vec3<R> v) { return grad_mmul(M, v).tail.head; }
-
-
-Vec3<R> b() { return vec<R>( 1, 2, 3 ); }
-Vec3<void> grad_b() { return Vec3<void>(0); }
-
-
-template <class T>
-using Vec_Vec = Vec<Vec<T>>;
-
-void f() {
-	Vec<float> a;
-	Vec<double> b;
-	Dot<Vec>()(a, b);
-
-	Vec<Vec<R>> c;
-	Dot<Vec>()(c, b);
-
-	Vec<Vec<Vec<R>>> d;
-//	Dot<Vec>()(d, d);
-	
-	/*
-	This can't work because Vec_Vec doesn't have a vectorizing begin(), end().
-	Dot<Vec_Vec>()(d, d);
-	*/
-}
-
-
-Vec3<R> f(Vec3<R> a) {
-	auto Rot = exp2mat(a);
-	return mmul(Rot, b());
-}
-
-Vec3<Vec3<R>> grad_f(Vec3<R> a) {
-	auto Rot = exp2mat(a);
-	Mat3x3<Vec3<R>> grad_Rot = grad_exp2mat(a);
-
-	auto f = mmul(Rot, b());
-	return DOT(grad_₁mmul(Rot, b()), grad_Rot) + DOT<Vec, Vec, R>(grad_₂mmul(Rot, b()), grad_b());
-}
-
-R sqr(R a) { return a*a; }
-
-Vec2<R> pi(Vec3<R> const& X)
-{
-	Vec2<R> ret(2u);
-	ret[0] = X[0] / X[2];
-	ret[1] = X[1] / X[2];
-	return ret;
-}
-
-Vec3<Vec3<R>> grad_pi(Vec3<R> const& X)
-{
-	Vec<Vec3<R>> ret(2);
-	R x = X[0];
-	R y = X[1];
-	R z = X[2];
-	R sz = 1 / z;
-	R szz = sz*sz;
-
-	ret[0] = vec<R>(sz,  0, -x * szz);
-	ret[1] = vec<R>( 0, sz, -y * szz);
-	return ret;
-}
-
-Vec<Vec<R>> grad_(Vec<R> const& x)
-{
-	Vec<Vec<R>> ret = numeric_traits<Vec<Vec<R>>>::zeros_of_shape(x);
-	for (size_t i = 0; i < x.size(); ++i)
-		ret[i][i] = 1;
-	return ret;
-}
-
-
-Vec2<R> project(Vec3<R> rotation, Vec3<R> translation, Vec3<R> X, Vec5<R> kappa) {
-	Mat3x3<R> Rot = exp2mat(rotation);
-	R f = kappa[0];
-	R cx = kappa[1];
-	R cy = kappa[2];
-	R k1 = kappa[3];
-	R k2 = kappa[4];
-	Mat3x3<R> K = Mat3x3<R>(
-		vec<R>(f, 0, cx),
-		vec<R>(0, f, cy),
-		vec<R>(0, 0, 1));
-	// ICE:	Mat3x3<R> K = { { f, 0, cx }, { 0, f, cy }, { 0, 0, 1 } };
-	Vec2<R> p = pi(mmul(K, mmul(Rot, X) + translation));
-
-	return p;
-}
-
-tuple < Vec2<Vec3<R>>, Vec2<Vec3<R>>, Vec2<Vec3<R>>, Vec2<Vec<R>> > grad_project(Vec3<R> rotation, Vec3<R> translation, Vec3<R> X, Vec<R> kappa) {
-	auto grad_rotation = grad_(rotation);
-	auto grad_translation = grad_(translation);
-	auto grad_X = grad_(X);
-	auto grad_kappa = grad_(kappa);
-
-	Mat3x3<R> Rot = exp2mat(rotation);
-	auto grad_Rot = grad_exp2mat(rotation);
-
-	R f = kappa[0];
-	auto grad_f = grad_kappa[0];  // grad_index(kappa,0)
-	R cx = kappa[1];
-	auto grad_cx = grad_kappa[1];
-	R cy = kappa[2];
-	auto grad_cy = grad_kappa[2];
-	R k1 = kappa[3];
-	auto grad_k1 = grad_kappa[3];
-	R k2 = kappa[4];
-	auto grad_k2 = grad_kappa[4];
-	Vec<R> e0 = numeric_traits<Vec<R>>::zeros_of_shape(grad_f);
-	Mat3x3<R> K = Mat3x3<R>(
-		vec<R>(f, 0, cx),
-		vec<R>(0, f, cy),
-		vec<R>(0, 0, 1));
-	Mat3x3<Vec<R>> grad_K = Mat3x3<Vec<R>>(
-		vec<Vec<R>>(grad_f, e0, grad_cx),
-		vec<Vec<R>>(e0, grad_f, grad_cy),
-		vec<Vec<R>>(e0, e0, e0));
-
-	Vec3<R> xcam = mmul(Rot, X) + translation;
-
-	auto grad__Rot_xcam = DOT(grad_₁mmul(Rot, X), grad_Rot);
-	auto grad__X_xcam = DOT(grad_₂mmul(Rot, X), grad_X);
-	auto grad__translation_xcam = grad_translation;
-
-	Vec3<R> xhomg = mmul(K, xcam);
-	// grad_xhomg = DOT(grad_₁mmul(K, xcam), grad_K) + DOT(grad_₂mmul(K, xcam), grad_xcam);
-	auto grad__K_xhomg = DOT(grad_₁mmul(K, xcam), grad_K);
-	auto grad__Rot_xhomg = DOT(grad_₂mmul(K, xcam), grad__Rot_xcam);
-	auto grad__X_xhomg = DOT(grad_₂mmul(K, xcam), grad__X_xcam);
-	auto grad__translation_xhomg = DOT(grad_₂mmul(K, xcam), grad__translation_xcam);
-
-	Vec2<R> p = pi(xhomg);
-	auto grad__K_p = DOT(grad_pi(xhomg), grad__K_xhomg);
-	auto grad__Rot_p = DOT(grad_pi(xhomg), grad__Rot_xhomg);
-	auto grad__X_p = DOT(grad_pi(xhomg), grad__X_xhomg);
-	auto grad__translation_p = DOT(grad_pi(xhomg), grad__translation_xhomg);
-
-	auto g = make_tuple(grad__Rot_p, grad__translation_p, grad__X_p, grad__K_p);
-
-	return g;
-}
-
-Vec<Vec2<R>> residuals(Vec<Vec3<R>> rotations, Vec<Vec3<R>> translations, Vec<Vec3<R>> Xs, Vec<R> kappas,
-	Vec<Vec2<R>> ms, Vec<int> frames, Vec<int> points)
-{
-	int nR = ms.size();
-	Vec<Vec2<R>> ret(nR);
-	for (size_t i = 0; i < ms.size(); ++i) {
-		int f = frames[i];
-		int p = points[i];
-		ret[i] = project(rotations[f], translations[f], Xs[p], kappas) - ms[i];
-	}
-	return ret;
-}
-
-#endif
 #endif

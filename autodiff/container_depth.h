@@ -1,7 +1,9 @@
+#pragma once
+
 #include <boost/type_traits.hpp>
 
 // container_depth<Container, Target>
-// Count how many dereferences of Container::begin() are needed to find a Target.
+// Count how many dereferences of Container::value_type are needed to find a Target.
 // e.g. container_depth<list<mat<double>>, double>::depth  == 2
 // e.g. container_depth<list<mat<double>>, mat<double>>::depth  == 1
 // e.g. container_depth<list<mat<double>>, char*>::depth  == assert fail.
@@ -23,12 +25,14 @@ struct container_depth<Target_t, Target_t> {
 
 #include <vector>
 #include <list>
+
 void test_container_depth()
 {
   BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<double>, double) == 1);
   // BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<double>, int) == 1); // This should not compile...
   BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<std::list<double>>, double) == 2);
   BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<std::list<double>>, std::list<double>) == 1);
+
 }
 
 /*

@@ -9,6 +9,8 @@
 #include "copy.h"
 #include "counting_iterator.h"
 
+#include "Zero.h"
+
 // TODO better inference of scalars vs containers..
 typedef double Real;
 
@@ -44,29 +46,12 @@ struct numeric_traits_binary<int, double> : public numeric_traits_binary_double 
 template <>
 struct numeric_traits_binary<double, double> : public numeric_traits_binary_double { };
 
-// Class standing for a matrix of Zeros, but not to fully interop with vec and mat, 
-// just to act as a tag.
-struct Zeros_t {
-  size_t dims[2];
-  Zeros_t(size_t dims_[2]) { std::copy(dims_, dims_ + sizeof dims / sizeof dims[0], dims); }
-  Zeros_t(size_t d0, size_t d1) { dims[0] = d0; dims[1] = d1; }
-};
-
-inline Zeros_t Zeros(size_t rows = 0, size_t cols = 0) {
-  return Zeros_t(rows, cols);
-}
-struct Ones_t {};
-static const Ones_t Ones;
-
 ///////////////---------------------------
 
 // ContentsTag
 
 // Vector contents tag: general
 struct Vec_GE {}; 
-
-// Vector contents tag: all zeros
-struct Vec_ZE {};
 
 // Vector contents tag: Nth basis vector, i.e. the vector v[N] = 1, otherwise 0;
 template <int N>
@@ -77,19 +62,6 @@ struct CT_traits {
   typedef typename Vec_GE result_of_add;
   typedef typename Vec_GE result_of_mul;
 };
-
-template <class Vec_U>
-struct CT_traits<Vec_U, Vec_ZE> {
-  typedef typename Vec_U result_of_add;
-  typedef typename Vec_ZE result_of_mul;
-};
-
-template <class Vec_U>
-struct CT_traits<Vec_ZE, Vec_U> {
-  typedef typename Vec_U result_of_add;
-  typedef typename Vec_ZE result_of_mul;
-};
-
 
 ///////////////---------------------------
 
@@ -108,14 +80,6 @@ struct Vec<T, Size, Vec_GE> {
 
   // Vec(size_t)
   explicit Vec(size_t size) { assert(size == Size); }
-
-  // Vec(Zeros)
-  Vec(Zeros_t z) { 
-    assert(z.dims[0] == Size || z.dims[0] == 0); 
-    assert(z.dims[1] == 0); 
-    for (size_t i = 0; i < Size; ++i)
-      storage[i] = numeric_traits<T>::zeros_of_shape(T());
-  }
 
   // Vec(Vec)
   template <class U, int S, class C>
@@ -162,8 +126,7 @@ struct Vec<T, Size, Vec_GE> {
   Vec<S, Size, Vec_GE> shape_clone() const { return Vec<S, Size, Vec_GE>(); }
 
   // A vector of the same size, elements initialized to zero
-  template <class S>
-  Vec<S, Size, Vec_GE> zeroed_clone() const { return Vec<S, Size, Vec_ZE>(Size); }
+  Vec<Zero, Size> zeroed_clone() const { return Vec<Zero, Size>(Size); }
 
   typedef typename std::array<T, Size>::const_iterator const_iterator;
   typedef typename std::array<T, Size>::iterator iterator;
@@ -242,23 +205,19 @@ struct Vec<T, 0, Vec_GE> {
 };
 
 // Variable-size vector, all zeros
-template <class T>
-struct Vec<T, 0, Vec_ZE> {
-  typedef T value_type;
-
-  static T Zero() { return T{ 0 }; }
-
+template <>
+struct Vec<Zero, 0> {
   explicit Vec(size_t n) : n(n) {}
   size_t size() const { return n; }
-  T operator[](size_t i) const { return Zero(); }
+  Zero operator[](size_t i) const { return Zero(); }
 
   template <class S>
-  Vec<S, 0, Vec_ZE> shape_clone() const { return Vec<S, 0, Vec_ZE>(n); }
+  Vec<S, 0> shape_clone() const { return Vec<S, 0>(n); }
 
   template <class S>
-  Vec<S, 0, Vec_ZE> zeroed_clone() const { return Vec<S, 0, Vec_ZE>(n); }
+  Vec<Zero, 0> zeroed_clone() const { return Vec<Zero, 0>(n); }
 
-  typedef counting_iterator < T > iter_t;
+  typedef counting_iterator < Zero > iter_t;
   iter_t begin() const { return iter_t(0, Zero()); }
   iter_t end() const { return iter_t(n, Zero()); }
 
@@ -267,25 +226,21 @@ private:
 };
 
 // Fixed-size vector, all zeros
-template <class T, int Size>
-struct Vec<T, Size, Vec_ZE> {
-  typedef T value_type;
+template <int Size>
+struct Vec<Zero, Size> {
+  typedef Zero value_type;
 
   explicit Vec() {}
   explicit Vec(size_t size) { assert(size == Size); }
 
-  static T Zero() { return numeric_traits<T>::zero(); }
-
   size_t size() const { return Size; }
-  T operator[](size_t i) const { return Zero(); }
+  Zero operator[](size_t i) const { return Zero(); }
 
-  template <class S>
-  Vec<S, Size, Vec_ZE> shape_clone() const { return Vec<S, Size, Vec_ZE>(); }
+  Vec<Zero, Size> shape_clone() const { return Vec<Zero, Size>(); }
 
-  template <class S>
-  Vec<S, Size, Vec_ZE> zeroed_clone() const { return Vec<S, Size, Vec_ZE>(); }
+  Vec<Zero, Size> zeroed_clone() const { return Vec<Zero, Size>(); }
 
-  typedef counting_iterator < T > iter_t;
+  typedef counting_iterator < Zero > iter_t;
   iter_t begin() const { return iter_t{ 0, Zero() }; }
   iter_t end() const { return iter_t{ Size, Zero() }; }
 };
@@ -300,7 +255,8 @@ auto vec(T t, Ts ... ts) -> Vec<T, 1 + sizeof...(Ts)> {
 }
 
 // -------------------------- OPERATORS -----------------------------------
-// OPERATOR: double * Vec
+// OPERATOR: double * Vec, Vec * double, Vec / double
+// TODO generalize to args not just double
 template <class T, int N, class CT>
 Vec<T, N, CT> operator*(double a, Vec<T, N, CT> const& b)
 {
@@ -310,8 +266,6 @@ Vec<T, N, CT> operator*(double a, Vec<T, N, CT> const& b)
   return out;
 }
 
-
-// TODO generalize to args not just double
 template <class T, int N, class CT>
 Vec<T, N, CT> operator*(Vec<T, N, CT> const& a, double b)
 {
@@ -321,48 +275,86 @@ Vec<T, N, CT> operator*(Vec<T, N, CT> const& a, double b)
   return out;
 }
 
-template <class R, class Functor>
+template <class T, int N, class CT>
+Vec<T, N, CT> operator/(Vec<T, N, CT> const& a, double b)
+{
+  Vec<T, N, CT> out(a.size());
+  for (size_t i = 0; i < a.size(); ++i)
+    out[i] = a[i] / b;
+  return out;
+}
+
+// ENDOPERATOR: *
+
+template <class R>
 struct run_elementwise_binary {
-  template <class U, class V>
-  R operator()(U const& a, V const& b)
+  template <class U, class V, class Functor>
+  R operator()(U const& a, V const& b, Functor f)
   {
     // assert on sizes
     assert(a.size() == b.size());
     R ret{ a.size() };
     for (size_t i = 0; i < a.size(); ++i)
-      ret[i] = a[i] + b[i];  // TODO proper functor
+      ret[i] = f(a[i], b[i]);  // TODO proper functor
     return ret;
   }
 };
 
-
-#define DECLARE_ADD_2(AT, AN, ACT, BT, BN, BCT, Ret_T, Ret_N, Ret_CT) \
-auto operator+(Vec<AT, AN, ACT> const& a, Vec<BT, BN, BCT> const& b) -> Vec<Ret_T, Ret_N, Ret_CT>\
+#define DECLARE_BINOP_2(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_T, Ret_N, Ret_CT) \
+auto operator OPERATOR(Vec<AT, AN, ACT> const& a, Vec<BT, BN, BCT> const& b) -> Vec<Ret_T, Ret_N, Ret_CT>\
 {\
-  return run_elementwise_binary<decltype(a+b), void>()(a, b);\
+  auto f = [](AT aa, BT bb) { return aa OPERATOR bb; };\
+  return run_elementwise_binary<decltype(a OPERATOR b)>()(a, b, f);\
 }
 
-#define DECLARE_ADD(AT, AN, ACT, BT, BN, BCT, Ret_N, Ret_CT) \
-  DECLARE_ADD_2(AT,AN,ACT,BT,BN,BCT,decltype(a[0] + b[0]),Ret_N,Ret_CT)
+#define DECLARE_BINOP(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_N, Ret_CT) \
+  DECLARE_BINOP_2(OPERATOR, AT,AN,ACT,BT,BN,BCT,decltype(a[0] OPERATOR b[0]),Ret_N,Ret_CT)
 
 #define ADD_CT(CTa, CTb) typename CT_traits<CTa, CTb>::result_of_add
 
 // Add: Fixedsize, Anysize -> Fixedsize
 template <class T, int N, class CTa, class U, class CTb>
-DECLARE_ADD(T, N, CTa, U, 0, CTb, N, ADD_CT(CTa, CTb))
+DECLARE_BINOP(+, T, N, CTa, U, 0, CTb, N, ADD_CT(CTa, CTb))
 
 // Add: Anysize, Fixedsize -> Fixedsize
 template <class T, int N, class CTa, class U, class CTb>
-DECLARE_ADD(T, 0, CTa, U, N, CTb, N, ADD_CT(CTa, CTb))
+DECLARE_BINOP(+, T, 0, CTa, U, N, CTb, N, ADD_CT(CTa, CTb))
 
 // Add: Anysize, Anysize -> Anysize
 template <class T, class CTa, class U, class CTb>
-DECLARE_ADD(T, 0, CTa, U, 0, CTb, 0, ADD_CT(CTa, CTb))
+DECLARE_BINOP(+, T, 0, CTa, U, 0, CTb, 0, ADD_CT(CTa, CTb))
 
 // Add: Fixedsize, Fixedsize -> Fixedsize
 template <class T, int N, class CTa, class U, int M, class CTb>
-DECLARE_ADD(T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
+DECLARE_BINOP(+, T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
 
+// Sub: Fixedsize, Anysize -> Fixedsize
+template <class T, int N, class CTa, class U, class CTb>
+DECLARE_BINOP(-, T, N, CTa, U, 0, CTb, N, ADD_CT(CTa, CTb))
+
+// Sub: Anysize, Fixedsize -> Fixedsize
+template <class T, int N, class CTa, class U, class CTb>
+DECLARE_BINOP(-, T, 0, CTa, U, N, CTb, N, ADD_CT(CTa, CTb))
+
+// Sub: Anysize, Anysize -> Anysize
+template <class T, class CTa, class U, class CTb>
+DECLARE_BINOP(-, T, 0, CTa, U, 0, CTb, 0, ADD_CT(CTa, CTb))
+
+// Sub: Fixedsize, Fixedsize -> Fixedsize
+template <class T, int N, class CTa, class U, int M, class CTb>
+DECLARE_BINOP(-, T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
+
+
+// FUN: transpose
+template <class A, int SizeM, int SizeN, class CT1, class CT2>
+Vec<Vec<A, SizeM, CT2>, SizeN, CT2> transpose(Vec<Vec<A, SizeN, CT2>, SizeM, CT1> const & v)
+{
+  Vec<Vec<A, SizeM, CT2>, SizeN, CT2> ret{ v[0].size() }; // TODO forward ctor args
+  for (size_t i = 0; i != ret.size(); ++i)
+    for (size_t j = 0; j != ret[i].size(); ++j)
+      ret[i][j] = v[j][i];
+  return ret;
+}
 
 // GROUP: STREAMS
 template <class T>
@@ -397,12 +389,12 @@ std::ostream& operator<<(std::ostream& s, Vec<T, N, CT> const& t)
 
 template <typename T, int Size, typename CT>
 struct numeric_traits<Vec<T,Size,CT>> {
-  static Vec<T, Size, Vec_ZE> zero() {
-    return Vec<T, Size, Vec_ZE>();
+  static Vec<Zero, Size> zero() {
+    return Vec<Zero, Size>();
   }
 
-  static Vec<T, Size, Vec_ZE> zeros_of_shape(Vec<T, Size, CT> const & that) {
-    return Vec<T, Size, Vec_ZE>{that.size()};
+  static Vec<Zero, Size> zeros_of_shape(Vec<T, Size, CT> const & that) {
+    return Vec<Zero, Size>{that.size()};
   }
 };
 

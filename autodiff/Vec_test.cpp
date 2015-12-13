@@ -1,10 +1,6 @@
 
 #include "Vec.h"
-
-//template <class T, class CT>
-//struct Vec<Vec<T, 0, CT>, 0, CT> {  // Actually use some traits to map these
-//  Vec(size_t n, Vec<T, 0, CT> const& fill_value);
-//};
+#include "Mat.h"
 
 template <class Container_U, class Container_V>
 auto dot_too_generic(Container_U const& u, Container_V const& v) ->
@@ -27,22 +23,27 @@ void f()
 
 int main(int argc, char const* const* argv)
 {
-	typedef double Real;
+  typedef double Real;
 
-	auto a = vec(1, 2, 3); // make vec of 3 ints
+  auto a = vec(1, 2, 3); // make vec of 3 ints
 
-	Vec<Real> b = a;
-	Vec<Real, 3> c = Vec<Real, 0, Vec_ZE>(3);
-	Vec<Real, 3> d = Vec<Real, 3, Vec_ZE>();
+  Vec<Real> b = a;
+  Vec<Real, 3> c = Vec<Zero, 0>(3);
+  Vec<Real, 3> d = Vec<Zero, 3>();
 
-        std::cout << pr(a) << std::endl;
-        std::cout << pr(b) << std::endl;
-        std::cout << pr(c) << std::endl;
-        std::cout << pr(d) << std::endl;
+  std::cout << pr(a) << std::endl;
+  std::cout << pr(b) << std::endl;
+  std::cout << pr(c) << std::endl;
+  std::cout << pr(d) << std::endl;
 
-        Vec<Real> e = a + a;
+  Vec<Real> e = a + a;
 
-        std::cout << pr(e) << std::endl;
+  std::cout << pr(e) << std::endl;
 
-        std::cout << dot_too_generic(a, a) << std::endl;
+  std::cout << dot_too_generic(a, a) << std::endl;
+
+  Mat3x3<Real> m { vec(vec(1.,2.,3.), vec(4.,5.,6.), vec(7.,8.,9.)) };
+
+  assert(transpose(m)[1][0] == m[0][1]);
+
 }

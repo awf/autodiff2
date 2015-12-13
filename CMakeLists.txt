@@ -20,7 +20,9 @@ ADD_EXECUTABLE(autodiff
       autodiff/autodiff.cpp 
       autodiff/copy.h 
       autodiff/counting_iterator.h 
+      autodiff/Zero.h 
       autodiff/Vec.h 
+      autodiff/Mat.h 
       autodiff/Dot.h )
 
 #ADD_EXECUTABLE(stan_autodiff stan.cpp c:/dev/github/stan/src/stan/agrad/rev/var_stack.cpp)

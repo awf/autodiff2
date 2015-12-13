@@ -1,5 +1,6 @@
 #pragma once
 
+#include "template_utils.h"
 #include "container_depth.h"
 
 // FILE: dot.h
@@ -39,16 +40,6 @@
 //   C2<C3<Real>> grad_fx = ?f(x);
 //   C1<C2<Real>> grad_hfx = ?g(fx);
 //   C1<C3<Real>> grad_hx = gdot(?hfx, ?fx, x); // Third arg specifies C3.
-
-// Make an instance of type C for use in decltype() calls
-#define INST(C) (*(C const*)0)
-
-template <class Container>
-struct get_value_type {
-  typedef typename Container::value_type type;
-//   typedef decltype(*std::begin(INST(Container))) type;
-};
-
 
 // Implementing dot product between a
 //    Foo<Gar<Bee<Cee<Real>>>> f
@@ -106,7 +97,7 @@ struct Dotter {
   typedef typename Dotter<N - 1, M, RestOfC1_of_C2_of_Real, C2_of_C3>::dot_t RestOfC1_of_C3_Real;
 
   // Type of dot(a, b)
-  typedef decltype(INST(C1_of_C2).shape_clone<RestOfC1_of_C3_Real>()) dot_t;
+  typedef decltype(std::declval<C1_of_C2>().shape_clone<RestOfC1_of_C3_Real>()) dot_t;
 
   // Function dot: Third arg is already-constructed output type
   static void dot3(C1_of_C2 const& a, C2_of_C3 const& b, dot_t* out)
@@ -177,7 +168,6 @@ struct Dotter<0, M, C2_of_Real, C2_of_C3_of_Real>
 template <class Real, class C3_of_Real>
 struct Dotter<0, 0, Real, C3_of_Real>
 {
-  //typedef decltype(INST(Real)*INST(C3_of_Real)) dot_t;
   typedef C3_of_Real dot_t;
 
   static void dot3(Real const& a, C3_of_Real const& b, C3_of_Real* out)
@@ -213,7 +203,8 @@ struct dot_inferring_helper {
 // FUNCTION: gdot
 // Pull it all together. 
 template <class A, class B, class C>
-static auto gdot(A const& a, B const& b, C const& c) -> typename dot_inferring_helper<A, B, C>::dot_t
+static auto gdot(A const& a, B const& b, C const& c) -> 
+  typename dot_inferring_helper<A, B, C>::dot_t
 {
   return dot_inferring_helper<A, B, C>::dot(a, b);
 }
