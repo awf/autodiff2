@@ -33,7 +33,8 @@ Vec<Replace_t, Size, CT> shape_clone(Vec<Real, Size, CT> const& that)
 // Shape clone: Return a container of the same size with a different content type
 // The container may be multi-level
 template <class Replace_t, int Size, typename CT, class T>
-Vec<Replace_t, Size, CT> shape_clone(Vec<T, Size, CT> const& that)
+auto shape_clone(Vec<T, Size, CT> const& that) ->
+  Vec<decltype(shape_clone<Replace_t>(that[0])), Size, CT>
 {
   typedef decltype(shape_clone<Replace_t>(that[0])) new_value_type;
   Vec<new_value_type, Size, CT> ret{ that.size() };
@@ -42,6 +43,9 @@ Vec<Replace_t, Size, CT> shape_clone(Vec<T, Size, CT> const& that)
     i = shape_clone<Replace_t>(*p++);
   return ret;
 }
+
+//decltype(shape_clone<Vec3<Real>>(Vec3<Vec3<Real>>())) a = 3;
+ASSERT_SAME_TYPE(decltype(shape_clone<Vec3<Real>>(Vec3<Vec3<Real>>())), Vec3<Vec3<Vec3<Real>>>);
 
 // ENDGROUP: shape_clone
 
@@ -53,8 +57,8 @@ struct gradient_declarations_helper {
 
   typedef decltype (shape_clone<Container2_of_Real>(std::declval<Container1_of_Real>())) Container1_of_Container2_of_Real;
   typedef decltype (shape_clone<Container1_of_Real>(std::declval<Container2_of_Real>())) Container2_of_Container1_of_Real;
-  typedef typename Container1_of_Container2_of_Real grad_t;
-  typedef std::function<grad_t(Container2_of_Real const&)> grad_function_t;
+  //typedef typename Container1_of_Container2_of_Real grad_t;
+  //typedef std::function<grad_t(Container2_of_Real const&)> grad_function_t;
 
   // Compute finite-difference gradients
   Container2_of_Container1_of_Real grad_fd_transpose(function_t f, Container2_of_Real const& x) {
@@ -90,7 +94,7 @@ struct gradient_declarations_helper {
 template <class Container1_of_Real, class Container2_of_Real>
 auto tgrad_finite_difference(std::function<Container1_of_Real(Container2_of_Real const&)> f,
   Container2_of_Real const& x) ->
-  typename gradient_declarations_helper<Container1_of_Real, Container2_of_Real>::grad_t
+  typename gradient_declarations_helper<Container1_of_Real, Container2_of_Real>::Container2_of_Container1_of_Real
 {
   return gradient_declarations_helper<Container1_of_Real, Container2_of_Real>().grad_fd_transpose(f, x);
 }
@@ -318,7 +322,7 @@ Vec3<Real> grad_f3(Vec3<Real> const& a) {
   return dot(b(), d1);// + d2
 }
 
-#if 0
+#if 1
 Vec3<Real> f4(Mat3x3<Real> const& A)
 {
   return mmul(A, b());
@@ -333,11 +337,11 @@ void test_f2()
 {
   // Test grad of mmul(X,b)
   {
-    Mat3x3<Real> A { vec(vec(1.,2.,3.), vec(7.,5.,11.), vec(13.,17.,19.)) };
+    Mat3x3<Real> A { vec(vec(1.1,1.2,1.3), vec(7.,5.,11.), vec(13.,17.,19.)) };
+    std::cout << "GradF4 Hand = " << grad_f4(A) << std::endl;
 
     auto fd = tgrad_finite_difference<Vec3<Real>, Mat3x3<Real>>(f4, A);
     std::cout << "GradF4 FD = " << fd << std::endl;
-    std::cout << "GradF4 Hand = " << grad_f4(A) << std::endl;
   }
 
   Vec3<Real> a = vec(1., 2., 5.);
@@ -487,7 +491,7 @@ int main(int argc, char* argv[])
 
   std::cout << pr(a) << std::endl;
  
-//  test_f2();
+  test_f2();
 
   test_dotter_1();
 
