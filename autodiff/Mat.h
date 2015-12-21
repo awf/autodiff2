@@ -1,5 +1,6 @@
 #pragma once
 
+#include "test.h"
 #include "Vec.h"
 
 template <class T>
@@ -12,8 +13,12 @@ struct Mat : public Vec<Vec<T, N>, M> {
   typedef Vec<Vec<T, N>, M> base_t;
 
   Mat() {}
+  Mat(size_t M_, size_t N_) :
+    base_t{ M_, Vec<T, N>{N_} }
+  {}
+
   Mat(size_t M_, size_t N_, T const& val) :
-    base_t{ M_, Vec<T, N>{N_, Zero()} }
+    base_t{ M_, Vec<T, N>{N_, val} }
   {}
 
   template <class U>
@@ -38,10 +43,25 @@ Vec<T, N, Vec_GE> diag(Mat<T, N, N> const& m)
   return out;
 }
 
+template <class T, size_t N, class CT>
+Mat<T, N, N> diaginv(Vec<T, N, CT> const& v)
+{
+  Mat<T, N, N> out = Mat<Zero, N, N>{ v.size(), v.size() };
+  for (size_t i = 0; i < v.size(); ++i)
+    out[i][i] = v[i];
+  return out;
+}
+
 template <class T, size_t N>
 Mat<T, N, N> identity() {
-  Mat<T, N, N> out(N,N,numeric_traits<T>::zero());
-  for (size_t i = 0; i < m.size(); ++i)
+  Mat<T, N, N> out(N,N,Zero());
+  for (size_t i = 0; i < out.size(); ++i)
     out[i][i] = 1;
   return out;
+}
+
+BOOST_AUTO_TEST_CASE(test_matrix)
+{
+  auto v = vec(1., 2., 3.2);
+  BOOST_CHECK_EQUAL(diag(diaginv(v)), v);
 }

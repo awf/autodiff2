@@ -7,8 +7,7 @@
 #include <iterator>
 #include <functional>
 
-#define BOOST_TEST_NO_LIB
-#include <boost/test/unit_test.hpp>
+#include "test.h"
 
 #include "flat_view.h"
 
@@ -108,7 +107,7 @@ struct gradient_declarations_helper {
 };
 
 template <class Container1_of_Real, class Container2_of_Real>
-auto tgrad_finite_difference(std::function<Container1_of_Real(Container2_of_Real const&)> f,
+auto grad_finite_difference(std::function<Container1_of_Real(Container2_of_Real const&)> f,
   Container2_of_Real const& x) ->
   typename gradient_declarations_helper<Container1_of_Real, Container2_of_Real>::Container2_of_Container1_of_Real
 {
@@ -146,19 +145,22 @@ Real f(Vec3<Real> const& x)
 
 Vec3<Real> grad_f(Vec3<Real> const& x)
 {
-  // f = t(e(x))  ==> ∇f = ∇t(e(x)) "*" ∇e(x)  
-  return gdot(grad_trace(exp2mat(x)), grad_exp2mat(x), x);
+  // f = t(e(x))  ==> ∇f = ∇e(x) "*" ∇t(e(x))    
+  //          Vec<Mat<R>>      Mat<R>
+  return gdot(grad_exp2mat(x), grad_trace(exp2mat(x)), f(x));
 }
 
-void test_chain_rule()
+BOOST_AUTO_TEST_CASE(test_chain_rule)
 {
   Vec3<Real> x = vec(-.5, .2, .3);
   Vec3<Real> grad = grad_f(x);
   std::cout << "GRAD_CR = " << grad << "\n";
 
   // Finite differences
-  Vec3<Real> grad_fd = tgrad_finite_difference<Real, Vec3<Real>>(f, x);
+  Vec3<Real> grad_fd = grad_finite_difference<Real, Vec3<Real>>(f, x);
   std::cout << "GRAD_FD = " << grad_fd << "\n";
+
+  BOOST_CHECK(sumsq(grad - grad_fd) < 1e-5);
 }
 
 #if 1
@@ -284,13 +286,19 @@ Vec3<Real> mmul(Mat3x3<Real> const& a, Vec3<Real> const& b)
   return dot(a,b); 
 }
 
-Vec3<Mat3x3<Real>> grad1_mmul(Mat3x3<Real> const& a, Vec3<Real> const& b)
+BOOST_AUTO_TEST_CASE(test_mmul)
 {
-  Vec<Zero, 3> zero;
-  return vec( 
-    vec<Vec3<Real>>(b, zero, zero),
-    vec<Vec3<Real>>(zero, b, zero),
-    vec<Vec3<Real>>(zero, zero, b));
+  Mat3x3<Real> A{ vec(vec(1.1,1.2,1.3), vec(7.,5.,11.), vec(13.,17.,19.)) };
+  Vec3<Real> b = vec(2.1, 3.2, 3.3);
+  Vec3<Real> Ab = vec(67.6100, 74.6200, 100.6300);
+  BOOST_CHECK(sumsq(mmul(A, b) - Ab) < 1e-12);
+}
+
+// Define gradients of mmul, with respect to arguments 1 and 2
+Mat3x3<Vec3<Real>> grad1_mmul(Mat3x3<Real> const& a, Vec3<Real> const& b)
+{
+  auto I = identity<Real, 3>();
+  return vec(b[0]*I, b[1]*I, b[2]*I);
 }
 
 Vec3<Vec3<Real>> grad2_mmul(Mat3x3<Real> const& a, Vec3<Real> const& b)
@@ -299,8 +307,9 @@ Vec3<Vec3<Real>> grad2_mmul(Mat3x3<Real> const& a, Vec3<Real> const& b)
 }
 
 
-Vec3<Real> b() { return vec<Real>(1, 2, 3); }
-//Vec3<void> grad_b() { return Vec3<void>(); }
+Vec3<Real> b() { return vec<Real>(11, 22, 33); }
+// does this have a clean definition?   Void<Vec3<Zero>>, where void is an empty container ?
+// void grad_b() { }
 
 Vec3<Real> f2(Vec3<Real> const& a) {
   auto Rot = exp2mat(a);
@@ -312,33 +321,30 @@ Vec3<Vec3<Real>> grad_f2(Vec3<Real> const& a) {
   auto grad_Rot = grad_exp2mat(a);
 
   Vec3<Real> val_b = b();
-//  Vec3<void> val_grad_b = grad_b();
+  //Vec3<Zero> val_grad_b = grad_b();
 
   auto f = mmul(Rot, val_b);
-  auto d1 = gdot(grad1_mmul(Rot, val_b), grad_Rot, a);
-  //auto d2 = gdot(grad2_mmul(Rot, val_b), val_grad_b, void());
-  return d1;// + d2
+  auto d1 = gdot(grad_Rot, grad1_mmul(Rot, val_b), f);
+  //auto d2 = gdot(grad2_mmul(Rot, val_b), val_grad_b, void()); // show propagation of zeros
+  return d1; //+ d2;
 }
 
-Real f3(Vec3<Real> const& a) {
-  auto Rot = exp2mat(a);
-  return dot(b(), mmul(Rot, b()));
+Real f3(Vec3<Real> const& x) {
+  return dot(b(), f2(x));
 }
 
-Vec3<Real> grad_f3(Vec3<Real> const& a) {
-  auto Rot = exp2mat(a);
-  auto grad_Rot = grad_exp2mat(a);
-
-  Vec3<Real> val_b = b();
-  //  Vec3<void> val_grad_b = grad_b();
-
-  auto f = mmul(Rot, val_b);
-  auto d1 = gdot(grad1_mmul(Rot, val_b), grad_Rot, a);
-  //auto d2 = gdot(grad2_mmul(Rot, val_b), val_grad_b, void());
-  return dot(b(), d1);// + d2
+Vec3<Real> grad2_dot(Vec3<Real> const& a, Vec3<Real> const& x)
+{
+  return a;
 }
 
-#if 1
+Vec3<Real> grad_f3(Vec3<Real> const& x) {
+  auto val_f2 = f2(x);
+  auto val_grad_f2 = grad_f2(x);
+
+  return gdot(val_grad_f2, grad2_dot(b(), val_f2), f3(x));
+}
+
 Vec3<Real> f4(Mat3x3<Real> const& A)
 {
   return mmul(A, b());
@@ -349,29 +355,36 @@ Vec3<Mat3x3<Real>> grad_f4(Mat3x3<Real> const& A)
   return grad1_mmul(A, b());
 }
 
-void test_f2()
+template <class In, class Out, class OutGrad>
+void test_fd(std::string const& tag, Out f(In const&  x), OutGrad grad_f(In const& x), In const& x)
+{
+  auto hand = grad_f(x);
+  std::cout << tag << "Hand = " << hand << std::endl;
+
+  auto fd = grad_finite_difference<Out, In>(f, x);
+  std::cout << tag << "FD = " << fd << std::endl;
+
+  BOOST_CHECK(sumsq(hand - fd) < 1e-5);
+}
+
+BOOST_AUTO_TEST_CASE(test_chain_rule_2)
 {
   // Test grad of mmul(X,b)
   {
     Mat3x3<Real> A { vec(vec(1.1,1.2,1.3), vec(7.,5.,11.), vec(13.,17.,19.)) };
-    std::cout << "GradF4 Hand = " << grad_f4(A) << std::endl;
-
-    auto fd = tgrad_finite_difference<Vec3<Real>, Mat3x3<Real>>(f4, A);
-    std::cout << "GradF4 FD = " << fd << std::endl;
+    test_fd("mmul", f4, grad_f4, A);
   }
 
-  Vec3<Real> a = vec(1., 2., 5.);
-  auto f2a = f2(a);
-  auto grad_f2a = grad_f2(a);
-  std::cout << "GRAD_CR = " << grad_f2a << "\n";
+  {
+    Vec3<Real> a = vec(1., 2., 5.);
+    test_fd("f2", f2, grad_f2, a);
+  }
 
-  auto fd = transpose(tgrad_finite_difference<Vec3<Real>, Vec3<Real>>(f2, a));
-
-  // Finite differences
-  std::cout << "GRAD_FD = " << fd << "\n";
-
+  {
+    Vec3<Real> a = vec(1., 2., 5.);
+    test_fd("f3", f3, grad_f3, a);
+  }
 }
-#endif
 
 #if 0
 
@@ -507,7 +520,7 @@ int xmain(int argc, char* argv[])
 
   std::cout << pr(a) << std::endl;
  
-  test_f2();
+  //test_f2();
 
   test_dotter_1();
 

@@ -1,4 +1,5 @@
 ## Computing derivatives of containers
+#### Andrew Fitzgibbon, Microsoft, Autumn 2015
 
 In which we learn how to declare the gradient of a general function, and hence the chain rule, without any nasty vectorization, tensorization, or general brain pain.
 
@@ -28,7 +29,7 @@ Some key desiderata:
  * If we do it right, we will easily be able to mix handwritten, symbolically generated and autodiffed derivatives, while generating optimal code.
  * And we'll probabky not write ``∇foo`` for the derivative of `foo` by the power of unicode.  People will complain.
 
-#### Introduction
+### Introduction
 
 We always knew how to write the derivatives of scalar functions of matrix arguments:
 ```cpp
@@ -66,7 +67,7 @@ And if, instead of Mat3x3<Real>, "rot" had had a return type of
 ```
 we were really quite stuck.
 
-##### Contribution 1: Derivatives of functions of arbitrary containers.
+#### Contribution 1: Derivatives of functions of arbitrary containers.
 
 This note defines rules for such derivatives which, I believe, make everything very very simple.  This rule works for anything, and should even make us think hard about vector functions and the Jacobian.
 
@@ -75,17 +76,16 @@ Given arbitrary containers, and a function `f` written using them, like this:
 ```cpp
 	Container1<Real>               f(Container2<Real>);
 ```
-create `grad_f`, such that every `Real` in the output will have a derivative for each `Real` in the input.  That is, we replace `Real` in the return type by `Container2<Real>` from the function argument:
+create `grad_f`, such that every `Real` in the input will have a `Container1` of derivatives for each `Real` in the output:
 ```cpp
-	Container1<Container2<Real>>   grad_f(Container2<Real>);
+	Container2<Container1<Real>>   grad_f(Container2<Real>);
 ```
-
 And now we can define `grad_rot`:
 ```cpp
 	Mat3x3<Real> rot(Vec3<Real> v);
-	Mat3x3<Vec3<Real>> grad_rot(Vec3<Real> v)
+	Vec3<Mat3x3<Real>> grad_rot(Vec3<Real> v)
 	{
-	  ...;
+	  out[0] = /* derivatives of output wrt first input parameter */;
 	}
 ```
 Now, I know you're still fretting about the tensors, but please bear with me.  First, let's see how simply we can chain-rule these together.
@@ -116,37 +116,39 @@ So let's just try to write that derivative with grads:
 
 The only thing that goes wrong is the multiply...  So what multiply is intended here?  Matrix product?  Outer product?  Dot product? If you've done this sort of thing before, you'll be worrying about matrix transposes, order of multiplication, and probably rolling the word &ldquo;tensor&rdquo; around in your mouth.  It is a lovely word.
 
-In fact, it's very simple.  It's always a dot product.  And for a general type `Container<T>`, dot product of A and B means multiplying all the elements of A by the corresponding element of B and accumulating the result.  More generally, we will have
+In fact, it's reasonably simple.  It's always a dot product, but of a generalized form.  For nested containers ```C1<C2<Real>>``` and ```C2<C3<Real>>```, the dotting happens over the container `C2`, and its return type is a C1 of the product of a Real and a C3, which will always be a C3.
 ```cpp
-    dot(Container<U>, Container<V>) -> typeof U*V
+   dot(C1<Container<Real>>, Container<C3<Real>>) -> C1<C3<Real>>
 ```
-So let's go back to `trace_of_rot`, and expand the code with some type
-declarations just to see what's happening.
+In words, corresponding elements of the ```Container```s are multiplied and added, and the results are gathered into a ``C1`` of the appropriate type.
+
+The final twist is that the order of arguments to dot() matters -- we will write
 ```cpp
+    grad_trace_of_rot(x)= dot(grad_rot(x), grad_trace(rot(x)), ?)
+```
+where the ? is one more argument, to be described below.
+
+So let's go back to `trace_of_rot`, and expand the code with some type declarations just to see what's happening.
+```cpp
+Vec3<Real> grad_trace_of_rot(Vec3<Real> x) {
+
     mat<Real>      val_rot = rot(x);
-    mat<vec<Real>> grad_rot = grad_rot(x);
+    vec<mat<Real>> grad_rot = grad_rot(x);
 
     Real           val_trace = trace(val_rot);
     mat<Real>      grad_trace = grad_trace(val_rot);
 
-    vec<Real>      grad_trace_of_rot = dot(grad_trace, grad_rot);
+    vec<Real>      grad_trace_of_rot = dot(grad_rot, grad_trace, ?);
+}
 ```
-So that dot has signature
+So that dot has `C1=vec, Container=mat, C3=Singleton`:
 ```cpp
-    dot(mat<Real>, mat<vec<Real>>) -> typeof Real * vec<Real>
+    dot(vec<mat<Real>>, mat<Real>) -> vec<typeof Real * Real>
 ```
 or
 ```cpp
-    vec<Real> dot(mat<Real>, mat<vec<Real>>);
+    vec<Real> dot(vec<mat<Real>>, mat<Real>);
 ```
-And it's the matrix dot, i.e. `dot(A,B) = trace(A*B')`, or more simply,
-the one where you add up every element of the elementwise product.  But it doesn't return a scalar, it returns a ```vec<Real>``` because the second matrix's elements are ```vec<Real>``` and I'm assuming a scalar times a vector gives a vector.
-
-Okay, is that it?  Not quite.  Here the original function ```trace_of_rot``` returned a scalar, while our general function ```f``` returns a ```Container1<Real>``` (henceforth  abbreviated ```C1<Real>```).  The general definition of dot we will use is this:
-```
-   dot(C1<Container<Real>>, Container<C3<Real>>) -> C1<C3<Real>>
-```
-In words, corresponding elements of the ```Container```s are summed, and the results are gathered into a ``C1`` of the appropriate type.
 
 The last detail is implementation of this in say C++.  We can easily use template magic to identify the Containers for simple cases, but we need our definition to work if `C1` is a `vec<vec<T>>` and `Container` is a `vec<vec<T>>` while `C3` is a `vec<T>`.  Then the compiler sees
 ```cpp
@@ -163,15 +165,21 @@ The solution is to specify how to split the second argument, and the easiest way
    C1<C3<Real>> gdot(C1<Container<Real>>, Container<C3<Real>>, C3<Real>)
 ```
 And the general chain rule is
-```
-      f(x) = h(g(x))
-      grad_f(x) = gdot( grad_h(g(x)), grad_g(x), x )
+```cpp
+      C3 f(C1 x) {
+        C2 gx = g(x);                     // g(C1) -> C2
+        C1<C2> grad_g = grad_g(x);
+        C3 f = h(gx);                     // h(C2) -> C3
+        C2<C3> grad_h = grad_h(gx);
+        //                   C1<C2>  C2<C3>  C3
+        C1<C3> grad_f = gdot(grad_g, grad_h, f);
+      }
 ```
 And to go back to our example, the definition of ``grad_trace_of_rot`` is
 ```cpp
 	Vec3<Real> grad_trace_of_rot(Vec3<Real>  x)
 	{
-	  return gdot(grad_trace(rot(x)), grad_grad(x), x);
+	  return gdot(grad_rot(x), grad_trace(rot(x)), trace(rot(x));
 	}
 ```
 

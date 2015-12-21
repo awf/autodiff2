@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 
+#include "test.h"
 #include "copy.h"
 #include "counting_iterator.h"
 
@@ -81,6 +82,13 @@ struct Vec<T, Size, Vec_GE> {
   // Vec(size_t)
   explicit Vec(size_t size) { assert(size == Size); }
 
+  // Vec(size_t)
+  Vec(size_t size, T const& val) 
+  {
+    assert(size == Size); 
+    std::fill(storage.begin(), storage.end(), val);
+  }
+
   // Vec(Vec)
   template <class U, int S, class C>
   Vec(Vec<U, S, C> const& that) {
@@ -149,6 +157,9 @@ struct Vec<T, 0, Vec_GE> {
 
   // Vec(size_t)
   explicit Vec(size_t n) : storage(n) {}
+
+  // Vec(size_t)
+  Vec(size_t n, T const& val) : storage(n, val) {}
 
   // Vec(Vec&&)
   Vec(Vec<T, 0, Vec_GE>&& that) : storage(that.storage) {}
@@ -505,3 +516,48 @@ auto sum(Vec<T, Size, CT> const& a) -> decltype(a[0] + a[0])
 }
 
 // ENDFUN sum
+
+// FUN sumsq
+template <class T>
+double sumsq(const T& x)
+{
+  return x*x;
+}
+
+template <class T, int Size, class CT>
+auto sumsq(Vec<T, Size, CT> const& a) -> decltype(sumsq(a[0]) + sumsq(a[0]))
+{
+  typedef decltype(sumsq(a[0]) + sumsq(a[0])) ret_t;
+
+  if (a.size() == 0)
+    return numeric_traits<ret_t>::zero();
+
+  ret_t out = sumsq(a[0]);
+  for (size_t i = 1; i < a.size(); ++i)
+    out += sumsq(a[i]);
+  return out;
+}
+
+// ENDFUN sumsq
+
+// FUN ==
+template <class T, int Size, class CT, class T2, int Size2, class CT2>
+bool operator==(Vec<T, Size, CT> const& a, Vec<T2, Size2, CT2> const& b)
+{
+  if (a.size() != b.size())
+    return false;
+
+  for (size_t i = 0; i < a.size(); ++i)
+    if (a[i] != b[i])
+      return false;
+
+  return true;
+}
+
+template <class T, int Size, class CT, class T2, int Size2, class CT2>
+bool operator!=(Vec<T, Size, CT> const& a, Vec<T2, Size2, CT2> const& b)
+{
+  return !(a == b);
+}
+
+// ENDFUN sumsq

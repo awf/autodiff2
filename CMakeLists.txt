@@ -15,7 +15,7 @@ INCLUDE_DIRECTORIES("C:/dev/github/stan/src")
 
 PROJECT(autodiff)
 
-ADD_EXECUTABLE(Vec_test autodiff/Vec_test.cpp autodiff/Vec.h)
+#ADD_EXECUTABLE(Vec_test autodiff/Vec_test.cpp autodiff/Vec.h)
 
 ADD_EXECUTABLE(autodiff 
       autodiff/autodiff.cpp 
@@ -25,6 +25,7 @@ ADD_EXECUTABLE(autodiff
       autodiff/Zero.h 
       autodiff/Vec.h 
       autodiff/Mat.h
+      autodiff/flat_view.h
       autodiff/Dot.h )
 
 #target_link_libraries(autodiff ${Boost_LIBRARIES})
