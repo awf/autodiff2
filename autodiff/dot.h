@@ -29,17 +29,17 @@
 //
 // There are a few ways to indicate this: you can pass the depths of the 
 // containers, as done in the auxiliary Dotter class below, or, sometimes
-// more conveniently, you can pass a third argument of type C3<Real>. 
+// more conveniently, you can pass a third argument of type C1<Real>. 
 // As our primary usage is for mplementing the chain rule on containers, 
-// you will probably have an instance of C3<Real> anyway, arising from a call 
+// you will probably have an instance of C1<Real> anyway, arising from a call 
 // sequence like this:
-//   C3<Real> x;
+//   C1<Real> x;
 //   C2<Real> fx = f(x);
-//   C1<Real> hx = g(fx);
+//   C3<Real> hx = h(fx);
 //
-//   C2<C3<Real>> grad_fx = ?f(x);
-//   C1<C2<Real>> grad_hfx = ?g(fx);
-//   C1<C3<Real>> grad_hx = gdot(?hfx, ?fx, x); // Third arg specifies C3.
+//   C1<C2<Real>> grad_fx = grad_f(x);
+//   C2<C3<Real>> grad_hfx = grad_h(fx);
+//   C1<C3<Real>> grad_hx = gdot(grad_fx, grad_hfx, x); // Third arg specifies C1.
 
 // Implementing dot product between a
 //    Foo<Gar<Bee<Cee<Real>>>> f
@@ -181,15 +181,17 @@ struct Dotter<0, 0, Real, C3_of_Real>
   }
 };
 
-template <class C1_of_C2_of_Real, class C2_of_C3_of_Real, class C3_of_Real>
+template <class C1_of_C2_of_Real, class C2_of_C3_of_Real, class C1_of_Real>
 struct dot_inferring_helper {
-
-  static constexpr size_t C3_depth = CONTAINER_DEPTH(C3_of_Real, Real);
+  static constexpr size_t C1_depth = CONTAINER_DEPTH(C1_of_Real, Real);
   static constexpr size_t C1_C2_depth = CONTAINER_DEPTH(C1_of_C2_of_Real, Real);
-  static constexpr size_t C2_depth = CONTAINER_DEPTH(C2_of_C3_of_Real, C3_of_Real);
+  static constexpr size_t C2_depth = C1_C2_depth - C1_depth;
   static constexpr size_t C2_C3_depth = CONTAINER_DEPTH(C2_of_C3_of_Real, Real);
-  static constexpr size_t C1_depth = C1_C2_depth - C2_depth;
-  static_assert(C2_depth + C3_depth == C2_C3_depth, "C2_depth + C3_depth == C2_C3_depth");
+  static constexpr size_t C3_depth = C2_C3_depth - C2_depth;
+
+  static_assert(C2_C3_depth >= 0, "C2_C3_depth > 0");
+  static_assert(C1_C2_depth >= 0, "C2_depth > 0");
+  static_assert(C1_depth >= 0, "C1_depth > 0");
 
   typedef Dotter<C1_depth, C2_depth, C1_of_C2_of_Real, C2_of_C3_of_Real> dotter_t;
 
@@ -201,7 +203,7 @@ struct dot_inferring_helper {
 };
 
 // FUNCTION: gdot
-// Dot over (Container1<Container<Real>>, Container<Container3<Real>> using a tag of type Container3<Real> to show the depths.
+// Dot over (Container1<Container<Real>>, Container<Container3<Real>> using a tag of type Container1<Real> to show the depths.
 template <class A, class B, class C>
 static auto gdot(A const& a, B const& b, C const& c) -> 
   typename dot_inferring_helper<A, B, C>::dot_t

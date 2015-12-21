@@ -115,8 +115,8 @@ auto grad_finite_difference(std::function<Container1_of_Real(Container2_of_Real 
 }
 
 
-template <class T>
-T trace(Mat3x3<T> const& m)
+template <class T, size_t N, size_t M>
+T trace(Mat<T, N, M> const& m)
 {
   return sum(diag(m));
 }
@@ -147,7 +147,7 @@ Vec3<Real> grad_f(Vec3<Real> const& x)
 {
   // f = t(e(x))  ==> ∇f = ∇e(x) "*" ∇t(e(x))    
   //          Vec<Mat<R>>      Mat<R>
-  return gdot(grad_exp2mat(x), grad_trace(exp2mat(x)), f(x));
+  return gdot(grad_exp2mat(x), grad_trace(exp2mat(x)), x);
 }
 
 BOOST_AUTO_TEST_CASE(test_chain_rule)
@@ -324,7 +324,7 @@ Vec3<Vec3<Real>> grad_f2(Vec3<Real> const& a) {
   //Vec3<Zero> val_grad_b = grad_b();
 
   auto f = mmul(Rot, val_b);
-  auto d1 = gdot(grad_Rot, grad1_mmul(Rot, val_b), f);
+  auto d1 = gdot(grad_Rot, grad1_mmul(Rot, val_b), a);
   //auto d2 = gdot(grad2_mmul(Rot, val_b), val_grad_b, void()); // show propagation of zeros
   return d1; //+ d2;
 }
@@ -342,7 +342,7 @@ Vec3<Real> grad_f3(Vec3<Real> const& x) {
   auto val_f2 = f2(x);
   auto val_grad_f2 = grad_f2(x);
 
-  return gdot(val_grad_f2, grad2_dot(b(), val_f2), f3(x));
+  return gdot(val_grad_f2, grad2_dot(b(), val_f2), x);
 }
 
 Vec3<Real> f4(Mat3x3<Real> const& A)

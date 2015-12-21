@@ -38,7 +38,7 @@ struct container_depth<Target_t&, Target_t> {
 
 template <class Target_t>
 struct container_depth<void, Target_t> {
-  static constexpr size_t depth = 17;
+  static constexpr int depth = -1;
 };
 
 #define CONTAINER_DEPTH(Container, Target_t) container_depth<typename std::remove_reference<Container>::type, Target_t>::depth
