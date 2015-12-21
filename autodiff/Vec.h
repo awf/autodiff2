@@ -207,6 +207,8 @@ struct Vec<T, 0, Vec_GE> {
 // Variable-size vector, all zeros
 template <>
 struct Vec<Zero, 0> {
+  typedef Zero value_type;
+
   explicit Vec(size_t n) : n(n) {}
   size_t size() const { return n; }
   Zero operator[](size_t i) const { return Zero(); }

@@ -12,7 +12,7 @@
 template <class Container, class Target_t>
 struct container_depth {
   static Container f() {}
-  typedef typename Container::value_type value_t;
+  typedef typename get_value_type<Container>::type value_t;
   static constexpr size_t depth = 1 + container_depth<value_t, Target_t>::depth;
 };
 
@@ -21,7 +21,27 @@ struct container_depth<Target_t, Target_t> {
   static constexpr size_t depth = 0;
 };
 
-#define CONTAINER_DEPTH(Container, Target_t) container_depth<Container, Target_t>::depth
+template <class Target_t>
+struct container_depth<const Target_t, Target_t> {
+  static constexpr size_t depth = 0;
+};
+
+template <class Target_t>
+struct container_depth<const Target_t&, Target_t> {
+  static constexpr size_t depth = 0;
+};
+
+template <class Target_t>
+struct container_depth<Target_t&, Target_t> {
+  static constexpr size_t depth = 0;
+};
+
+template <class Target_t>
+struct container_depth<void, Target_t> {
+  static constexpr size_t depth = 999;
+};
+
+#define CONTAINER_DEPTH(Container, Target_t) container_depth<typename std::remove_reference<Container>::type, Target_t>::depth
 
 #include <vector>
 #include <list>
@@ -32,7 +52,8 @@ void test_container_depth()
   // BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<double>, int) == 1); // This should not compile...
   BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<std::list<double>>, double) == 2);
   BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<std::list<double>>, std::list<double>) == 1);
-
+  BOOST_STATIC_ASSERT(CONTAINER_DEPTH(const std::vector<std::list<double>>, double) == 2);
+  BOOST_STATIC_ASSERT(CONTAINER_DEPTH(const std::vector<std::list<double>>&, double) == 2);
 }
 
 /*
