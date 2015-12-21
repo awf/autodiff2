@@ -7,6 +7,9 @@
 #include <iterator>
 #include <functional>
 
+#define BOOST_TEST_NO_LIB
+#include <boost/test/unit_test.hpp>
+
 #include "flat_view.h"
 
 #include "dot.h"
@@ -491,7 +494,7 @@ Vec<Vec2<Real>> residuals(Vec<Vec3<Real>> rotations, Vec<Vec3<Real>> translation
 #endif
 
 
-int main(int argc, char* argv[])
+int xmain(int argc, char* argv[])
 {
   test_deep_iterator();
 

@@ -3,30 +3,30 @@
 In which we learn how to declare the gradient of a general function, and hence the chain rule, without any nasty vectorization, tensorization, or general brain pain.
 
 Some key desiderata:
+
  * The derivative of a function should be declared **without needing new datatypes**.
  * We should have a simple consistent **chain rule** for function composition.
  * We should be able to define derivatives of functions taking **arbitrary arguments**, e.g. given the declarations
-   ```cpp
+```cpp
    template <class Real>
    struct packet<Real> {
-     std::vector<Real> envelope;
+     vector<Real> envelope;
      bag<Real> payload;
    };
    // And similar container types
    //  suitcase<Real>
    //  matrix<Real>
    //  bag<Real>
-   ```
+```
    we should be able to compute the gradient of
-   ```cpp
-   std::list<matrix<Real>> foo(suitcase<std::vector<Real>>, packet<Real>);
-   ```
+```cpp
+   list<matrix<Real>> foo(suitcase<vector<Real>>, packet<Real>);
+```
  * We probably don't want to serialize each argument into a vector, even if only notionally, because we will lose all the operations defined on the original datatypes, e.g. BLAS multiplication for matrices.
  * Related, many readers will want to put tensors everywhere.   I hope to explain why that's neither necessary nor desirable.
  * When a derivative is a block of zeroes, or the identity matrix, we need to make sure the compiler can see it and generate optimal code.
  * If we do it right, we will easily be able to mix handwritten, symbolically generated and autodiffed derivatives, while generating optimal code.
-
-And I'll write ``grad_foo`` for the derivative of `foo` by the power of unicode.  It's not a special symbol, just a normal character that can be part of identifiers.
+ * And we'll probabky not write ``∇foo`` for the derivative of `foo` by the power of unicode.  People will complain.
 
 #### Introduction
 
@@ -80,7 +80,7 @@ create `grad_f`, such that every `Real` in the output will have a derivative for
 	Container1<Container2<Real>>   grad_f(Container2<Real>);
 ```
 
-And now we can define ```grad_rot```:
+And now we can define `grad_rot`:
 ```cpp
 	Mat3x3<Real> rot(Vec3<Real> v);
 	Mat3x3<Vec3<Real>> grad_rot(Vec3<Real> v)

@@ -9,6 +9,12 @@ template <class Iter, class SubIter>
 struct nested_iterator {
   typedef nested_iterator<Iter, SubIter> this_t;
 
+  typedef std::forward_iterator_tag iterator_category;
+  typedef typename SubIter::value_type value_type;
+  typedef size_t difference_type;
+  typedef value_type* pointer;
+  typedef value_type& reference;
+
   Iter i;
   Iter end;  // Need this in order to check whether to ripple subiter
 
@@ -46,13 +52,18 @@ struct nested_iterator {
 
   decltype(*subiter) operator*() { return *subiter; }
 
-  bool operator==(const this_t& that)
+  bool operator==(const this_t& that) const
   {
     return i == that.i && (i == end || subiter == that.subiter);
   }
-  bool operator!=(const this_t& that)
+  bool operator!=(const this_t& that) const
   {
     return !(*this == that);
+  }
+  bool operator<(const this_t& that) const
+  {
+    if (that.i < i || i == end) return false;
+    return i < that.i || subiter < that.subiter;
   }
 };
 
@@ -115,10 +126,13 @@ struct define_flat_view {
 };
 
 
-
 #include <list>
 #include <vector>
-void test_nested_iterator() {
+
+BOOST_AUTO_TEST_CASE(test_nested_iterator)
+{
+  boost::unit_test::unit_test_log.set_threshold_level(boost::unit_test::log_successful_tests);
+
   std::list<int> a = { 1, 2 };
   std::list<int> b = { 3,4,5 };
   typedef std::vector<std::list<int>> veclist;
@@ -127,17 +141,25 @@ void test_nested_iterator() {
   typedef std::list<veclist> A;
   A l = { c,d };
 
-  //nested_iterator<A::value_type::iterator, define_flat_view<A::value_type,1>::iterator> ii{ c.begin(), c.end() };
   define_flat_view<A, 3> fv{ l };
 
-  std::cout << "[";
+  std::vector<int> all;
+  for (auto i : fv)
+    all.push_back(i);
+
+  std::cout << "test [";
   for (auto i : fv)
     std::cout << i << " ";
-  std::cout << "] should have been [ 1 2 3 4 5 3 4 5 1 2 ]\n";
+  std::cout << "] == [ 1 2 3 4 5 3 4 5 1 2 ]\n";
+
+  std::vector<int> expected{ 1, 2, 3, 4, 5, 3, 4, 5, 1, 2 };
+  BOOST_CHECK_EQUAL_COLLECTIONS(all.begin(), all.end(), expected.begin(), expected.end());
+
 }
 
 template <class Leaf, class Container>
-typename define_flat_view<typename std::remove_reference<Container>::type, CONTAINER_DEPTH(Container, Leaf)> flat_view(Container&& c)
+auto flat_view(Container&& c) ->
+  typename define_flat_view<typename std::remove_reference<Container>::type, CONTAINER_DEPTH(Container, Leaf)>
 {
   return typename define_flat_view<typename std::remove_reference<Container>::type, CONTAINER_DEPTH(Container, Leaf)>{ c };
 }
@@ -147,12 +169,16 @@ typename define_flat_view<typename std::remove_reference<Container>::type, CONTA
 #include "Vec.h"
 #include "Mat.h"
 
-static_assert(container_depth<Vec<char, 2>, char>::depth == 1, "OIK");
-static_assert(container_depth<const Vec<Vec<char, 2>, 2>, char>::depth == 2, "OIK");
-
-void test_deep_iterator()
+template <class T, size_t d>
+std::string tostring(define_flat_view<T, d>& c)
 {
-  test_nested_iterator();
+  return std::string{ c.begin(), c.end() };
+}
+
+BOOST_AUTO_TEST_CASE(test_deep_iterator)
+{
+  static_assert(container_depth<Vec<char, 2>, char>::depth == 1, "OIK");
+  static_assert(container_depth<const Vec<Vec<char, 2>, 2>, char>::depth == 2, "OIK");
 
   auto a = vec('i', 't');
   auto b = vec('e', 'r');
@@ -160,21 +186,15 @@ void test_deep_iterator()
 
   define_flat_view<std::remove_reference<decltype(c)>::type, 2>::iterator i{ c.begin(), c.end() };
 
-  std::cout << "TEST DEEP ITER: iter=";
-  for (auto p : flat_view<const char>(c))
-    std::cout << p;
-  std::cout << std::endl;
+  BOOST_CHECK_EQUAL(tostring(flat_view<char>(c)), "iter");
+  BOOST_CHECK_EQUAL(tostring(flat_view<char>(b)), "er");
 
-  std::cout << "TEST DEEP ITER: it=";
-  for (auto p : flat_view<char>(a))
-    std::cout << p;
-  std::cout << std::endl;
-
-  std::cout << "TEST DEEP ITER: d=";
-  char d = 'd';
-  for (auto p : flat_view<char>(d))
-    std::cout << p;
-  std::cout << std::endl;
+//  std::cout << "TEST DEEP ITER: d=";
+//  char d = 'd';
+//  for (auto p : flat_view<char>(d))
+//    std::cout << p;
+//  std::cout << std::endl;
+//  BOOST_CHECK_EQUAL(tostring(fv), "d");
 
   // xxfixme
   Vec<Vec<Vec<Real,4>,3>,2> f;
@@ -186,7 +206,5 @@ void test_deep_iterator()
   for (auto a : flat_view<Real>(f))
     std::cout << " " << a ;
   std::cout << std::endl;
-#if 0
-#endif
 }
 
