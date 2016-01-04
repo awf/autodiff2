@@ -27,7 +27,7 @@ Some key desiderata:
  * Related, many readers will want to put tensors everywhere.   I hope to explain why that's neither necessary nor desirable.
  * When a derivative is a block of zeroes, or the identity matrix, we need to make sure the compiler can see it and generate optimal code.
  * If we do it right, we will easily be able to mix handwritten, symbolically generated and autodiffed derivatives, while generating optimal code.
- * And we'll probabky not write ``∇foo`` for the derivative of `foo` by the power of unicode.  People will complain.
+ * And we'll probably not write ``∇foo`` for the derivative of `foo` by the power of unicode.  People will complain.
 
 ### Introduction
 
