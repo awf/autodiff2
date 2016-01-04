@@ -9,19 +9,19 @@ Some key desiderata:
  * We should have a simple consistent **chain rule** for function composition.
  * We should be able to define derivatives of functions taking **arbitrary arguments**, e.g. given the declarations
 ```cpp
-   template <class Real>
-   struct packet<Real> {
-     vector<Real> envelope;
-     bag<Real> payload;
-   };
-   // And similar container types
-   //  suitcase<Real>
-   //  matrix<Real>
-   //  bag<Real>
+template <class Real>
+struct packet<Real> {
+vector<Real> envelope;
+bag<Real> payload;
+};
+// And similar container types
+//  suitcase<Real>
+//  matrix<Real>
+//  bag<Real>
 ```
    we should be able to compute the gradient of
 ```cpp
-   list<matrix<Real>> foo(suitcase<vector<Real>>, packet<Real>);
+list<matrix<Real>> foo(suitcase<vector<Real>>, packet<Real>);
 ```
  * We probably don't want to serialize each argument into a vector, even if only notionally, because we will lose all the operations defined on the original datatypes, e.g. BLAS multiplication for matrices.
  * Related, many readers will want to put tensors everywhere.   I hope to explain why that's neither necessary nor desirable.
@@ -33,37 +33,37 @@ Some key desiderata:
 
 We always knew how to write the derivatives of scalar functions of matrix arguments:
 ```cpp
-	Real trace(Mat3x3<Real> m)
-	{
-	  return sum(diag(m));
-	}
+Real trace(Mat3x3<Real> m)
+{
+return sum(diag(m));
+}
 
-	Mat3x3<Real> grad_trace(Mat3x3<Real> m)
-	{
-	  return Mat3x3<Real>::identity();
-	}
+Mat3x3<Real> grad_trace(Mat3x3<Real> m)
+{
+return Mat3x3<Real>::identity();
+}
 ```
 or matrix functions of scalars, or vector functions of vectors (or at least we thought we did, see later).
 But we always got a little bit stuck with matrix functions of vectors.
 ```cpp
-	Mat3x3<Real> rot(Vec3<Real> v)
-	{
-	  // fill in some code
-	}
+Mat3x3<Real> rot(Vec3<Real> v)
+{
+// fill in some code
+}
 
-	???? grad_rot(Vec3<Real> v)
-	{
-	  // we know the code to write -- 27 numbers, but where do they go?
-	}
+???? grad_rot(Vec3<Real> v)
+{
+// we know the code to write -- 27 numbers, but where do they go?
+}
 ```
 It's some sort of tensor, we said.  But it was always a bit messy.
 
 And if, instead of Mat3x3<Real>, "rot" had had a return type of
 ```cpp
-	struct Bucket<Real> { 
-	   Vec3<Real> u;
-	   Mat3x3<Real> v; 
-	};
+  struct Bucket<Real> {
+    Vec3<Real> u;
+    Mat3x3<Real> v;
+  };
 ```
 we were really quite stuck.
 
@@ -71,22 +71,23 @@ we were really quite stuck.
 
 This note defines rules for such derivatives which, I believe, make everything very very simple.  This rule works for anything, and should even make us think hard about vector functions and the Jacobian.
 
-So, what is the new rule?  It's this:
-Given arbitrary containers, and a function `f` written using them, like this:
+So, what is the new rule?  It's this: Given arbitrary containers, and a function `f` written using them, like this:
 ```cpp
-	Container1<Real>               f(Container2<Real>);
+ Container1<Real> f(Container2<Real>);
 ```
-create `grad_f`, such that every `Real` in the input will have a `Container1` of derivatives for each `Real` in the output:
+create `grad_f`, such that every `Real` in the input will have a `Container1` of derivatives for each `Real` in the output.
 ```cpp
-	Container2<Container1<Real>>   grad_f(Container2<Real>);
+Container2<Container1<Real>>   grad_f(Container2<Real>);
 ```
 And now we can define `grad_rot`:
 ```cpp
-	Mat3x3<Real> rot(Vec3<Real> v);
-	Vec3<Mat3x3<Real>> grad_rot(Vec3<Real> v)
-	{
-	  out[0] = /* derivatives of output wrt first input parameter */;
-	}
+ Mat3x3<Real> rot(Vec3<Real> v);
+ Vec3<Mat3x3<Real>> grad_rot(Vec3<Real> v)
+ {
+   out[0] = /* derivatives of output wrt v[0] */;
+   out[1] = /* derivatives of output wrt v[1] */;
+   out[2] = /* derivatives of output wrt v[2] */;
+ }
 ```
 Now, I know you're still fretting about the tensors, but please bear with me.  First, let's see how simply we can chain-rule these together.
 
@@ -94,33 +95,31 @@ Now, I know you're still fretting about the tensors, but please bear with me.  F
 
 First an example.  Here's a simple function: trace of rot
 ```cpp
-	Real trace_of_rot(Vec3<Real> x)
-	{
-	  return trace(rot(x));
-	}
-```
+  Real trace_of_rot(Vec3<Real> x)
+  {
+    return trace(rot(x));
+  }```
 Right away we know the signature of its gradient:
 ```cpp
-	Vec3<Real> grad_trace_of_rot(Vec3<Real>);
-```
+  Vec3<Real> grad_trace_of_rot(Vec3<Real>);```
 but it's often difficult to see what to put in the function body.
 
 Well, let's pretend everything's a scalar and just take derivatives:
-
-    trace_of_rot(x) = trace(rot(x))
-    trace_of_rot'(x)= trace'(rot(x)) * rot'(x)
-
+```
+   trace_of_rot(x) = trace(rot(x))
+   trace_of_rot'(x)= trace'(rot(x)) * rot'(x)
+```
 So let's just try to write that derivative with grads:
-
-    grad_trace_of_rot(x)= grad_trace(rot(x)) * grad_rot(x)
-
+```
+  grad_trace_of_rot(x)= grad_trace(rot(x)) * grad_rot(x)
+```
 The only thing that goes wrong is the multiply...  So what multiply is intended here?  Matrix product?  Outer product?  Dot product? If you've done this sort of thing before, you'll be worrying about matrix transposes, order of multiplication, and probably rolling the word &ldquo;tensor&rdquo; around in your mouth.  It is a lovely word.
 
-In fact, it's reasonably simple.  It's always a dot product, but of a generalized form.  For nested containers ```C1<C2<Real>>``` and ```C2<C3<Real>>```, the dotting happens over the container `C2`, and its return type is a C1 of the product of a Real and a C3, which will always be a C3.
+  In fact, it's reasonably simple.  It's always a dot product, but of a generalized form.  For nested containers ```C1<C2<Real>>``` and ```C2<C3<Real>>```, the dotting happens over the container `C2`, and its return type is a C1 of the product of a Real and a C3, which will always be a C3.
 ```cpp
-   dot(C1<Container<Real>>, Container<C3<Real>>) -> C1<C3<Real>>
+   dot(C1<C2<Real>>, C2<C3<Real>>) -> C1<C3<Real>>
 ```
-In words, corresponding elements of the ```Container```s are multiplied and added, and the results are gathered into a ``C1`` of the appropriate type.
+In words, corresponding elements of the ```C2```s are multiplied and added, and the results are gathered into a ``C1`` of the appropriate type.
 
 The final twist is that the order of arguments to dot() matters -- we will write
 ```cpp
@@ -139,9 +138,16 @@ Vec3<Real> grad_trace_of_rot(Vec3<Real> x) {
     mat<Real>      grad_trace = grad_trace(val_rot);
 
     vec<Real>      grad_trace_of_rot = dot(grad_rot, grad_trace, ?);
+    // Recall the signature of dot is dot(C1<C2<Real>>, C2<C3<Real>>)
 }
 ```
-So that dot has `C1=vec, Container=mat, C3=Singleton`:
+So that dot has, matching the types of `grad_rot` and `grad_trace`:
+```
+    C1<C2<R>>    <->    vec<mat<R>>          // grad_rot
+    C2<C3<R>>    <->    mat<Singleton<Real>> // grad_trace
+    // Singleton isn't a real thing, just a notation for the no-op container
+```
+so  `C1=vec, C2=mat, C3=Singleton`
 ```cpp
     dot(vec<mat<Real>>, mat<Real>) -> vec<typeof Real * Real>
 ```
@@ -150,46 +156,102 @@ or
     vec<Real> dot(vec<mat<Real>>, mat<Real>);
 ```
 
-The last detail is implementation of this in say C++.  We can easily use template magic to identify the Containers for simple cases, but we need our definition to work if `C1` is a `vec<vec<T>>` and `Container` is a `vec<vec<T>>` while `C3` is a `vec<T>`.  Then the compiler sees
+The last detail is implementation of this in say C++.  We can easily use template magic to identify the Containers for simple cases, but we need our definition to work if `C1` is a `vec<vec<T>>` and `C2` is a `vec<vec<T>>` while `C3` is a `vec<T>`.  Then the compiler sees
 ```cpp
 	dot(vec<vec<vec<vec<Real>>>>, vec<vec<vec<Real>>>) -> ???
 ```
-and `Container` could match to any of
+and `C2` could match to any of
 ```cpp
 	vec<Real>
 	vec<vec<Real>>
 	vec<vec<vec<Real>>>
 ```
-The solution is to specify how to split the second argument, and the easiest way I found was to pass an additional argument of type `C3<Real>`.  In the case of the chain rule, this is probably lying about because it must be the point at which the composed function was evaluated.   That is, if we're doing grad of ``f(g(x))``, we must have ``x`` somewhere nearby.  Thus, the actual signature of dot, now called gdot to improve some error messages, is
+The solution is to specify how to split the second argument, and the easiest way I found was to pass an additional argument of type `C1<Real>`.  In the case of the chain rule, this is probably lying about because it must be the point at which the composed function was evaluated.   That is, if we're doing grad of ``f(g(x))``, we must have ``x`` somewhere nearby.  Thus, the actual signature of dot, now called gdot to improve some error messages, is
 ```cpp
    C1<C3<Real>> gdot(C1<Container<Real>>, Container<C3<Real>>, C3<Real>)
 ```
-And the general chain rule is
+And the general chain rule is (dropping the `<Real>` everywhere)
 ```cpp
       C3 f(C1 x) {
         C2 gx = g(x);                     // g(C1) -> C2
         C1<C2> grad_g = grad_g(x);
         C3 f = h(gx);                     // h(C2) -> C3
         C2<C3> grad_h = grad_h(gx);
-        //                   C1<C2>  C2<C3>  C3
-        C1<C3> grad_f = gdot(grad_g, grad_h, f);
+        //                   C1<C2>  C2<C3>  C1
+        C1<C3> grad_f = gdot(grad_h, grad_g, x);
       }
 ```
 And to go back to our example, the definition of ``grad_trace_of_rot`` is
 ```cpp
 	Vec3<Real> grad_trace_of_rot(Vec3<Real>  x)
 	{
-	  return gdot(grad_rot(x), grad_trace(rot(x)), trace(rot(x));
+	  return gdot(grad_rot(x), grad_trace(rot(x)), x);
 	}
 ```
 
 ### Multiple arguments
 
+For multiple arguments, I simply write `grad1_f` and `grad2_f`.   This matters only when chain ruling, e.g. consider a matrix-vector multiplication function
+```cpp
+  vector mmul(matrix a, vector b);
+```
+In mathematics, it is sometimes done to refer to derivatives with respect to the name of the formal parameters, e.g. $$$\partial f/\partial a$$$, but over many years of teaching mathematics, I've found this to be more confusing than its worth.   I suggest we use position numbers instead.   [fixme more rant here.] 
+So, the two gradients of mmul are 
+```cpp
+  matrix<vector> grad1_mmul(matrix a, vector b);
+  vector<vector> grad2_mmul(matrix a, vector b);
+```
+and when we see it in composition it will be something like this
+```cpp
+  vector my_residuals(vector x)
+  {
+  	return mmul(f(x), g(x))
+  }
+```
+where `f` and `g` are like:
+```cpp
+  matrix f(vector);
+  vector<matrix> grad_f(vector);
+  vector g(vector);
+  vector<vector> grad_g(vector);
+```
+So, what's the chain rule?   Easy:
+```cpp
+  vector<vector> grad_my_residuals(vector x)
+  {
+  	return gdot(grad_f(x), grad1_mmul(f(x), g(x)), x) + 
+             gdot(grad_g(x), grad2_mmul(f(x), g(x)), x);
+  }
+```
+
+
 ### Efficiency
 
 ### Vec of Vec and Jacobians
 
+##### Jagged Jacobians "just work"
+
+But now let's look at a potentially worrying (function, derivative) pair:
+```cpp
+vec<Real>      sin(vec<Real>)
+vec<vec<Real>> grad_sin(vec<Real>)
+```
+Shouldn't that gradient `grad_sin` be a matrix, not a vector of vectors?
+Not by our rules, and as you'll see, it won't matter.  In fact, the
+special case matrix-vector mutiplication will naturally drop out of
+the chain rule, and we'll help the compiler to remove inefficient
+computation and storage.  And note that this definition doesn't
+require a new datatype: if all you had were vecs, you would not need
+another type to represent derivatives.
+
+
+
 ### Matrix inverse
+
+
+----
+
+##### Beyond here is a pasteboard of old stuff
 
 In mathematics, we know how to compute the derivative of a function which
 takes a vector as argument and returns a vector.  We call it the _Jacobian
@@ -272,22 +334,6 @@ Then its gradient
 
 will be stored just as efficiently as it would have been in a fixed-size
 3x3x3 tensor.
-
-
-##### Jagged Jacobians "just work"
-
-But now let's look at a potentially worrying (function, derivative) pair:
-```cpp
-vec<Real>      sin(vec<Real>)
-vec<vec<Real>> grad_sin(vec<Real>)
-```
-Shouldn't that gradient `grad_sin` be a matrix, not a vector of vectors?
-Not by our rules, and as you'll see, it won't matter.  In fact, the
-special case matrix-vector mutiplication will naturally drop out of
-the chain rule, and we'll help the compiler to remove inefficient
-computation and storage.  And note that this definition doesn't
-require a new datatype: if all you had were vecs, you would not need
-another type to represent derivatives.
 
 
 
