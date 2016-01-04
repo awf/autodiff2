@@ -11,15 +11,15 @@ Some key desiderata:
 ```cpp
 template <class Real>
 struct packet<Real> {
-vector<Real> envelope;
-bag<Real> payload;
+  vector<Real> envelope;
+  bag<Real> payload;
 };
 // And similar container types
 //  suitcase<Real>
 //  matrix<Real>
 //  bag<Real>
 ```
-   we should be able to compute the gradient of
+we should be able to compute the gradient of
 ```cpp
 list<matrix<Real>> foo(suitcase<vector<Real>>, packet<Real>);
 ```
@@ -35,12 +35,12 @@ We always knew how to write the derivatives of scalar functions of matrix argume
 ```cpp
 Real trace(Mat3x3<Real> m)
 {
-return sum(diag(m));
+  return sum(diag(m));
 }
 
 Mat3x3<Real> grad_trace(Mat3x3<Real> m)
 {
-return Mat3x3<Real>::identity();
+  return Mat3x3<Real>::identity();
 }
 ```
 or matrix functions of scalars, or vector functions of vectors (or at least we thought we did, see later).
@@ -48,12 +48,12 @@ But we always got a little bit stuck with matrix functions of vectors.
 ```cpp
 Mat3x3<Real> rot(Vec3<Real> v)
 {
-// fill in some code
+  // fill in some code
 }
 
 ???? grad_rot(Vec3<Real> v)
 {
-// we know the code to write -- 27 numbers, but where do they go?
+  // we know the code to write -- 27 numbers, but where do they go?
 }
 ```
 It's some sort of tensor, we said.  But it was always a bit messy.
