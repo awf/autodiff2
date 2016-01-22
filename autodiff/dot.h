@@ -205,8 +205,17 @@ struct dot_inferring_helper {
 // FUNCTION: gdot
 // Dot over (Container1<Container<Real>>, Container<Container3<Real>> using a tag of type Container1<Real> to show the depths.
 template <class A, class B, class C>
-static auto gdot(A const& a, B const& b, C const& c) -> 
-  typename dot_inferring_helper<A, B, C>::dot_t
+static auto gdot(A const& a, B const& b, C const& c) ->
+typename dot_inferring_helper<A, B, C>::dot_t
 {
   return dot_inferring_helper<A, B, C>::dot(a, b);
+}
+
+// FUNCTION: gdot
+// Dot over (Container1<Container<Real>>, Container<Container3<Real>> using type Container1<Real> 
+template <class Container1_of_Real, class A, class B>
+static auto gdot(A const& a, B const& b) ->
+typename dot_inferring_helper<A, B, Container1_of_Real>::dot_t
+{
+  return dot_inferring_helper<A, B, Container1_of_Real>::dot(a, b);
 }

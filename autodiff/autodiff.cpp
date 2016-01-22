@@ -147,7 +147,7 @@ Vec3<Real> grad_f(Vec3<Real> const& x)
 {
   // f = t(e(x))  ==> ∇f = ∇e(x) "*" ∇t(e(x))    
   //          Vec<Mat<R>>      Mat<R>
-  return gdot(grad_exp2mat(x), grad_trace(exp2mat(x)), x);
+  return gdot<decltype(x)>(grad_exp2mat(x), grad_trace(exp2mat(x)));
 }
 
 BOOST_AUTO_TEST_CASE(test_chain_rule)
@@ -161,6 +161,30 @@ BOOST_AUTO_TEST_CASE(test_chain_rule)
   std::cout << "GRAD_FD = " << grad_fd << "\n";
 
   BOOST_CHECK(sumsq(grad - grad_fd) < 1e-5);
+}
+
+Real grad_sin(Real x)
+{
+  return cos(x);
+}
+
+Real sinc(Real x)
+{
+  return x == 0 ? 1 : sin(x) / x;
+}
+
+Real grad_1overx(Real x)
+{
+  return -1 / (x * x);
+}
+
+Real grad_sinc(Real x)
+{
+  if (x == 0)
+    return 1;   //  I needed to know this.
+  else
+    // grad_sin(x) / x + sin(x) * grad_1overx(x); // this would be bad
+    return (cos(x)*x - sin(x))/(x*x); // slightly more stable numerically, but really need taylor.
 }
 
 #if 1
