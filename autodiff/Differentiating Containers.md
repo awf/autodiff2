@@ -71,14 +71,43 @@ we were really quite stuck.
 
 This note defines rules for such derivatives which, I believe, make everything very very simple.  This rule works for anything, and should even make us think hard about vector functions and the Jacobian.
 
-So, what is the new rule?  It's this: Given arbitrary containers, and a function `f` written using them, like this:
+##### Warm-ups:  Container to Scalar and Scalar to Container
+
+First some warm-ups, if `f` takes a `Container1<Real>` of parameters, and returns a Real what's its derivative?
 ```cpp
- Container1<Real> f(Container2<Real>);
+ Real f(Container1<Real> v);
 ```
-create `grad_f`, such that every `Real` in the input will have a `Container1` of derivatives for each `Real` in the output.
+Yep, it's the one we call `grad_f`, with this declaration
 ```cpp
-Container2<Container1<Real>>   grad_f(Container2<Real>);
+Container1<Real>   grad_f(Container1<Real> v);
 ```
+
+OK, so what if `f` takes a `Real`, and returns a `Container2<Real>`?
+```cpp
+ Container2<Real> f(Real x);
+```
+No problem it's just the derivative of every entry in the container wrt x.  I'm also going to call it `grad_f`, with this declaration
+```cpp
+Container2<Real>   grad_f(Real x);
+```
+But this is confusing, you say?   It really won't be.  Let's carry on.
+
+
+##### Main event:  Container to Container
+
+
+
+So, what is the new rule?  It's this: Given arbitrary containers, and a function `f` written using them, which takes a Container1 of Real and returns a Container2 of Real, like this:
+```cpp
+ Container2<Real> f(Container1<Real>);
+```
+create `grad_f`, such that every parameter (i.e. `Real` in the input) will have a `Container2<Real>` of derivatives.
+```cpp
+Container1<Container2<Real>>   grad_f(Container2<Real>);
+```
+You may immediately notice that if the two Containers are vectors, the return type is `vector<vector<Real>>`, which looks a lot like the Jacobian matrix *J*.  In fact it's the vector of columns of *J*, but that little fact is not necessary to do almost all of the stuff we need to do with these derivatives.
+
+
 And now we can define `grad_rot`:
 ```cpp
  Mat3x3<Real> rot(Vec3<Real> v);
@@ -91,7 +120,7 @@ And now we can define `grad_rot`:
 ```
 Now, I know you're still fretting about the tensors, but please bear with me.  First, let's see how simply we can chain-rule these together.
 
-##### Contribution 2: The chain rule for such functions.
+#### Contribution 2: The chain rule for such functions.
 
 First an example.  Here's a simple function: trace of rot
 ```cpp
@@ -99,10 +128,10 @@ First an example.  Here's a simple function: trace of rot
   {
     return trace(rot(x));
   }```
-Right away we know the signature of its gradient:
+Right away we know the signature of its gradient, from the rules above.  Container1 is a `Vec3`, and Container2 is just the identity, so `Container1<Container2>` is just `Vec3`. Here's its declaration
 ```cpp
   Vec3<Real> grad_trace_of_rot(Vec3<Real>);```
-but it's often difficult to see what to put in the function body.
+but it's often difficult to see what to put in the function body.  
 
 Well, let's pretend everything's a scalar and just take derivatives:
 ```
@@ -227,6 +256,66 @@ So, what's the chain rule?   Easy:
 
 ### Efficiency
 
+So lots of the entries in some of these Jacobians are zero, and propagating those zeroes will be incredibly expensive.  While the compiler could possibly in principle chase them down if it gets to inline the whole function, it may not be able to.
+
+There are a few main ways to fix this:
+1. "Fix" the compilers.
+Of course we should add optimization smarts to the compiler as far as possible.  Note that many optimizations such as 0*x->0 are not standards compliant, and need `-ffast-math` or equivalent.   Either way, let's assume we've made the compiler as smart as we can and our code is still slow.   What can we do next?
+
+2. Use expression templates.
+Kinda.  If you mean ETs to elide temporaries, yes do that.   If you mean ETs to unroll loops, assume the compiler does that.  If you mean ETs to tag certain types, yes that's what I will say.
+
+3. Use special types to encode special matrix structures, like
+
+```cpp
+template <class Real, size_t N>
+struct identity_matrix {
+  // ....
+};
+template <class Real1, class Real2, size_t N>
+auto operator*(identity_matrix<Real1, N> A, Vec<Real2, N> B)
+	-> Vec<typeof(Real1 * Real2), N>
+// etc
+template <class Real, size_t N>
+struct diagonal_matrix {
+	vec<Real, N> storage;
+};
+
+// Fixed block structure known at compile time.
+// Yes, we could work out N given only M, but better errors this way
+template <size_t M, size_t N, class BlockType...>
+class block_matrix {
+};
+
+block_matrix<3,3,
+			 Mat<Real>,Mat<Zero>,Mat<Zero>,
+			 Mat<Zero>,Identity,Mat<Zero>,
+			 Mat<Real>,Mat<Zero>,Identity> myjacobian;
+```
+
+4. Or you can maybe save a bit of typing and header file size by adding a contents tag to the matrix class:
+```cpp
+template <class Real, size_t M, size_t N, class ContentTypeTag>
+struct matrix {
+};
+// specialize for Mat_Identity
+template <class Real, size_t N>
+struct matrix<Real, N, N, Mat_Identity> {
+//...
+};
+```
+The main point is that these speedups are independent of our context of differentiation, but some of them may give bigger wins in our context than in others, so may be more worthwhile to implement.
+
+Another efficiency issue is that f(), grad_f() may share computation, and one may sometimes want both, sometimes want just one. First, devise a naming convention for a function which returns an optional Jacobian.  We find it best to have a bool template argument so the compiler can lay down two versions:
+
+```cpp
+template <bool want_jacobian>
+void compute_f_and_optionally_grad_f(Container1<Real> const& x,
+									 Container2<Real> * f_out,
+									 Container1<Container2<Real>> * grad_out);
+```
+Then share what you like inside.
+
 ### Vec of Vec and Jacobians
 
 ##### Jagged Jacobians "just work"
@@ -248,10 +337,9 @@ another type to represent derivatives.
 
 ### Matrix inverse
 
+### Other stuff
 
-----
-
-##### Beyond here is a pasteboard of old stuff
+# ## Beyond here is a pasteboard of old stuff
 
 In mathematics, we know how to compute the derivative of a function which
 takes a vector as argument and returns a vector.  We call it the _Jacobian
