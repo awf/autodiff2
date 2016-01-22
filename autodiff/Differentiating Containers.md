@@ -127,10 +127,13 @@ First an example.  Here's a simple function: trace of rot
   Real trace_of_rot(Vec3<Real> x)
   {
     return trace(rot(x));
-  }```
+  }
+```
+  
 Right away we know the signature of its gradient, from the rules above.  Container1 is a `Vec3`, and Container2 is just the identity, so `Container1<Container2>` is just `Vec3`. Here's its declaration
 ```cpp
-  Vec3<Real> grad_trace_of_rot(Vec3<Real>);```
+  Vec3<Real> grad_trace_of_rot(Vec3<Real>);
+```
 but it's often difficult to see what to put in the function body.  
 
 Well, let's pretend everything's a scalar and just take derivatives:
@@ -142,6 +145,7 @@ So let's just try to write that derivative with grads:
 ```
   grad_trace_of_rot(x)= grad_trace(rot(x)) * grad_rot(x)
 ```
+
 The only thing that goes wrong is the multiply...  So what multiply is intended here?  Matrix product?  Outer product?  Dot product? If you've done this sort of thing before, you'll be worrying about matrix transposes, order of multiplication, and probably rolling the word &ldquo;tensor&rdquo; around in your mouth.  It is a lovely word.
 
   In fact, it's reasonably simple.  It's always a dot product, but of a generalized form.  For nested containers ```C1<C2<Real>>``` and ```C2<C3<Real>>```, the dotting happens over the container `C2`, and its return type is a C1 of the product of a Real and a C3, which will always be a C3.
