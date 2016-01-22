@@ -30,6 +30,8 @@ ADD_EXECUTABLE(autodiff
 
 #target_link_libraries(autodiff ${Boost_LIBRARIES})
 
+ADD_EXECUTABLE(perf autodiff/perf.cpp)
+
 
 #ADD_EXECUTABLE(stan_autodiff stan.cpp c:/dev/github/stan/src/stan/agrad/rev/var_stack.cpp)
 
