@@ -260,6 +260,10 @@ So, what's the chain rule?   Easy:
 
 ### Efficiency
 
+The above scheme makes it easy to implement manual derivatives, but any scheme with chain ruling will be open to certain sorts of inefficiency.
+
+##### Zeroes and constant folding
+
 So lots of the entries in some of these Jacobians are zero, and propagating those zeroes will be incredibly expensive.  While the compiler could possibly in principle chase them down if it gets to inline the whole function, it may not be able to.
 
 There are a few main ways to fix this:
@@ -270,7 +274,6 @@ Of course we should add optimization smarts to the compiler as far as possible. 
 Kinda.  If you mean ETs to elide temporaries, yes do that.   If you mean ETs to unroll loops, assume the compiler does that.  If you mean ETs to tag certain types, yes that's what I will say.
 
 3. Use special types to encode special matrix structures, like
-
 ```cpp
 template <class Real, size_t N>
 struct identity_matrix {
@@ -296,7 +299,6 @@ block_matrix<3,3,
 			 Mat<Zero>,Identity,Mat<Zero>,
 			 Mat<Real>,Mat<Zero>,Identity> myjacobian;
 ```
-
 4. Or you can maybe save a bit of typing and header file size by adding a contents tag to the matrix class:
 ```cpp
 template <class Real, size_t M, size_t N, class ContentTypeTag>
@@ -310,15 +312,33 @@ struct matrix<Real, N, N, Mat_Identity> {
 ```
 The main point is that these speedups are independent of our context of differentiation, but some of them may give bigger wins in our context than in others, so may be more worthwhile to implement.
 
+##### Sharing computation
+
 Another efficiency issue is that f(), grad_f() may share computation, and one may sometimes want both, sometimes want just one. First, devise a naming convention for a function which returns an optional Jacobian.  We find it best to have a bool template argument so the compiler can lay down two versions:
 
 ```cpp
-template <bool want_jacobian>
-void compute_f_and_optionally_grad_f(Container1<Real> const& x,
-									 Container2<Real> * f_out,
-									 Container1<Container2<Real>> * grad_out);
+template <bool want_f = true, bool want_jacobian = true>
+void compute_f_and_grad_f(Container1<Real> const& x,
+						  Container2<Real> * f_out,
+						  Container1<Container2<Real>> * grad_out);
 ```
-Then share what you like inside.
+Then share what you like inside.  If you don't like to expose the template argument to callers, you can now declare wrappers as follows, but the important thing is to have the implementation code in only one place.
+```cpp
+Container2<Real> f(Container1<Real> x)
+{
+  Container2<Real> rv;
+  compute_f_and_grad_f<true,false>(x, &rv, 0);
+  return rv;
+}
+
+Container1<Container2<Real>> grad_f(Container1<Real> x)
+{
+  Container1<Real> x;
+  Container1<Container2<Real>> rv;
+  compute_f_and_grad_f<false,true>(x, 0, &rv);
+  return rv;
+}
+```
 
 ### Vec of Vec and Jacobians
 
