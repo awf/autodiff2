@@ -11,8 +11,8 @@ Some key desiderata:
 ```cpp
 template <class Real>
 struct packet<Real> {
-vector<Real> envelope;
-bag<Real> payload;
+  vector<Real> envelope;
+  bag<Real> payload;
 };
 // And similar container types
 //  suitcase<Real>
@@ -35,12 +35,12 @@ We always knew how to write the derivatives of scalar functions of matrix argume
 ```cpp
 Real trace(Mat3x3<Real> m)
 {
-return sum(diag(m));
+  return sum(diag(m));
 }
 
 Mat3x3<Real> grad_trace(Mat3x3<Real> m)
 {
-return Mat3x3<Real>::identity();
+  return Mat3x3<Real>::identity();
 }
 ```
 or matrix functions of scalars, or vector functions of vectors (or at least we thought we did, see later).
@@ -48,103 +48,64 @@ But we always got a little bit stuck with matrix functions of vectors.
 ```cpp
 Mat3x3<Real> rot(Vec3<Real> v)
 {
-// fill in some code
+  // fill in some code
 }
 
 ???? grad_rot(Vec3<Real> v)
 {
-// we know the code to write -- 27 numbers, but where do they go?
+  // we know the code to write -- 27 numbers, but where do they go?
 }
 ```
 It's some sort of tensor, we said.  But it was always a bit messy.
 
-And if, instead of Mat3x3<Real>
-  , "rot" had had a return type of```cpp
+And if, instead of Mat3x3<Real>, "rot" had had a return type of
+```cpp
   struct Bucket<Real> {
-  Vec3<Real> u;
-  Mat3x3<Real> v;
-  };```
-  we were really quite stuck.
+    Vec3<Real> u;
+    Mat3x3<Real> v;
+  };
+```
+we were really quite stuck.
 
-  #### Contribution 1: Derivatives of functions of arbitrary containers.
+#### Contribution 1: Derivatives of functions of arbitrary containers.
 
-  This note defines rules for such derivatives which, I believe, make everything very very simple.  This rule works for anything, and should even make us think hard about vector functions and the Jacobian.
+This note defines rules for such derivatives which, I believe, make everything very very simple.  This rule works for anything, and should even make us think hard about vector functions and the Jacobian.
 
-  ##### Warm-ups:  Container to Scalar and Scalar to Container
+##### Warm-ups:  Container to Scalar and Scalar to Container
 
-  First some warm-ups, if `f` takes a `Container1<Real>
-    ` of parameters, and returns a Real what's its derivative?
-    ```cpp
-    Real f(Container1<Real>
-      v);
-      ```
-      Yep, it's the one we call `grad_f`, with this declaration
-      ```cpp
-      Container1<Real>
-        grad_f(Container1<Real>
-          v);
-          ```
+First some warm-ups, if `f` takes a `Container1<Real>` of parameters, and returns a Real what's its derivative?
+```cpp
+ Real f(Container1<Real> v);
+```
+Yep, it's the one we call `grad_f`, with this declaration
+```cpp
+Container1<Real>   grad_f(Container1<Real> v);
+```
 
-          OK, so what if `f` takes a `Real`, and returns a `Container2<Real>
-          `?
-          ```cpp
-          Container2<Real> f(Real x);
-          ```
-          No problem it's just the derivative of every entry <Real>
-            f(Real x);
-            ```
-            No pro
-blem it's just the derivative of every entry in the container wrt x.  I'm also going to call it `grad_f`, with this declaration
-            ```c
-pp
-            Container2<Real>   grad_f(Real x);
-            ```
-            But this is confusing, you say?   It really won't be.  Let's carry o
-n.
-            ##### Main event:  Container to Cont<Real>
-              grad_f(Real x);
-              ```
-              But this is confusing, you say?   It really won't be.  Let's carry on.
+OK, so what if `f` takes a `Real`, and returns a `Container2<Real>`?
+```cpp
+ Container2<Real> f(Real x);
+```
+No problem it's just the derivative of every entry in the container wrt x.  I'm also going to call it `grad_f`, with this declaration
+```cpp
+Container2<Real>   grad_f(Real x);
+```
+But this is confusing, you say?   It really won't be.  Let's carry on.
 
 
-              
+##### Main event:  Container to Container
 
 
-              ##### Main
- event:  Container to Container
-              So, what is the new rule?  It's this: Given arbitrary c
-ontainers, and a function `f` written using them, which takes a Container1 of Real and returns a Container2 of Real, like this:
-      ```cpp
-      Container2<Real> f(Container1<Real>
-              );
 
-    ```
-              create `grad_f`, such that every param<Real>
-                ry c
- f(Container1
-                <Real>
-                  );
-
-    ```
-                  
-
-   cr
-                  eate `
-grad_f`, such that every parameter (i.e. `Real` in the input) will have a `Container2<Real>
-                  ` of
- derivatives.
-        ```cpp
-                  Container1<Container2<Real>>   grad_f(Container2<Real>)<Real>
-                    te `
-                    ` of
- derivatives.
-                    ```c
-pp
-                    Cont
-ainer1<Container2<Real>>   grad_f(Container2<Real>);
-                    <Container2<Real>>   grad_f(Container2<Real>);
-        ```
-        You may immediately notice that if the two Containers are vectors, the return type is `vector<vector<Real>>`, which looks a lot like the Jacobian matrix *J*.  In fact it's the vector of columns of *J*, but that little fact is not necessary to do almost all of the stuff we need to do with these derivatives.
+So, what is the new rule?  It's this: Given arbitrary containers, and a function `f` written using them, which takes a Container1 of Real and returns a Container2 of Real, like this:
+```cpp
+ Container2<Real> f(Container1<Real>);
+```
+create `grad_f`, such that every parameter (i.e. `Real` in the input) will have a `Container2<Real>` of derivatives.
+```cpp
+Container1<Container2<Real>>   grad_f(Container2<Real>);
+```
+You may immediately notice that if the two Containers are vectors, the return type is `vector<vector<Real>>`, which looks a lot like the Jacobian matrix *J*.  In fact it's the vector of columns of *J*, but that little fact is not necessary to do almost all of the stuff we need to do with these derivatives.
 
 
 And now we can define `grad_rot`:
@@ -168,12 +129,12 @@ First an example.  Here's a simple function: trace of rot
     return trace(rot(x));
   }
 ```
-
+  
 Right away we know the signature of its gradient, from the rules above.  Container1 is a `Vec3`, and Container2 is just the identity, so `Container1<Container2>` is just `Vec3`. Here's its declaration
 ```cpp
   Vec3<Real> grad_trace_of_rot(Vec3<Real>);
 ```
-but it's often difficult to see what to put in the function body.
+but it's often difficult to see what to put in the function body.  
 
 Well, let's pretend everything's a scalar and just take derivatives:
 ```
@@ -267,8 +228,8 @@ For multiple arguments, I simply write `grad1_f` and `grad2_f`.   This matters o
 ```cpp
   vector mmul(matrix a, vector b);
 ```
-In mathematics, it is sometimes done to refer to derivatives with respect to the name of the formal parameters, e.g. $$$\partial f/\partial a$$$, but over many years of teaching mathematics, I've found this to be more confusing than its worth.   I suggest we use position numbers instead.   [fixme more rant here.]
-So, the two gradients of mmul are
+In mathematics, it is sometimes done to refer to derivatives with respect to the name of the formal parameters, e.g. $$$\partial f/\partial a$$$, but over many years of teaching mathematics, I've found this to be more confusing than its worth.   I suggest we use position numbers instead.   [fixme more rant here.] 
+So, the two gradients of mmul are 
 ```cpp
   matrix<vector> grad1_mmul(matrix a, vector b);
   vector<vector> grad2_mmul(matrix a, vector b);
@@ -291,7 +252,7 @@ So, what's the chain rule?   Easy:
 ```cpp
   vector<vector> grad_my_residuals(vector x)
   {
-  	return gdot(grad_f(x), grad1_mmul(f(x), g(x)), x) +
+  	return gdot(grad_f(x), grad1_mmul(f(x), g(x)), x) + 
              gdot(grad_g(x), grad2_mmul(f(x), g(x)), x);
   }
 ```
@@ -308,7 +269,9 @@ Of course we should add optimization smarts to the compiler as far as possible. 
 2. Use expression templates.
 Kinda.  If you mean ETs to elide temporaries, yes do that.   If you mean ETs to unroll loops, assume the compiler does that.  If you mean ETs to tag certain types, yes that's what I will say.
 
-3. Use special types to encode special matrix structures, like```cpp
+3. Use special types to encode special matrix structures, like
+
+```cpp
 template <class Real, size_t N>
 struct identity_matrix {
   // ....
@@ -332,7 +295,8 @@ block_matrix<3,3,
 			 Mat<Real>,Mat<Zero>,Mat<Zero>,
 			 Mat<Zero>,Identity,Mat<Zero>,
 			 Mat<Real>,Mat<Zero>,Identity> myjacobian;
-   ```
+```
+
 4. Or you can maybe save a bit of typing and header file size by adding a contents tag to the matrix class:
 ```cpp
 template <class Real, size_t M, size_t N, class ContentTypeTag>
@@ -349,30 +313,12 @@ The main point is that these speedups are independent of our context of differen
 Another efficiency issue is that f(), grad_f() may share computation, and one may sometimes want both, sometimes want just one. First, devise a naming convention for a function which returns an optional Jacobian.  We find it best to have a bool template argument so the compiler can lay down two versions:
 
 ```cpp
-template <bool want_f = true, bool want_jacobian = true>
-void compute_f_and_grad_f(Container1<Real> const& x,
-						  Container2<Real> * f_out,
-						  Container1<Container2<Real>> * grad_out);
+template <bool want_jacobian>
+void compute_f_and_optionally_grad_f(Container1<Real> const& x,
+									 Container2<Real> * f_out,
+									 Container1<Container2<Real>> * grad_out);
 ```
-Then share what you like inside.  If you don't like to expose the template argument to callers, you can now declare wrappers, but the important thing is to have the implementation code in only one place.
-```cpp
-Container2<Real> f(Container1<Real> x)
-{
-  Container2<Real> rv;
-  compute_f_and_optionally_grad_f<true,false>(x, &rv, 0);
-  return rv;
-}
-
-Container1<Container2<Real>> grad_f(Container1<Real> x)
-{
-  Container1<Real> x;
-  Container1<Container2<Real>> rv;
-  compute_f_and_optionally_grad_f<false,true>(x, 0, &rv);
-  return rv;
-}
-```
-
-
+Then share what you like inside.
 
 ### Vec of Vec and Jacobians
 
