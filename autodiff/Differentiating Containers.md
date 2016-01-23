@@ -295,7 +295,8 @@ block_matrix<3,3,
 			 Mat<Zero>,Identity,Mat<Zero>,
 			 Mat<Real>,Mat<Zero>,Identity> myjacobian;
 ```
-and then define operations on these so that I * A = A where I is an ```identity_matrix```
+and then define operations on these so that ```I * A = A``` where ```I``` is an ```identity_matrix```
+
 4. Or you can maybe save a bit of typing and header file size by adding a contents tag to the matrix class:
 ```cpp
 template <class Real, size_t M, size_t N, class ContentTypeTag>
