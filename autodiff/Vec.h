@@ -443,18 +443,7 @@ auto dot(Vec<T1, Size1, CT1> const& a, Vec<T2, Size2, CT2> const& b) -> decltype
   return out;
 }
 
-// NORMSQ
-template <class T, int Size, class CT>
-auto normsq(Vec<T, Size, CT> const& v) -> decltype(dot(v, v))
-{
-  return dot(v, v);
-}
-
-template <class T, int Size, class CT>
-auto grad_normsq(Vec<T, Size, CT> const& v) -> decltype(2*v)
-{
-  return 2*v;
-}
+// NORMSQ, normsq -- see sumsq
 
 // FLATTEN
 template <class CT1, int Size>
@@ -544,6 +533,13 @@ auto sumsq(Vec<T, Size, CT> const& a) -> decltype(sumsq(a[0]) + sumsq(a[0]))
   return out;
 }
 
+// Grad: compute gradient
+template <class T, int Size, class CT>
+auto grad_sumsq(Vec<T, Size, CT> const& v) -> decltype(2 * v)
+{
+  return 2 * v;
+}
+
 // ENDFUN sumsq
 
 // FUN ==
@@ -566,4 +562,66 @@ bool operator!=(Vec<T, Size, CT> const& a, Vec<T2, Size2, CT2> const& b)
   return !(a == b);
 }
 
-// ENDFUN sumsq
+// ENDFUN ==
+
+#include "test.h"
+// Declare boost::math::fpc::close_at_tolerance for vectors
+template<typename T, size_t Size, class ContentsTag>
+class boost::math::fpc::close_at_tolerance<Vec<T, Size, ContentsTag>> {
+  typedef Vec<T, Size, ContentsTag> FPT;
+  typedef decltype(sumsq(FPT())) Real;
+
+public:
+  // Public typedefs
+  typedef bool result_type;
+
+  // Constructor
+  template<typename ToleranceType>
+  explicit    close_at_tolerance(ToleranceType tolerance, fpc::strength fpc_strength = FPC_STRONG)
+    : m_fraction_tolerance(fpc_detail::fraction_tolerance<Real>(tolerance))
+    , m_strength(fpc_strength)
+    , m_tested_rel_diff(0)
+  {
+    BOOST_ASSERT_MSG(m_fraction_tolerance >= Real(0), "tolerance must not be negative!"); // no reason for tolerance to be negative
+  }
+
+  // Access methods
+  //! Returns the tolerance
+  Real                 fraction_tolerance() const { return m_fraction_tolerance; }
+
+  //! Returns the comparison method
+  fpc::strength       strength() const { return m_strength; }
+
+  //! Returns the failing fraction
+  Real                tested_rel_diff() const { return m_tested_rel_diff; }
+
+  /*! Compares two floating point numbers a and b such that their "left" relative difference |a-b|/a and/or
+  * "right" relative difference |a-b|/b does not exceed specified relative (fraction) tolerance.
+  *
+  *  @param[in] left first floating point number to be compared
+  *  @param[in] right second floating point number to be compared
+  *
+  * What is reported by @c tested_rel_diff in case of failure depends on the comparison method:
+  * - for @c FPC_STRONG: the max of the two fractions
+  * - for @c FPC_WEAK: the min of the two fractions
+  * The rationale behind is to report the tolerance to set in order to make a test pass.
+  */
+  bool                operator()(FPT left, FPT right) const
+  {
+    if (left.size() != right.size())
+      return false;
+
+    Real diff = sqrt(sumsq(left - right));
+
+    m_tested_rel_diff = diff;
+
+    return m_tested_rel_diff <= m_fraction_tolerance;
+  }
+
+private:
+  // Data members
+  Real m_fraction_tolerance;
+  fpc::strength       m_strength;
+  mutable Real         m_tested_rel_diff;
+};
+

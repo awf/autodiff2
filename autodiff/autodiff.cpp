@@ -144,64 +144,7 @@ Vec3<Real> grad_f(Vec3<Real> const& x)
   return gdot<decltype(x)>(grad_exp2mat(x), grad_trace(exp2mat(x)));
 }
 
-template<typename T, size_t Size, class ContentsTag>
-class boost::math::fpc::close_at_tolerance<Vec<T, Size, ContentsTag>> {
-  typedef Vec<T, Size, ContentsTag> FPT;
-  typedef decltype(sumsq(FPT())) Real;
 
-public:
-  // Public typedefs
-  typedef bool result_type;
-
-  // Constructor
-  template<typename ToleranceType>
-  explicit    close_at_tolerance(ToleranceType tolerance, fpc::strength fpc_strength = FPC_STRONG)
-    : m_fraction_tolerance(fpc_detail::fraction_tolerance<Real>(tolerance))
-    , m_strength(fpc_strength)
-    , m_tested_rel_diff(0)
-  {
-    BOOST_ASSERT_MSG(m_fraction_tolerance >= Real(0), "tolerance must not be negative!"); // no reason for tolerance to be negative
-  }
-
-  // Access methods
-  //! Returns the tolerance
-  Real                 fraction_tolerance() const { return m_fraction_tolerance; }
-
-  //! Returns the comparison method
-  fpc::strength       strength() const { return m_strength; }
-
-  //! Returns the failing fraction
-  Real                tested_rel_diff() const { return m_tested_rel_diff; }
-
-  /*! Compares two floating point numbers a and b such that their "left" relative difference |a-b|/a and/or
-  * "right" relative difference |a-b|/b does not exceed specified relative (fraction) tolerance.
-  *
-  *  @param[in] left first floating point number to be compared
-  *  @param[in] right second floating point number to be compared
-  *
-  * What is reported by @c tested_rel_diff in case of failure depends on the comparison method:
-  * - for @c FPC_STRONG: the max of the two fractions
-  * - for @c FPC_WEAK: the min of the two fractions
-  * The rationale behind is to report the tolerance to set in order to make a test pass.
-  */
-  bool                operator()(FPT left, FPT right) const
-  {
-    if (left.size() != right.size())
-      return false;
-
-    Real diff = sqrt(sumsq(left - right));
-    
-    m_tested_rel_diff = diff;
-
-    return m_tested_rel_diff <= m_fraction_tolerance;
-  }
-
-private:
-  // Data members
-  Real m_fraction_tolerance;
-  fpc::strength       m_strength;
-  mutable Real         m_tested_rel_diff;
-};
 
 
 
@@ -467,13 +410,14 @@ Real f6(Vec3<Real> const& x)
   return dot(fx, fx);
 }
 
+
 Vec3<Real> grad_f6(Vec3<Real> const& x)
 {
   auto fx = f2(x);
   auto grad_fx = grad_f2(x);
   auto result = dot(fx, fx);
   auto gres = gdot(grad_fx, grad1_dot(fx, fx), x) + gdot(grad_fx, grad1_dot(fx, fx), x);
-  BOOST_CHECK_CLOSE(gres, gdot(grad_fx, grad_normsq(fx), fx), 1e-4);
+  BOOST_CHECK_CLOSE(gres, gdot(grad_fx, grad_sumsq(fx), fx), 1e-4);
   return gres;
 }
 
