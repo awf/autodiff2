@@ -46,7 +46,7 @@ struct container_depth<void, Target_t> {
 #include <vector>
 #include <list>
 
-void test_container_depth()
+static void test_container_depth()
 {
   BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<double>, double) == 1);
   // BOOST_STATIC_ASSERT(CONTAINER_DEPTH(std::vector<double>, int) == 1); // This should not compile...
