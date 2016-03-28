@@ -19,12 +19,15 @@ PROJECT(autodiff)
 
 ADD_EXECUTABLE(autodiff 
       autodiff/autodiff.cpp 
+      autodiff/dnn.cpp 
       autodiff/boost_test.cpp 
       autodiff/copy.h 
       autodiff/counting_iterator.h 
       autodiff/Zero.h 
       autodiff/Vec.h 
       autodiff/Mat.h
+      autodiff/Mat_test.cpp 
+      autodiff/Vec_test.cpp
       autodiff/flat_view.h
       autodiff/Dot.h )
 
