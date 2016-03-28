@@ -1,4 +1,6 @@
 
+#include "test.h"
+
 #include "Vec.h"
 #include "Mat.h"
 
@@ -21,7 +23,7 @@ void f()
 }
 
 
-int main(int argc, char const* const* argv)
+BOOST_AUTO_TEST_CASE(test_vec)
 {
   typedef double Real;
 
