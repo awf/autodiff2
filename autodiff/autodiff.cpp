@@ -115,12 +115,6 @@ auto grad_finite_difference(std::function<Container1_of_Real(Container2_of_Real 
 }
 
 
-template <class T, size_t N, size_t M>
-T trace(Mat<T, N, M> const& m)
-{
-  return sum(diag(m));
-}
-
 template <class T>
 Mat3x3<T> grad_trace(Mat3x3<T> const& m)
 {
@@ -150,6 +144,67 @@ Vec3<Real> grad_f(Vec3<Real> const& x)
   return gdot<decltype(x)>(grad_exp2mat(x), grad_trace(exp2mat(x)));
 }
 
+template<typename T, size_t Size, class ContentsTag>
+class boost::math::fpc::close_at_tolerance<Vec<T, Size, ContentsTag>> {
+  typedef Vec<T, Size, ContentsTag> FPT;
+  typedef decltype(sumsq(FPT())) Real;
+
+public:
+  // Public typedefs
+  typedef bool result_type;
+
+  // Constructor
+  template<typename ToleranceType>
+  explicit    close_at_tolerance(ToleranceType tolerance, fpc::strength fpc_strength = FPC_STRONG)
+    : m_fraction_tolerance(fpc_detail::fraction_tolerance<Real>(tolerance))
+    , m_strength(fpc_strength)
+    , m_tested_rel_diff(0)
+  {
+    BOOST_ASSERT_MSG(m_fraction_tolerance >= Real(0), "tolerance must not be negative!"); // no reason for tolerance to be negative
+  }
+
+  // Access methods
+  //! Returns the tolerance
+  Real                 fraction_tolerance() const { return m_fraction_tolerance; }
+
+  //! Returns the comparison method
+  fpc::strength       strength() const { return m_strength; }
+
+  //! Returns the failing fraction
+  Real                tested_rel_diff() const { return m_tested_rel_diff; }
+
+  /*! Compares two floating point numbers a and b such that their "left" relative difference |a-b|/a and/or
+  * "right" relative difference |a-b|/b does not exceed specified relative (fraction) tolerance.
+  *
+  *  @param[in] left first floating point number to be compared
+  *  @param[in] right second floating point number to be compared
+  *
+  * What is reported by @c tested_rel_diff in case of failure depends on the comparison method:
+  * - for @c FPC_STRONG: the max of the two fractions
+  * - for @c FPC_WEAK: the min of the two fractions
+  * The rationale behind is to report the tolerance to set in order to make a test pass.
+  */
+  bool                operator()(FPT left, FPT right) const
+  {
+    if (left.size() != right.size())
+      return false;
+
+    Real diff = sqrt(sumsq(left - right));
+    
+    m_tested_rel_diff = diff;
+
+    return m_tested_rel_diff <= m_fraction_tolerance;
+  }
+
+private:
+  // Data members
+  Real m_fraction_tolerance;
+  fpc::strength       m_strength;
+  mutable Real         m_tested_rel_diff;
+};
+
+
+
 BOOST_AUTO_TEST_CASE(test_chain_rule)
 {
   Vec3<Real> x = vec(-.5, .2, .3);
@@ -160,7 +215,7 @@ BOOST_AUTO_TEST_CASE(test_chain_rule)
   Vec3<Real> grad_fd = grad_finite_difference<Real, Vec3<Real>>(f, x);
   std::cout << "GRAD_FD = " << grad_fd << "\n";
 
-  BOOST_CHECK(sumsq(grad - grad_fd) < 1e-5);
+  BOOST_CHECK_CLOSE(grad, grad_fd, 1e-3);
 }
 
 Real grad_sin(Real x)
@@ -315,7 +370,7 @@ BOOST_AUTO_TEST_CASE(test_mmul)
   Mat3x3<Real> A{ vec(vec(1.1,1.2,1.3), vec(7.,5.,11.), vec(13.,17.,19.)) };
   Vec3<Real> b = vec(2.1, 3.2, 3.3);
   Vec3<Real> Ab = vec(67.6100, 74.6200, 100.6300);
-  BOOST_CHECK(sumsq(mmul(A, b) - Ab) < 1e-12);
+  BOOST_CHECK_CLOSE(mmul(A, b), Ab, 1e-8);
 }
 
 // Define gradients of mmul, with respect to arguments 1 and 2
@@ -379,18 +434,18 @@ Vec3<Real> grad_f3(Vec3<Real> const& x) {
   return gdot(val_grad_f2, grad2_dot(b(), val_f2), x);
 }
 
-// f4: A * b
-Vec3<Real> f4(Mat3x3<Real> const& A)
+// f4: X * b
+Vec3<Real> f4(Mat3x3<Real> const& X)
 {
-  return mmul(A, b());
+  return mmul(X, b());
 }
 
-Vec3<Mat3x3<Real>> grad_f4(Mat3x3<Real> const& A)
+Vec3<Mat3x3<Real>> grad_f4(Mat3x3<Real> const& X)
 {
-  return grad1_mmul(A, b());
+  return grad1_mmul(X, b());
 }
 
-// f5: dot(f2(x), f2(x))
+// f5: dot(f2(x), x)
 Real f5(Vec3<Real> const& x)
 {
   auto fx = f2(x);
@@ -402,164 +457,63 @@ Vec3<Real> grad_f5(Vec3<Real> const& x)
   auto fx = f2(x);
   auto grad_fx = grad_f2(x);
   auto result = dot(fx, x);
-  return gdot<decltype(x)>(grad_fx, grad1_dot(fx, x)) + grad2_dot(fx, x);
+  return gdot(grad_fx, grad1_dot(fx, x), x) + grad2_dot(fx, x);
+}
+
+// f6: dot(f2(x), f2(x))
+Real f6(Vec3<Real> const& x)
+{
+  auto fx = f2(x);
+  return dot(fx, fx);
+}
+
+Vec3<Real> grad_f6(Vec3<Real> const& x)
+{
+  auto fx = f2(x);
+  auto grad_fx = grad_f2(x);
+  auto result = dot(fx, fx);
+  auto gres = gdot(grad_fx, grad1_dot(fx, fx), x) + gdot(grad_fx, grad1_dot(fx, fx), x);
+  BOOST_CHECK_CLOSE(gres, gdot(grad_fx, grad_normsq(fx), fx), 1e-4);
+  return gres;
 }
 
 template <class In, class Out, class OutGrad>
 void test_fd(std::string const& tag, Out f(In const&  x), OutGrad grad_f(In const& x), In const& x)
 {
   auto hand = grad_f(x);
-  std::cout << tag << "Hand = " << hand << std::endl;
-
   auto fd = grad_finite_difference<Out, In>(f, x);
-  std::cout << tag << "FD   = " << fd << std::endl;
-
-  BOOST_CHECK(sumsq(hand - fd) < 1e-5);
+  double tol = std::max(1.0, sqrt(sumsq(fd))) * 1e-4;
+  BOOST_CHECK_CLOSE(hand, fd, tol);
 }
 
-BOOST_AUTO_TEST_CASE(test_chain_rule_2)
+BOOST_AUTO_TEST_CASE(test_mmul2)
 {
-  // Test grad of mmul(X,b)
-  {
     Mat3x3<Real> A { vec(vec(1.1,1.2,1.3), vec(7.,5.,11.), vec(13.,17.,19.)) };
     test_fd("mmul", f4, grad_f4, A);
-  }
+}
 
-  {
-    Vec3<Real> a = vec(1., 2., 5.);
-    test_fd("f2", f2, grad_f2, a);
-  }
+BOOST_AUTO_TEST_CASE(test_f2)
+{
+    test_fd("f2", f2, grad_f2, vec(1., 2., 5.));
+}
 
-  {
-    Vec3<Real> a = vec(1., 2., 5.);
+BOOST_AUTO_TEST_CASE(test_f3)
+{
+    Vec3<Real> a = vec(1., 2., 6.5);
     test_fd("f3", f3, grad_f3, a);
   }
 
-  {
+BOOST_AUTO_TEST_CASE(test_f5)
+{
     Vec3<Real> a = vec(1.1, 2.2, 5.5);
     test_fd("f5", f5, grad_f5, a);
   }
-}
 
-#if 0
-
-Real sqr(Real a) { return a*a; }
-
-Vec2<Real> pi(Vec3<Real> const& X)
-{
-  Vec2<Real> ret(2u);
-  ret[0] = X[0] / X[2];
-  ret[1] = X[1] / X[2];
-  return ret;
-}
-
-Vec3<Vec3<Real>> grad_pi(Vec3<Real> const& X)
-{
-  Vec<Vec3<Real>> ret(2);
-  Real x = X[0];
-  Real y = X[1];
-  Real z = X[2];
-  Real sz = 1 / z;
-  Real szz = sz*sz;
-
-  ret[0] = vec<Real>(sz, 0, -x * szz);
-  ret[1] = vec<Real>(0, sz, -y * szz);
-  return ret;
-}
-
-Vec<Vec<Real>> grad_(Vec<Real> const& x)
-{
-  Vec<Vec<Real>> ret = numeric_traits<Vec<Vec<Real>>>::zeros_of_shape(x);
-  for (size_t i = 0; i < x.size(); ++i)
-    ret[i][i] = 1;
-  return ret;
-}
-
-
-Vec2<Real> project(Vec3<Real> rotation, Vec3<Real> translation, Vec3<Real> X, Vec5<Real> kappa) {
-  Mat3x3<Real> Rot = exp2mat(rotation);
-  Real f = kappa[0];
-  Real cx = kappa[1];
-  Real cy = kappa[2];
-  Real k1 = kappa[3];
-  Real k2 = kappa[4];
-  Mat3x3<Real> K = Mat3x3<Real>(
-    vec<Real>(f, 0, cx),
-    vec<Real>(0, f, cy),
-    vec<Real>(0, 0, 1));
-  // ICE:	Mat3x3<Real> K = { { f, 0, cx }, { 0, f, cy }, { 0, 0, 1 } };
-  Vec2<Real> p = pi(mmul(K, mmul(Rot, X) + translation));
-
-  return p;
-}
-
-tuple < Vec2<Vec3<Real>>, Vec2<Vec3<Real>>, Vec2<Vec3<Real>>, Vec2<Vec<Real>> > grad_project(Vec3<Real> rotation, Vec3<Real> translation, Vec3<Real> X, Vec<Real> kappa) {
-  auto grad_rotation = grad_(rotation);
-  auto grad_translation = grad_(translation);
-  auto grad_X = grad_(X);
-  auto grad_kappa = grad_(kappa);
-
-  Mat3x3<Real> Rot = exp2mat(rotation);
-  auto grad_Rot = grad_exp2mat(rotation);
-
-  Real f = kappa[0];
-  auto grad_f = grad_kappa[0];  // grad_index(kappa,0)
-  Real cx = kappa[1];
-  auto grad_cx = grad_kappa[1];
-  Real cy = kappa[2];
-  auto grad_cy = grad_kappa[2];
-  Real k1 = kappa[3];
-  auto grad_k1 = grad_kappa[3];
-  Real k2 = kappa[4];
-  auto grad_k2 = grad_kappa[4];
-  Vec<Real> e0 = numeric_traits<Vec<Real>>::zeros_of_shape(grad_f);
-  Mat3x3<Real> K = Mat3x3<Real>(
-    vec<Real>(f, 0, cx),
-    vec<Real>(0, f, cy),
-    vec<Real>(0, 0, 1));
-  Mat3x3<Vec<Real>> grad_K = Mat3x3<Vec<Real>>(
-    vec<Vec<Real>>(grad_f, e0, grad_cx),
-    vec<Vec<Real>>(e0, grad_f, grad_cy),
-    vec<Vec<Real>>(e0, e0, e0));
-
-  Vec3<Real> xcam = mmul(Rot, X) + translation;
-
-  auto grad__Rot_xcam = DOT(grad_₁mmul(Rot, X), grad_Rot);
-  auto grad__X_xcam = DOT(grad_₂mmul(Rot, X), grad_X);
-  auto grad__translation_xcam = grad_translation;
-
-  Vec3<Real> xhomg = mmul(K, xcam);
-  // grad_xhomg = DOT(grad_₁mmul(K, xcam), grad_K) + DOT(grad_₂mmul(K, xcam), grad_xcam);
-  auto grad__K_xhomg = DOT(grad_₁mmul(K, xcam), grad_K);
-  auto grad__Rot_xhomg = DOT(grad_₂mmul(K, xcam), grad__Rot_xcam);
-  auto grad__X_xhomg = DOT(grad_₂mmul(K, xcam), grad__X_xcam);
-  auto grad__translation_xhomg = DOT(grad_₂mmul(K, xcam), grad__translation_xcam);
-
-  Vec2<Real> p = pi(xhomg);
-  auto grad__K_p = DOT(grad_pi(xhomg), grad__K_xhomg);
-  auto grad__Rot_p = DOT(grad_pi(xhomg), grad__Rot_xhomg);
-  auto grad__X_p = DOT(grad_pi(xhomg), grad__X_xhomg);
-  auto grad__translation_p = DOT(grad_pi(xhomg), grad__translation_xhomg);
-
-  auto g = make_tuple(grad__Rot_p, grad__translation_p, grad__X_p, grad__K_p);
-
-  return g;
-}
-
-Vec<Vec2<Real>> residuals(Vec<Vec3<Real>> rotations, Vec<Vec3<Real>> translations, Vec<Vec3<Real>> Xs, Vec<Real> kappas,
-  Vec<Vec2<Real>> ms, Vec<int> frames, Vec<int> points)
-{
-  int nR = ms.size();
-  Vec<Vec2<Real>> ret(nR);
-  for (size_t i = 0; i < ms.size(); ++i) {
-    int f = frames[i];
-    int p = points[i];
-    ret[i] = project(rotations[f], translations[f], Xs[p], kappas) - ms[i];
+BOOST_AUTO_TEST_CASE(test_f6)
+  {
+    Vec3<Real> a = vec(1.1, 2.2, 5.5);
+    test_fd("f6", f6, grad_f6, a);
   }
-  return ret;
-}
-
-#endif
 
 
 int xmain(int argc, char* argv[])
@@ -584,16 +538,6 @@ int xmain(int argc, char* argv[])
   Real c = 0;
   Vec<Vec<Real, 3>, 3> vvc = Vec3<Vec3<Zero>>();
 
-  /*
-  Vec3<Real> rotation = vec<Real>(1,-2,3);
-  Vec3<Real> translation = vec<Real>(11, 12, 13);
-  Vec3<Real> X = vec<Real>(.1, .3, .5);
-  Vec<Real> kappa = vec<Real>(1.4, 0.01, 0.02, 0, 0);
-
-  Vec2<Real> p = project(rotation, translation, X, kappa);
-
-  auto grad_p = grad_project(rotation, translation, X, kappa);
-  */
   return 0;
 }
 

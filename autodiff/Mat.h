@@ -60,3 +60,8 @@ Mat<T, N, N> identity() {
   return out;
 }
 
+template <class T, size_t N, size_t M>
+T trace(Mat<T, N, M> const& m)
+{
+  return sum(diag(m));
+}

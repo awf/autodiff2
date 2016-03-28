@@ -55,10 +55,18 @@ Vec<Vec<Any>> grad_relu(Vec<Any> const& x)
 
 
 template <class Real, size_t W, size_t H, size_t N_out, size_t N_in, size_t Filter_W, size_t Filter_H>
-auto conv(Vec<Mat<Real, Filter_W, Filter_H>, N_out> const& filters, 
+auto conv(Vec<Mat<Real, Filter_W, Filter_H>, N_out> const& filters,
           Mat<Vec<Real, N_in>, W, H> const& in) ->
   Mat<Vec<Real, N_out>, W, H>
 {
+  // .. do convolution, efficiently presumably, ...
+}
 
+template <class Real, size_t W, size_t H, size_t N_out, size_t N_in, size_t Filter_W, size_t Filter_H>
+auto grad1_conv(Vec<Mat<Real, Filter_W, Filter_H>, N_out> const& filters,
+                Mat<Vec<Real, N_in>, W, H> const& in) ->
+  Vec<Mat<Mat<Vec<Real, N_out>, W, H>, Filter_W, Filter_H>, N_out>
+{
+  // .. do convolution, efficiently presumably, ...
 }
 

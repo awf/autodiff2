@@ -19,6 +19,7 @@ PROJECT(autodiff)
 
 ADD_EXECUTABLE(autodiff 
       autodiff/autodiff.cpp 
+      autodiff/bundle.cpp 
       autodiff/dnn.cpp 
       autodiff/boost_test.cpp 
       autodiff/copy.h 

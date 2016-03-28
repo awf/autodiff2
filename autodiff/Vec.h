@@ -450,6 +450,12 @@ auto normsq(Vec<T, Size, CT> const& v) -> decltype(dot(v, v))
   return dot(v, v);
 }
 
+template <class T, int Size, class CT>
+auto grad_normsq(Vec<T, Size, CT> const& v) -> decltype(2*v)
+{
+  return 2*v;
+}
+
 // FLATTEN
 template <class CT1, int Size>
 Real* flatten(Vec<Real, Size, CT1> const& a, Real* out)
