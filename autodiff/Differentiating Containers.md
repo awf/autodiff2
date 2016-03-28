@@ -105,12 +105,12 @@ create `grad_f`, such that every parameter (i.e. `Real` in the input) will have 
 ```cpp
 Container1<Container2<Real>>   grad_f(Container2<Real>);
 ```
-You may immediately notice that if the two Containers are vectors, the return type is `vector<vector<Real>>`, which looks a lot like the Jacobian matrix *J*.  In fact it's the vector of columns of *J*, but that little fact is not necessary to do almost all of the stuff we need to do with these derivatives.
-
+You may immediately notice that if the two Containers are vectors, the return type is `vector<vector<Real>>`, which looks a lot like the Jacobian matrix *J*.  In fact it's the vector of columns of *J*, but that little fact is just an aside.  We can do almost all of the stuff we need to do with these derivatives without any reference to the Jacobian.
 
 And now we can define `grad_rot`:
 ```cpp
- Mat3x3<Real> rot(Vec3<Real> v);
+ Mat3x3<Real> rot(Vec3<Real> v); // Recall rot's decl
+
  Vec3<Mat3x3<Real>> grad_rot(Vec3<Real> v)
  {
    out[0] = /* derivatives of output wrt v[0] */;
@@ -148,17 +148,16 @@ So let's just try to write that derivative with grads:
 
 The only thing that goes wrong is the multiply...  So what multiply is intended here?  Matrix product?  Outer product?  Dot product? If you've done this sort of thing before, you'll be worrying about matrix transposes, order of multiplication, and probably rolling the word &ldquo;tensor&rdquo; around in your mouth.  It is a lovely word.
 
-  In fact, it's reasonably simple.  It's always a dot product, but of a generalized form.  For nested containers ```C1<C2<Real>>``` and ```C2<C3<Real>>```, the dotting happens over the container `C2`, and its return type is a C1 of the product of a Real and a C3, which will always be a C3.
+In fact, it's reasonably simple.  It's always a dot product, but of a generalized form.  For nested containers `C1<C2<Real>>` and `C2<C3<Real>>`, the dotting happens over the container `C2`, and its return type is a C1 of the product of a Real and a C3, which will always be a C3.
 ```cpp
    dot(C1<C2<Real>>, C2<C3<Real>>) -> C1<C3<Real>>
 ```
-In words, corresponding elements of the ```C2```s are multiplied and added, and the results are gathered into a ``C1`` of the appropriate type.
+In words, corresponding elements of the `C2`s are multiplied and added, and the results are gathered into a `C1` of the appropriate type.
 
 The final twist is that the order of arguments to dot() matters -- we will write
 ```cpp
-    grad_trace_of_rot(x)= dot(grad_rot(x), grad_trace(rot(x)), ?)
+    grad_trace_of_rot(x)= gdot(grad_rot(x), grad_trace(rot(x)))
 ```
-where the ? is one more argument, to be described below.
 
 So let's go back to `trace_of_rot`, and expand the code with some type declarations just to see what's happening.
 ```cpp
@@ -203,6 +202,11 @@ The solution is to specify how to split the second argument, and the easiest way
 ```cpp
    C1<C3<Real>> gdot(C1<Container<Real>>, Container<C3<Real>>, C3<Real>)
 ```
+  and as the third argument is generally used only for type inference, I write
+```cpp
+   C1<C3<Real>> gdot<C3Real>(C1<Container<Real>>, Container<C3<Real>>)
+```
+
 And the general chain rule is (dropping the `<Real>` everywhere)
 ```cpp
       C3 f(C1 x) {
@@ -211,9 +215,10 @@ And the general chain rule is (dropping the `<Real>` everywhere)
         C3 f = h(gx);                     // h(C2) -> C3
         C2<C3> grad_h = grad_h(gx);
         //                   C1<C2>  C2<C3>  C1
-        C1<C3> grad_f = gdot(grad_h, grad_g, x);
+        C1<C3> grad_f = dot<decltype(x)>(grad_h, grad_g);
       }
 ```
+  where the ``decltype(x)`` is necessary only when the containers are ambiguous, which is in fact often.
 And to go back to our example, the definition of ``grad_trace_of_rot`` is
 ```cpp
 	Vec3<Real> grad_trace_of_rot(Vec3<Real>  x)
@@ -274,45 +279,45 @@ Of course we should add optimization smarts to the compiler as far as possible. 
 Kinda.  If you mean ETs to elide temporaries, yes do that.   If you mean ETs to unroll loops, assume the compiler does that.  If you mean ETs to tag certain types, yes that's what I will say.
 
 3. Use special types to encode special matrix structures, like
-```cpp
-template <class Real, size_t N>
-struct identity_matrix {
-};
+    ```cpp
+    template <class Real, size_t N>
+    struct identity_matrix {
+    };
 
-template <class Real, size_t N>
-struct diagonal_matrix {
-	vec<Real, N> storage;
-};
+    template <class Real, size_t N>
+    struct diagonal_matrix {
+	    vec<Real, N> storage;
+    };
 
-// Fixed block structure known at compile time.
-// Yes, we could work out N given only M, but better errors this way
-template <size_t M, size_t N, class BlockType...>
-class block_matrix {
-};
+    // Fixed block structure known at compile time.
+    // Yes, we could work out N given only M, but better errors this way
+    template <size_t M, size_t N, class BlockType...>
+    class block_matrix {
+    };
 
-block_matrix<3,3,
-			 Mat<Real>,Mat<Zero>,Mat<Zero>,
-			 Mat<Zero>,Identity,Mat<Zero>,
-			 Mat<Real>,Mat<Zero>,Identity> myjacobian;
-```
-and then define operations on these so that ```I * A = A``` where ```I``` is an ```identity_matrix```
+    block_matrix<3,3,
+			     Mat<Real>,Mat<Zero>,Mat<Zero>,
+			     Mat<Zero>,Identity,Mat<Zero>,
+			     Mat<Real>,Mat<Zero>,Identity> myjacobian;
+    ```
+and then define operations on these so that `I * A = A` where `I` is an `identity_matrix`
 
 4. Or you can maybe save a bit of typing and header file size by adding a contents tag to the matrix class:
-```cpp
-template <class Real, size_t M, size_t N, class ContentTypeTag>
-struct matrix {
-};
-// specialize for Mat_Identity
-template <class Real, size_t N>
-struct matrix<Real, N, N, Mat_Identity> {
-//...
-};
-```
+    ```cpp
+    template <class Real, size_t M, size_t N, class ContentTypeTag>
+    struct matrix {
+    };
+    // specialize for Mat_Identity
+    template <class Real, size_t N>
+    struct matrix<Real, N, N, Mat_Identity> {
+    //...
+    };
+    ```
 The main point is that these speedups are independent of our context of differentiation, but some of them may give bigger wins in our context than in others, so may be more worthwhile to implement.
 
 ##### Sharing computation
 
-Another efficiency issue is that f(), grad_f() may share computation, and one may sometimes want both, sometimes want just one. First, devise a naming convention for a function which returns an optional Jacobian.  We find it best to have a bool template argument so the compiler can lay down two versions:
+Another efficiency issue is that f(), grad_f() may share computation, and one may sometimes want both, sometimes want just one. First, devise a naming convention for a function which returns an optional Jacobian.  We find it best to use bool template parameters so the compiler can lay down two versions:
 
 ```cpp
 template <bool want_f = true, bool want_jacobian = true>

@@ -334,7 +334,11 @@ Vec3<Vec3<Real>> grad2_mmul(Mat3x3<Real> const& a, Vec3<Real> const& b)
 Vec3<Real> b() { return vec<Real>(11, 22, 33); }
 // does this have a clean definition?   Void<Vec3<Zero>>, where void is an empty container ?
 // void grad_b() { }
+// I think not.  With multi-argument functions, we write grad1_b , grad2_b etc, 
+// so here we would be writing grad0_b, which is essentially null
+// At any call site, b is clearly constant, as it has no arguments.
 
+// f2: exp2mat(a) * b
 Vec3<Real> f2(Vec3<Real> const& a) {
   auto Rot = exp2mat(a);
   return mmul(Rot, b());
@@ -353,8 +357,14 @@ Vec3<Vec3<Real>> grad_f2(Vec3<Real> const& a) {
   return d1; //+ d2;
 }
 
+// f3: b' * f2(x)
 Real f3(Vec3<Real> const& x) {
   return dot(b(), f2(x));
+}
+
+Vec3<Real> grad1_dot(Vec3<Real> const& a, Vec3<Real> const& x)
+{
+  return x;
 }
 
 Vec3<Real> grad2_dot(Vec3<Real> const& a, Vec3<Real> const& x)
@@ -369,6 +379,7 @@ Vec3<Real> grad_f3(Vec3<Real> const& x) {
   return gdot(val_grad_f2, grad2_dot(b(), val_f2), x);
 }
 
+// f4: A * b
 Vec3<Real> f4(Mat3x3<Real> const& A)
 {
   return mmul(A, b());
@@ -379,6 +390,21 @@ Vec3<Mat3x3<Real>> grad_f4(Mat3x3<Real> const& A)
   return grad1_mmul(A, b());
 }
 
+// f5: dot(f2(x), f2(x))
+Real f5(Vec3<Real> const& x)
+{
+  auto fx = f2(x);
+  return dot(fx, x);
+}
+
+Vec3<Real> grad_f5(Vec3<Real> const& x)
+{
+  auto fx = f2(x);
+  auto grad_fx = grad_f2(x);
+  auto result = dot(fx, x);
+  return gdot<decltype(x)>(grad_fx, grad1_dot(fx, x)) + grad2_dot(fx, x);
+}
+
 template <class In, class Out, class OutGrad>
 void test_fd(std::string const& tag, Out f(In const&  x), OutGrad grad_f(In const& x), In const& x)
 {
@@ -386,7 +412,7 @@ void test_fd(std::string const& tag, Out f(In const&  x), OutGrad grad_f(In cons
   std::cout << tag << "Hand = " << hand << std::endl;
 
   auto fd = grad_finite_difference<Out, In>(f, x);
-  std::cout << tag << "FD = " << fd << std::endl;
+  std::cout << tag << "FD   = " << fd << std::endl;
 
   BOOST_CHECK(sumsq(hand - fd) < 1e-5);
 }
@@ -407,6 +433,11 @@ BOOST_AUTO_TEST_CASE(test_chain_rule_2)
   {
     Vec3<Real> a = vec(1., 2., 5.);
     test_fd("f3", f3, grad_f3, a);
+  }
+
+  {
+    Vec3<Real> a = vec(1.1, 2.2, 5.5);
+    test_fd("f5", f5, grad_f5, a);
   }
 }
 
