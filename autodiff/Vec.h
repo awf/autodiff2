@@ -6,7 +6,9 @@
 #include <vector>
 #include <iostream>
 
-#include "test.h"
+#include <boost/static_assert.hpp>
+
+//#include "test.h"
 #include "copy.h"
 #include "counting_iterator.h"
 
@@ -119,6 +121,20 @@ struct Vec<T, Size, Vec_GE> {
     for (size_t i = 0; i < size(); ++i)
       (*this)[i] += that;
     return *this;
+  }
+
+  template <size_t start, size_t end_index> 
+  auto segment() const  {
+      BOOST_STATIC_ASSERT(end_index < Size);
+      Vec<T, end_index - start + 1, Vec_GE> out;
+      for (size_t i = 0; i < out.size(); ++i)
+          out[i] = (*this)[start + i];
+      return out;
+  }
+
+  template <size_t sz>
+  auto head() const {
+      return segment<0, sz-1>();
   }
 
   // size()
@@ -273,31 +289,44 @@ auto vec(T t, Ts ... ts) -> Vec<T, 1 + sizeof...(Ts)> {
 template <class T, int N, class CT>
 Vec<T, N, CT> operator*(double a, Vec<T, N, CT> const& b)
 {
-  Vec<T, N, CT> out(b.size());
-  for (size_t i = 0; i < b.size(); ++i)
-    out[i] = a * b[i];
-  return out;
+    Vec<T, N, CT> out(b.size());
+    for (size_t i = 0; i < b.size(); ++i)
+        out[i] = a * b[i];
+    return out;
 }
 
 template <class T, int N, class CT>
 Vec<T, N, CT> operator*(Vec<T, N, CT> const& a, double b)
 {
-  Vec<T, N, CT> out(a.size());
-  for (size_t i = 0; i < a.size(); ++i)
-    out[i] = a[i] * b;
-  return out;
+    Vec<T, N, CT> out(a.size());
+    for (size_t i = 0; i < a.size(); ++i)
+        out[i] = a[i] * b;
+    return out;
 }
 
 template <class T, int N, class CT>
 Vec<T, N, CT> operator/(Vec<T, N, CT> const& a, double b)
 {
-  Vec<T, N, CT> out(a.size());
-  for (size_t i = 0; i < a.size(); ++i)
-    out[i] = a[i] / b;
-  return out;
+    Vec<T, N, CT> out(a.size());
+    for (size_t i = 0; i < a.size(); ++i)
+        out[i] = a[i] / b;
+    return out;
 }
 
 // ENDOPERATOR: *
+
+// GROUP: cross
+template <class T, int N, class CT>
+Vec<T, N, CT> cross(Vec<T, N, CT> const& a, Vec<T, N, CT> const& b)
+{
+    return vec(
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0]
+        );
+}
+
+// ENDGROUP: cross
 
 template <class R>
 struct run_elementwise_binary {
@@ -564,7 +593,8 @@ bool operator!=(Vec<T, Size, CT> const& a, Vec<T2, Size2, CT2> const& b)
 
 // ENDFUN ==
 
-#include "test.h"
+#include <boost/test/tools/floating_point_comparison.hpp>
+
 // Declare boost::math::fpc::close_at_tolerance for vectors
 template<typename T, size_t Size, class ContentsTag>
 class boost::math::fpc::close_at_tolerance<Vec<T, Size, ContentsTag>> {
@@ -625,3 +655,9 @@ private:
   mutable Real         m_tested_rel_diff;
 };
 
+
+template <class T>
+using Vec3 = Vec<T, 3>;
+
+template <class T>
+using Vec2 = Vec<T, 2>;

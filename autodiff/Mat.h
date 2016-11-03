@@ -3,9 +3,6 @@
 #include "test.h"
 #include "Vec.h"
 
-template <class T>
-using Vec3 = Vec<T, 3>;
-
 struct Mat_Identity {};
 
 template <class T, size_t M, size_t N>
