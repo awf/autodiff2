@@ -52,7 +52,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\pkg\Code\boost\boost-trunk</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\pkg\boost_1_59_0\awf-install\include\boost-1_59</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -68,7 +68,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\pkg\Code\boost\boost-trunk</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\pkg\boost_1_59_0\awf-install\include\boost-1_59</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -82,6 +82,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="autodiff.cpp" />
+    <ClCompile Include="boost_test.cpp" />
+    <ClCompile Include="dnn.cpp" />
+    <ClCompile Include="Mat_test.cpp" />
     <ClCompile Include="Vec_test.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -91,7 +94,14 @@
     <ClInclude Include="container_depth.h" />
     <ClInclude Include="copy.h" />
     <ClInclude Include="Count.h" />
+    <ClInclude Include="counting_iterator.h" />
+    <ClInclude Include="dot.h" />
+    <ClInclude Include="flat_view.h" />
+    <ClInclude Include="Mat.h" />
+    <ClInclude Include="rodrigues.h" />
+    <ClInclude Include="test.h" />
     <ClInclude Include="Vec.h" />
+    <ClInclude Include="Zero.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
