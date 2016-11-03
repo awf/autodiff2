@@ -148,7 +148,7 @@ Vec3<Real> grad_f(Vec3<Real> const& x)
 
 
 
-BOOST_AUTO_TEST_CASE(test_chain_rule)
+BOOST_AUTO_TEST_CASE(test_chain_rule) 
 {
   Vec3<Real> x = vec(-.5, .2, .3);
   Vec3<Real> grad = grad_f(x);
