@@ -27,29 +27,32 @@ Real grad_relu(Real x)
     return 0;
 }
 
-// Should write with map, but...
-template <class Any, size_t N>
-Vec<Any, N> relu(Vec<Any, N> x)
+template <class Real, class Real2, size_t N>
+auto elementwise(Real2 f(Real), Vec<Real, N> const& v) -> Vec<Real2, N>
 {
-  Vec<Any> ret(x.size());
-  for (size_t i = 0; i != x.size(); ++i)
-    ret[i] = relu(x[i]);
+  Vec<Real2> ret(v.size());
+  for (size_t i = 0; i != v.size(); ++i)
+    ret[i] = f(v[i]);
   return ret;
 }
 
-BOOST_AUTO_TEST_CASE(test_relu)
+template <class R, size_t N>
+Vec<R, N> vrelu(Vec<R, N> x)
+{
+  return elementwise(relu<R>, x);
+}
+
+template <class R, size_t N>
+Vec<Vec<R,N>,N> grad_vrelu(Vec<R,N> const& x)
+{
+  return diaginv(elementwise(grad_relu<R>, x));
+}
+
+BOOST_AUTO_TEST_CASE(test_vrelu)
 {
   Vec3<Real> x = vec(-.5, .2, .3);
-  BOOST_CHECK(relu(x) == vec(0.,.2,.3));
-}
-
-template <class Any>
-Vec<Vec<Any>> grad_relu(Vec<Any> const& x)
-{
-  Vec<Vec<Any>> ret(x.size(), Vec<Any>(x.size()));
-  for (size_t i = 0; i != x.size(); ++i)
-    ret[i][i] = grad_relu(x[i]);
-  return ret;
+  BOOST_CHECK(vrelu(x) == vec(0., .2, .3));
+  BOOST_CHECK(grad_vrelu(x) == diaginv(vec(0., 1., 1.)));
 }
 
 
