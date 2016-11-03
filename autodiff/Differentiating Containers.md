@@ -103,7 +103,7 @@ So, what is the new rule?  It's this: Given arbitrary containers, and a function
 ```
 create `grad_f`, such that every parameter (i.e. `Real` in the input) will have a `Container2<Real>` of derivatives.
 ```cpp
-Container1<Container2<Real>>   grad_f(Container2<Real>);
+Container1<Container2<Real>>   grad_f(Container1<Real>);
 ```
 You may immediately notice that if the two Containers are vectors, the return type is `vector<vector<Real>>`, which looks a lot like the Jacobian matrix *J*.  In fact it's the vector of columns of *J*, but that little fact is just an aside.  We can do almost all of the stuff we need to do with these derivatives without any reference to the Jacobian.
 
@@ -363,6 +363,22 @@ another type to represent derivatives.
 
 
 ### Matrix inverse
+
+### The other way around
+
+One can do all of this the other way around, that is
+```cpp
+Container2<Real> f(Container1<Real>)
+```
+has gradient
+```cpp
+Container2<Container1<Real>> grad_f(Container1<Real>)
+```
+And somehow for me this feels more natural.   So why didn't I do that?
+
+1. The Jacobian comes out transposed. One might say that if a matrix is a vec<vec>, then one might try to interpret the inner vecs as rows.  But then dot doesn't implement matrix-vector multiply, which it does if the inner vecs are columns.
+2. Some other really important reason which I can't remember right now.   Something like it completely doesn't work.
+
 
 ### Other stuff
 
@@ -659,7 +675,7 @@ http://www.cs.nott.ac.uk/~txa/publ/jpartial.pdf
 
 Derivatives of Containers
 Michael Abbott, Thorsten Altenkirch, Neil Ghani, and Conor McBride
-http://www.cs.nott.ac.uk/~txa/publ/tlca03.pdf‎
+http://www.cs.nott.ac.uk/~txa/publ/tlca03.pdf
 
 http://blog.sigfpe.com/2006/06/fun-with-derivatives-of-containers.html
 Dan Piponi
