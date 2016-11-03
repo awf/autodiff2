@@ -11,6 +11,7 @@ Vec2<Real> radial_distort(Vec2<Real> rad_params, Vec2<Real> proj)
     return proj * L;
 }
 
+//__declspec(noinline)
 Vec3<Real> rodrigues_rotate_point(Vec3<Real> rot, Vec3<Real> x)
 {
     Real sqtheta = sumsq(rot);
