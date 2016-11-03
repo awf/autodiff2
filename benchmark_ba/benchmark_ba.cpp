@@ -35,7 +35,7 @@ int main()
         total += sumsq(project(cam, X));
     }
 
-    std::cout << "total =" << total << std::endl;
+    std::cout << "total =" << total << ", time per call = " << t.elapsed().wall/double(N) << "ns" << std::endl;
 
     return 0;
 }
