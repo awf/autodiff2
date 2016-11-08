@@ -1,0 +1,7 @@
+8/11
+ba.exe:
+total =414339.557544, time per call = 0.001390 ms
+ba_bump.exe:
+total =414339.557544, time per call = 0.000505 ms
+ba_cpp.out:
+total =414339.557544, time per call = 0.000072 ms
