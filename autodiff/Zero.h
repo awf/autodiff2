@@ -26,7 +26,7 @@ T operator+(T&& t, Zero)
 template <class T>
 Zero operator*(Zero, T&& t)
 {
-  return ;
+  return t;
 }
 
 template <class T>

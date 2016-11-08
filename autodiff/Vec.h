@@ -62,8 +62,8 @@ struct Vec_BV {};
 
 template <class Vec_U, class Vec_V>
 struct CT_traits {
-  typedef typename Vec_GE result_of_add;
-  typedef typename Vec_GE result_of_mul;
+  typedef Vec_GE result_of_add;
+  typedef Vec_GE result_of_mul;
 };
 
 ///////////////---------------------------
@@ -342,49 +342,94 @@ struct run_elementwise_binary {
   }
 };
 
-#define DECLARE_BINOP_2(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_T, Ret_N, Ret_CT) \
-auto operator OPERATOR(Vec<AT, AN, ACT> const& a, Vec<BT, BN, BCT> const& b) -> Vec<Ret_T, Ret_N, Ret_CT>\
+// #define DECLARE_BINOP_2(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_T, Ret_N, Ret_CT) \
+// auto operator OPERATOR(Vec<AT, AN, ACT> const& a, Vec<BT, BN, BCT> const& b) -> Vec<Ret_T, Ret_N, Ret_CT> \
+// {\
+//   auto f = [](AT aa, BT bb) { return aa OPERATOR bb; };\
+//   return run_elementwise_binary<decltype(a OPERATOR b)>()(a, b, f);\
+// }
+
+// #define DECLARE_BINOP(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_N, Ret_CT) \
+//   DECLARE_BINOP_2(OPERATOR, AT,AN,ACT,BT,BN,BCT,decltype(a[0] OPERATOR b[0]),Ret_N,Ret_CT)
+
+#define DECLARE_BINOP(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_N, Ret_CT) \
+auto operator OPERATOR(Vec<AT, AN, ACT> const& a, Vec<BT, BN, BCT> const& b) -> Vec<decltype(a[0] OPERATOR b[0]), Ret_N, Ret_CT> \
 {\
   auto f = [](AT aa, BT bb) { return aa OPERATOR bb; };\
   return run_elementwise_binary<decltype(a OPERATOR b)>()(a, b, f);\
 }
 
-#define DECLARE_BINOP(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_N, Ret_CT) \
-  DECLARE_BINOP_2(OPERATOR, AT,AN,ACT,BT,BN,BCT,decltype(a[0] OPERATOR b[0]),Ret_N,Ret_CT)
-
 #define ADD_CT(CTa, CTb) typename CT_traits<CTa, CTb>::result_of_add
 
 // Add: Fixedsize, Anysize -> Fixedsize
-template <class T, int N, class CTa, class U, class CTb>
-DECLARE_BINOP(+, T, N, CTa, U, 0, CTb, N, ADD_CT(CTa, CTb))
+// template <class T, int N, class CTa, class U, class CTb>
+// DECLARE_BINOP(+, T, N, CTa, U, 0, CTb, N, (ADD_CT(CTa, CTb)))
+template <class AT, int AN, class ACT, class BT, class BCT>
+auto operator +(Vec<AT, AN, ACT> const& a, Vec<BT, 0, BCT> const& b) -> Vec<decltype(a[0] + b[0]), AN, ADD_CT(ACT, BCT)>
+{
+  auto f = [](AT aa, BT bb) { return aa + bb; };
+  return run_elementwise_binary<decltype(a + b)>()(a, b, f);
+}
+
+// compilation errors related to C macro expansion!
+
+// // Add: Anysize, Fixedsize -> Fixedsize
+// template <class T, int N, class CTa, class U, class CTb>
+// DECLARE_BINOP(+, T, 0, CTa, U, N, CTb, N, (ADD_CT(CTa, CTb)))
+
+// // Add: Anysize, Anysize -> Anysize
+// template <class T, class CTa, class U, class CTb>
+// DECLARE_BINOP(+, T, 0, CTa, U, 0, CTb, 0, (ADD_CT(CTa, CTb)))
+
+// // Add: Fixedsize, Fixedsize -> Fixedsize
+// template <class T, int N, class CTa, class U, int M, class CTb>
+// DECLARE_BINOP(+, T, N, CTa, U, M, CTb, N, (ADD_CT(CTa, CTb)))
+
+// // Sub: Fixedsize, Anysize -> Fixedsize
+// template <class T, int N, class CTa, class U, class CTb>
+// DECLARE_BINOP(-, T, N, CTa, U, 0, CTb, N, (ADD_CT(CTa, CTb)))
+
+// // Sub: Anysize, Fixedsize -> Fixedsize
+// template <class T, int N, class CTa, class U, class CTb>
+// DECLARE_BINOP(-, T, 0, CTa, U, N, CTb, N, (ADD_CT(CTa, CTb)))
+
+// // Sub: Anysize, Anysize -> Anysize
+// template <class T, class CTa, class U, class CTb>
+// DECLARE_BINOP(-, T, 0, CTa, U, 0, CTb, 0, (ADD_CT(CTa, CTb)))
+
+// // Sub: Fixedsize, Fixedsize -> Fixedsize
+// template <class T, int N, class CTa, class U, int M, class CTb>
+// DECLARE_BINOP(-, T, N, CTa, U, M, CTb, N, (ADD_CT(CTa, CTb)))
+
 
 // Add: Anysize, Fixedsize -> Fixedsize
 template <class T, int N, class CTa, class U, class CTb>
-DECLARE_BINOP(+, T, 0, CTa, U, N, CTb, N, ADD_CT(CTa, CTb))
+auto operator +(Vec<T, 0, CTa> const& a, Vec<U, N, CTb> const& b) -> Vec<decltype(a[0] + b[0]), N, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa + bb; }; return run_elementwise_binary<decltype(a + b)>()(a, b, f);}
 
 // Add: Anysize, Anysize -> Anysize
 template <class T, class CTa, class U, class CTb>
-DECLARE_BINOP(+, T, 0, CTa, U, 0, CTb, 0, ADD_CT(CTa, CTb))
+auto operator +(Vec<T, 0, CTa> const& a, Vec<U, 0, CTb> const& b) -> Vec<decltype(a[0] + b[0]), 0, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa + bb; }; return run_elementwise_binary<decltype(a + b)>()(a, b, f);}
 
 // Add: Fixedsize, Fixedsize -> Fixedsize
 template <class T, int N, class CTa, class U, int M, class CTb>
-DECLARE_BINOP(+, T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
+auto operator +(Vec<T, N, CTa> const& a, Vec<U, M, CTb> const& b) -> Vec<decltype(a[0] + b[0]), N, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa + bb; }; return run_elementwise_binary<decltype(a + b)>()(a, b, f);}
 
-// Sub: Fixedsize, Anysize -> Fixedsize
+
 template <class T, int N, class CTa, class U, class CTb>
-DECLARE_BINOP(-, T, N, CTa, U, 0, CTb, N, ADD_CT(CTa, CTb))
+auto operator -(Vec<T, N, CTa> const& a, Vec<U, 0, CTb> const& b) -> Vec<decltype(a[0] - b[0]), N, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa - bb; }; return run_elementwise_binary<decltype(a - b)>()(a, b, f);}
 
-// Sub: Anysize, Fixedsize -> Fixedsize
+
 template <class T, int N, class CTa, class U, class CTb>
-DECLARE_BINOP(-, T, 0, CTa, U, N, CTb, N, ADD_CT(CTa, CTb))
+auto operator -(Vec<T, 0, CTa> const& a, Vec<U, N, CTb> const& b) -> Vec<decltype(a[0] - b[0]), N, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa - bb; }; return run_elementwise_binary<decltype(a - b)>()(a, b, f);}
 
-// Sub: Anysize, Anysize -> Anysize
+
 template <class T, class CTa, class U, class CTb>
-DECLARE_BINOP(-, T, 0, CTa, U, 0, CTb, 0, ADD_CT(CTa, CTb))
+auto operator -(Vec<T, 0, CTa> const& a, Vec<U, 0, CTb> const& b) -> Vec<decltype(a[0] - b[0]), 0, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa - bb; }; return run_elementwise_binary<decltype(a - b)>()(a, b, f);}
 
-// Sub: Fixedsize, Fixedsize -> Fixedsize
+
 template <class T, int N, class CTa, class U, int M, class CTb>
-DECLARE_BINOP(-, T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
+auto operator -(Vec<T, N, CTa> const& a, Vec<U, M, CTb> const& b) -> Vec<decltype(a[0] - b[0]), N, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa - bb; }; return run_elementwise_binary<decltype(a - b)>()(a, b, f);}
+
 
 
 // FUN: transpose

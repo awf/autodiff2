@@ -8,8 +8,7 @@
 #include "targetver.h"
 
 #include <stdio.h>
-#include <tchar.h>
 
 #include <boost/timer/timer.hpp>
 
-#include "Vec.h"
+#include "../autodiff/Vec.h"

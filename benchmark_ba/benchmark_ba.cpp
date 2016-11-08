@@ -19,7 +19,7 @@ int main()
     auto X = vec(0.03, 0.11, -0.7);
 
 
-    boost::timer::auto_cpu_timer t;
+    // boost::timer::auto_cpu_timer t;
 
     // Debug 150s 
     // Release 1s
@@ -35,7 +35,7 @@ int main()
         total += sumsq(project(cam, X));
     }
 
-    std::cout << "total =" << total << ", time per call = " << t.elapsed().wall/double(N) << "ns" << std::endl;
+    // std::cout << "total =" << total << ", time per call = " << t.elapsed().wall/double(N) << "ns" << std::endl;
 
     return 0;
 }
