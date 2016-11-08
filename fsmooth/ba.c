@@ -1,4 +1,12 @@
+#ifdef DPS
+#include "usecases_ba_storaged.h"
+#else
+#ifdef FUSED
+#include "usecases_ba_opt.h"
+#else
 #include "usecases_ba.h"
+#endif
+#endif
 
 int main(int argc, char** argv)
 {
@@ -43,6 +51,8 @@ int main(int argc, char** argv)
 	X->arr[2] = -0.7;
     timer_t t = tic();
 
+    storage_t s = storage_alloc(100);
+
     // Debug 150s 
     // Release 1s
     double total = 0;
@@ -53,8 +63,11 @@ int main(int argc, char** argv)
     for (int count = 0; count < N; ++count) {
         X->arr[0] = 1.0 / (2.0 + count);
         cam->arr[5] = 1.0 + count * 1e-6;
-
+#ifdef DPS
+        total += TOP_LEVEL_linalg_sqnorm_dps(empty_storage, TOP_LEVEL_usecases_ba_project_dps(s, cam, X, 11, 3), 2);
+#else
         total += TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_ba_project(cam, X));
+#endif
     }
     float elapsed = toc2(t);
     printf("total =%f, time per call = %f ms\n", total, elapsed / (double)(N));
