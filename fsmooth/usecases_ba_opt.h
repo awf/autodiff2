@@ -3,7 +3,16 @@
 #include "runtime/fsharp.h"
 #include <stdio.h>
 #include <math.h>
-#include "linalg.h"
+
+number_t TOP_LEVEL_linalg_sqnorm(array_number_t v) {
+	number_t macroDef26 = 0;
+	for(int cur_idx = 0; cur_idx < v->length; cur_idx++){
+		number_t cur = v->arr[cur_idx];
+		
+		macroDef26 = (macroDef26) + (cur*cur);;
+	}
+	return macroDef26;
+}
 
 array_number_t TOP_LEVEL_usecases_ba_project(array_number_t cam, array_number_t x) {
 	number_t macroDef299 = 0;
