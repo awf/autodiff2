@@ -156,3 +156,5 @@ $RECYCLE.BIN/
 .DS_Store
 awf-build/
 *.opendb
+
+*.out

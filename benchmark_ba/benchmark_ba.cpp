@@ -20,6 +20,7 @@ int main()
 
 
     // boost::timer::auto_cpu_timer t;
+    timer_t t = tic();
 
     // Debug 150s 
     // Release 1s
@@ -36,6 +37,9 @@ int main()
     }
 
     // std::cout << "total =" << total << ", time per call = " << t.elapsed().wall/double(N) << "ns" << std::endl;
-
+    // std::cout << "total =" << total << std::endl;
+    auto elapsed = toc(t);
+    printf("total =%f, time per call = %f ms\n", total, elapsed / double(N));
+    
     return 0;
 }
