@@ -158,3 +158,4 @@ awf-build/
 *.opendb
 
 *.out
+*.exe
