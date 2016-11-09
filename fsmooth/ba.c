@@ -1,5 +1,9 @@
 #ifdef DPS
+#ifdef FUSED
+#include "usecases_ba_opt_storaged.h"
+#else
 #include "usecases_ba_storaged.h"
+#endif
 #else
 #ifdef FUSED
 #include "usecases_ba_opt.h"
