@@ -3,7 +3,17 @@
 #include "runtime/fsharp.h"
 #include <stdio.h>
 #include <math.h>
-#include "linalg_storaged.h"
+
+number_t TOP_LEVEL_linalg_sqnorm_dps(storage_t stgVar311, array_number_t x_dps, card_t x_shp) {
+	number_t macroDef141 = 0;
+	array_number_t cur_dps_range = x_dps;
+	for(int cur_dps_idx = 0; cur_dps_idx < cur_dps_range->length; cur_dps_idx++){
+		number_t cur_dps = cur_dps_range->arr[cur_dps_idx];
+		
+		macroDef141 = (macroDef141) + (cur_dps*cur_dps);;
+	}
+	return macroDef141;
+}
 
 array_number_t TOP_LEVEL_usecases_ba_project_dps(storage_t stgVar299, array_number_t cam_dps, array_number_t x_dps, card_t cam_shp, card_t x_shp) {
 		number_t macroDef459 = 0;
