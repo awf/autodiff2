@@ -5,3 +5,23 @@ ba_bump.exe:
 total =414339.557544, time per call = 0.000505 ms
 ba_cpp.out:
 total =414339.557544, time per call = 0.000072 ms
+=======
+9/11
+ba.exe
+total =414339.557544, time per call = 0.001635 ms
+ba_bump.exe
+total =414339.557544, time per call = 0.000786 ms
+ba_opt.exe
+total =414339.557544, time per call = 0.000296 ms
+ba_opt_bump.exe
+total =414339.557544, time per call = 0.000103 ms
+ba_dps.exe
+total =414339.557544, time per call = 0.002123 ms
+ba_dps_bump.exe
+total =414339.557544, time per call = 0.000129 ms
+ba_opt_dps.exe
+total =414339.557544, time per call = 0.000196 ms
+ba_opt_dps_bump.exe
+total =414339.557544, time per call = 0.000055 ms
+ba_cpp.out 
+total =414339.557544, time per call = 0.000071 ms
