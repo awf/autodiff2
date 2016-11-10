@@ -179,6 +179,8 @@ struct Vec<T, 0, Vec_GE> {
 
   // Vec(Vec&&)
   Vec(Vec<T, 0, Vec_GE>&& that) : storage(that.storage) {}
+  // Vec(Vec const&)
+  Vec(Vec<T, 0, Vec_GE> const& that) : storage(that.storage) {}
 
   // Vec(Vec)
   template <class U, int S, class C>
@@ -298,22 +300,31 @@ Vec<T, N, CT> operator*(double a, Vec<T, N, CT> const& b)
 template <class T, int N, class CT>
 Vec<T, N, CT> operator*(Vec<T, N, CT> const& a, double b)
 {
-    Vec<T, N, CT> out(a.size());
-    for (size_t i = 0; i < a.size(); ++i)
-        out[i] = a[i] * b;
-    return out;
+  Vec<T, N, CT> out(a.size());
+  for (size_t i = 0; i < a.size(); ++i)
+    out[i] = a[i] * b;
+  return out;
 }
+
+// ENDOPERATOR: *
 
 template <class T, int N, class CT>
 Vec<T, N, CT> operator/(Vec<T, N, CT> const& a, double b)
 {
-    Vec<T, N, CT> out(a.size());
-    for (size_t i = 0; i < a.size(); ++i)
-        out[i] = a[i] / b;
-    return out;
+  Vec<T, N, CT> out(a.size());
+  for (size_t i = 0; i < a.size(); ++i)
+    out[i] = a[i] / b;
+  return out;
 }
 
-// ENDOPERATOR: *
+template <class T, int N, class CT>
+Vec<T, N, CT> operator-(Vec<T, N, CT> const& a, double b)
+{
+  Vec<T, N, CT> out(a.size());
+  for (size_t i = 0; i < a.size(); ++i)
+    out[i] = a[i] - b;
+  return out;
+}
 
 // GROUP: cross
 template <class T, int N, class CT>
@@ -570,6 +581,30 @@ auto grad_sumsq(Vec<T, Size, CT> const& v) -> decltype(2 * v)
 }
 
 // ENDFUN sumsq
+
+// FUN max
+template <class T, int Size, class CT>
+T max(Vec<T, Size, CT> const& a)
+{
+  assert(a.size() > 0);
+  T out = a[0];
+  for (size_t i = 1; i < a.size(); ++i)
+    if (a[i] > out)
+      out = a[i];
+  return out;
+}
+
+// FUN exp
+template <class T, int Size, class CT>
+Vec<T, Size, CT> exp(Vec<T, Size, CT> const& a)
+{
+  Vec<T, Size, CT> out{ a.size() };
+  for (size_t i = 0; i < a.size(); ++i)
+    out[i] = exp(a[i]);
+  return out;
+}
+
+
 
 // FUN ==
 template <class T, int Size, class CT, class T2, int Size2, class CT2>
