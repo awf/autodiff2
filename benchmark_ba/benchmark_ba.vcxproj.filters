@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="usecases_ba.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="benchmark_ba.cpp" />

@@ -8,14 +8,95 @@
 
 #include <boost/static_assert.hpp>
 
-//#include "test.h"
+// TODO better inference of scalars vs containers..
+typedef double Real;
+
+#if 1
+#include <Eigen/Dense>
+
+template <class T>
+using Vec = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+
+template <class T, size_t Size>
+using VecF = Eigen::Matrix<T, Size, 1>;
+
+template <class T>
+using Vec2 = VecF<T, 2>;
+
+template <class T>
+using Vec3 = VecF<T, 3>;
+
+template <class Derived>
+inline auto max(Eigen::DenseBase<Derived> const& v)
+{
+  return v.maxCoeff();
+}
+
+template <class Derived>
+inline auto sum(Eigen::DenseBase<Derived> const& v)
+{
+  return v.sum();
+}
+
+template <class Derived>
+inline auto sumsq(Eigen::MatrixBase<Derived> const& v)
+{
+  return v.squaredNorm();
+}
+
+template <class Derived1, class Derived2>
+inline auto cross(Eigen::MatrixBase<Derived1> const& u, Eigen::MatrixBase<Derived2> const& v)
+{
+  return u.cross(v);
+}
+
+template <class Derived1, class Derived2>
+inline auto dot(Eigen::MatrixBase<Derived1> const& u, Eigen::MatrixBase<Derived2> const& v)
+{
+  return u.dot(v);
+}
+
+template <class Derived>
+inline auto operator-(Eigen::MatrixBase<Derived> const& v, Real u)
+{
+  return (v.array() - u).matrix();
+}
+
+template <class Derived>
+inline auto exp(Eigen::MatrixBase<Derived> const& v)
+{
+  return exp(v.array()).matrix();
+}
+
+
+template <typename Iter, typename T>
+void vcopy(Iter p, T t)
+{
+  *p = t;
+}
+
+template <typename Iter, typename T, typename... Ts>
+void vcopy(Iter p, T t, Ts... ts)
+{
+  *p++ = t;
+  vcopy(p, ts...);
+}
+
+
+// FUNCTION: vec
+// Create vector from argument list
+template <typename T, typename... Ts>
+auto vec(T t, Ts ... ts) -> VecF<T, 1 + sizeof...(Ts)> {
+  VecF<T, 1 + sizeof...(Ts)> v;
+  vcopy(v.data(), t, ts...);
+  return v;
+}
+
+#else
 #include "copy.h"
 #include "counting_iterator.h"
 
 #include "Zero.h"
-
-// TODO better inference of scalars vs containers..
-typedef double Real;
 
 ///////////////---------------------------
 
@@ -123,18 +204,27 @@ struct Vec<T, Size, Vec_GE> {
     return *this;
   }
 
-  template <size_t start, size_t end_index> 
-  auto segment() const  {
-      BOOST_STATIC_ASSERT(end_index < Size);
-      Vec<T, end_index - start + 1, Vec_GE> out;
-      for (size_t i = 0; i < out.size(); ++i)
-          out[i] = (*this)[start + i];
-      return out;
+  template <size_t start_index, size_t end_index>
+  auto segment_start_end() const {
+    BOOST_STATIC_ASSERT(end_index < Size);
+    Vec<T, end_index - start_index + 1, Vec_GE> out;
+    for (size_t i = 0; i < out.size(); ++i)
+      out[i] = (*this)[start_index + i];
+    return out;
+  }
+
+  template <size_t n>
+  auto segment(size_t start_index) const {
+    assert(start_index + n <= Size);
+    Vec<T, n, Vec_GE> out;
+    for (size_t i = 0; i < n; ++i)
+      out[i] = (*this)[start_index + i];
+    return out;
   }
 
   template <size_t sz>
   auto head() const {
-      return segment<0, sz-1>();
+      return segment<sz>(0);
   }
 
   // size()
@@ -690,9 +780,13 @@ private:
   mutable Real         m_tested_rel_diff;
 };
 
+template <class T, size_t Size>
+using VecF = Vec<T, Size>;
+
 
 template <class T>
 using Vec3 = Vec<T, 3>;
 
 template <class T>
 using Vec2 = Vec<T, 2>;
+#endif

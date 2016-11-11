@@ -15,16 +15,6 @@ Real logsumexp(Vector const& arr)
   return log(semx) + mx;
 }
 
-// nth triangular number (0 1 3 6)
-// tri 0 = 0
-// tri 1 = 1
-// tri 2 = 3
-// tri 3 = 6
-int tri(int n) 
-{
-  return n * (n + 1) / 2;
-}
-
 // GMM: Gaussian Mixture Model
 // See eqn 2 of https://github.com/awf/autodiff/blob/master/Documents/AD%202016%20extended.pdf
 // alphas
@@ -45,13 +35,13 @@ int tri(int n)
 VectorD Qtimesv(VectorD const& q, Vector const& l, VectorD const& v)
 {
   VectorD ret(v.size());
-  for (int i = 0; i < v.size(); ++i) {
+  for (size_t i = 0; i < size_t(v.size()); ++i) {
     // let li = vectorSlice (Card i) (tri(i - 1)) l
     // let vi = vectorSlice (Card i) 0 v
     // vectorSum (li.*vi) + exp(q[i])*v[i]
-    int lstart = tri(i - 1);
+    size_t lstart = tri(i - 1);
     double out = exp(q[i]) * v[i];
-    for (int k = 0; k < i; ++k)
+    for (size_t k = 0; k < i; ++k)
       out += l[lstart + k] * v[k];
     ret[i] = out;
   }
@@ -72,13 +62,13 @@ void Qtimesv_test()
   assert(nrm < 0.0001);
 }
 
-Real gmm_objective(Vec<VectorD> const& x,
-  Vector const& alphas, Vec<VectorD> const& means, Vec<VectorD> const& qs, Vec<Vector> const& ls,
+Real gmm_objective(std::vector<VectorD> const& x,
+  Vector const& alphas, std::vector<VectorD> const& means, std::vector<VectorD> const& qs, std::vector<Vector> const& ls,
   Real wishart_gamma, Real wishart_m)
 {
-  auto n = x.size();
-  auto d = x[0].size();
-  auto K = alphas.size();
+  size_t n = x.size();
+  size_t d = x[0].size();
+  size_t K = alphas.size();
   //    assert (K = rows means)
   //    assert (d = cols means)
   //    assert (K = rows qs)
@@ -87,13 +77,13 @@ Real gmm_objective(Vec<VectorD> const& x,
   //    assert (auto di = (cardToInt d) in di*(di-1)/2 = cardToInt (cols ls))
   double out = 0.0;
   Vector tmp{ K };
-  for (int i = 0; i < n; ++i) {
-    for (int k = 0; k < K; ++k)
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t k = 0; k < K; ++k)
       tmp[k] = alphas[k] + sum(qs[k]) - 0.5 * sumsq(Qtimesv(qs[k], ls[k], x[i] - means[k]));
     out += logsumexp(tmp);
   }
   out -= n * logsumexp(alphas);
-  for (int k = 0; k < K; ++k)
+  for (size_t k = 0; k < K; ++k)
     out += sumsq(exp(qs[k])) + sumsq(ls[k]);
   return out;
 }
