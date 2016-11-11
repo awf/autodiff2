@@ -59,6 +59,10 @@ ba_opt_dps_bump.exe
 total =414339.557544, time per call = 0.000051 ms
 ../benchmark_ba/ba_cpp.out
 total =414339.557544, time per call = 0.000074 ms
+ba_fs.exe
+total =414339.557544, time per call = 0.000633 ms
+ba_opt_fs.exe
+total =414339.557544, time per call = 0.001100 ms
 === Memory Usage ===
 ba.exe
 6989185024  maximum resident set size
@@ -72,3 +76,7 @@ ba_opt_dps_bump.exe
     585728  maximum resident set size
 ../benchmark_ba/ba_cpp.out
     548864  maximum resident set size
+ba_fs.exe
+  15265792  maximum resident set size
+ba_opt_fs.exe
+  15519744  maximum resident set size
