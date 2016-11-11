@@ -69,6 +69,7 @@ void Qtimesv_test()
   auto ans = vec(ans0, ans1, ans2);
   auto qv = Qtimesv(q, l, v);
   auto nrm = sumsq(qv - ans);
+  printf("nrm=%f\n", nrm);
   assert(nrm < 0.0001);
 }
 
@@ -91,9 +92,12 @@ Real gmm_objective(Vec<VectorD> const& x,
     for (int k = 0; k < K; ++k)
       tmp[k] = alphas[k] + sum(qs[k]) - 0.5 * sumsq(Qtimesv(qs[k], ls[k], x[i] - means[k]));
     out += logsumexp(tmp);
+    // printf("%d-%f\n", i, logsumexp(tmp));
   }
+  // printf("--%f\n", out);
   out -= n * logsumexp(alphas);
+  // printf("---%f\n", out);
   for (int k = 0; k < K; ++k)
-    out += sumsq(exp(qs[k])) + sumsq(ls[k]);
+    out += 0.5 * sumsq(exp(qs[k])) + sumsq(ls[k]);
   return out;
 }

@@ -67,6 +67,7 @@ int main(int argc, char** argv)
     for (int j = 0; j < d; ++j)
       xs->arr[i]->arr[j] = dist(rng);
 
+  // TOP_LEVEL_usecases_gmm_Qtimesv_test(0);
 
   // boost::timer::auto_cpu_timer t;
   timer_t t = tic();

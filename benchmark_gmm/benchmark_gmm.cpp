@@ -49,6 +49,8 @@ int main()
     for (int j = 0; j < d; ++j)
       xs[i][j] = dist(rng);
 
+  // Qtimesv_test();
+
 
   // boost::timer::auto_cpu_timer t;
   timer_t t = tic();
