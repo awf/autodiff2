@@ -44,3 +44,31 @@ ba_opt_dps.exe
     598016  maximum resident set size
 ba_opt_dps_bump.exe
     577536  maximum resident set size
+=======
+11/11
+=== Run time Usage ===
+ba.exe
+total =414339.557544, time per call = 0.001290 ms
+ba_opt.exe
+total =414339.557544, time per call = 0.000238 ms
+ba_dps.exe
+total =414339.557544, time per call = 0.002099 ms
+ba_opt_dps.exe
+total =414339.557544, time per call = 0.000188 ms
+ba_opt_dps_bump.exe
+total =414339.557544, time per call = 0.000051 ms
+../benchmark_ba/ba_cpp.out
+total =414339.557544, time per call = 0.000074 ms
+=== Memory Usage ===
+ba.exe
+6989185024  maximum resident set size
+ba_opt.exe
+ 975724544  maximum resident set size
+ba_dps.exe
+    606208  maximum resident set size
+ba_opt_dps.exe
+    593920  maximum resident set size
+ba_opt_dps_bump.exe
+    585728  maximum resident set size
+../benchmark_ba/ba_cpp.out
+    548864  maximum resident set size

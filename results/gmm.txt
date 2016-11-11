@@ -1,3 +1,5 @@
+=======
+10/11
 === Run time Usage ===
 gmm.exe
 total =62705882.389991, time per call = 0.190746 ms
@@ -20,3 +22,35 @@ gmm_cpp.out
     749568  maximum resident set size
 gmm_fixed_cpp.out 
     745472  maximum resident set size
+=======
+11/11
+=== Run time Usage ===
+gmm.exe
+total =62705882.389991, time per call = 0.173866 ms
+gmm_opt.exe
+total =62705882.389991, time per call = 0.000010 ms
+gmm_dps.exe
+total =62705882.389991, time per call = 0.178266 ms
+gmm_opt_dps.exe
+total =62705882.389991, time per call = 0.000010 ms
+gmm_opt_dps_bump.exe
+total =62705882.389991, time per call = 0.000010 ms
+../benchmark_gmm/gmm_cpp.out
+total =62717787.052225, time per call = 0.163484 ms
+../benchmark_gmm/gmm_fixed_cpp.out
+total =62717787.052225, time per call = 0.039536 ms
+=== Memory Usage ===
+gmm.exe
+ 779427840  maximum resident set size
+gmm_opt.exe
+    565248  maximum resident set size
+gmm_dps.exe
+    606208  maximum resident set size
+gmm_opt_dps.exe
+    565248  maximum resident set size
+gmm_opt_dps_bump.exe
+    565248  maximum resident set size
+../benchmark_gmm/gmm_cpp.out
+    618496  maximum resident set size
+../benchmark_gmm/gmm_fixed_cpp.out
+    618496  maximum resident set size
