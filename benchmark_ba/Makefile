@@ -1,4 +1,4 @@
-CC=clang
+CC=clang++
 OPTFLAG=-O3
 CFLAGS=-std=c++14 -stdlib=libc++
 LIBS=-std=c++14 -stdlib=libc++ 
