@@ -44,7 +44,8 @@ int main()
       xs[i][j] = dist(rng);
 
 
-  boost::timer::auto_cpu_timer t;
+  // boost::timer::auto_cpu_timer t;
+  timer_t t = tic();
 
   // Debug 150s 
     // Release 1s
@@ -59,7 +60,9 @@ int main()
     total += gmm_objective(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
   }
 
-  std::cout << "total =" << total << ", time per call = " << t.elapsed().wall / double(N) / 1000.0 << "us" << std::endl;
+  // std::cout << "total =" << total << ", time per call = " << t.elapsed().wall / double(N) / 1000.0 << "us" << std::endl;
+  auto elapsed = toc(t);
+  printf("total =%f, time per call = %f ms\n", total, elapsed / double(N));
 
   return 0;
 }

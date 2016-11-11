@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <iostream>
+#include <math.h>
 
 // #include <boost/static_assert.hpp>
 

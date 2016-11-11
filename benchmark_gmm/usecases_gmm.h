@@ -11,11 +11,12 @@
 //   Matrix of vectorized lower triangles of component inverse covariance matrices
 
 #include "stdafx.h"
+#include <math.h>
 
 const size_t GMM_K = 5;
 const size_t GMM_D = 3;
 
-#define FIXED_SIZES
+// #define FIXED_SIZES
 
 // Should/could be faster for fixed K
 #ifdef FIXED_SIZES
