@@ -1,15 +1,15 @@
-// #ifdef DPS
+#ifdef DPS
 // #ifdef FUSED
 // #include "usecases_ba_opt_storaged.h"
 // #else
-// #include "usecases_ba_storaged.h"
+#include "usecases_gmm_storaged.h"
 // #endif
 // #else
 // #ifdef FUSED
 // #include "usecases_ba_opt.h"
-// #else
+#else
 #include "usecases_gmm.h"
-// #endif
+#endif
 // #endif
 
 const size_t GMM_K = 5;
@@ -20,11 +20,26 @@ double dist(int seed) {
 }
 
 array_array_number_t matrix_fill(card_t rows, card_t cols, number_t value) {
+#ifdef DPS
+  return TOP_LEVEL_linalg_matrixFill_dps(malloc(MATRIX_ROWS_OFFSET(rows, cols, rows)), rows, cols, value, rows, cols, 0);
+#else
   return TOP_LEVEL_linalg_matrixFill(rows, cols, value);
+#endif
 }
 
 array_number_t vector_fill(card_t rows, number_t value) {
   return matrix_fill(1, rows, value)->arr[0];
+}
+
+matrix_shape_t matrix_shape(array_array_number_t mat) {
+  matrix_shape_t res;
+  res.card = mat->length;
+  res.elem = mat->arr[0]->length;
+  return res;
+}
+
+int vector_shape(array_number_t vec) {
+  return vec->length;
 }
 
 int main(int argc, char** argv)
@@ -38,7 +53,12 @@ int main(int argc, char** argv)
   size_t n = 100;
   size_t d = GMM_D;
   size_t K = GMM_K;
+#ifdef DPS
+  size_t td = TOP_LEVEL_usecases_gmm_tri_dps(empty_storage, d, 0);
+#else
   size_t td = TOP_LEVEL_usecases_gmm_tri(d);
+#endif
+  
 
   // Declare and fill GMM coeffs
   // Vector alphas{ K };
@@ -82,7 +102,12 @@ int main(int argc, char** argv)
   double wishart_m = 2.0;
   for (int count = 0; count < N; ++count) {
     double wishart_gamma = 1.0 / (1.0 + count);
+#ifdef DPS
+    total += TOP_LEVEL_usecases_gmm_gmm_objective_dps(empty_storage, xs, alphas, means, qs, ls, wishart_gamma, wishart_m, 
+    	matrix_shape(xs), vector_shape(alphas), matrix_shape(means), matrix_shape(qs), matrix_shape(ls), 0, 0);
+#else
     total += TOP_LEVEL_usecases_gmm_gmm_objective(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
+#endif
   }
 
   // std::cout << "total =" << total << ", time per call = " << t.elapsed().wall / double(N) / 1000.0 << "us" << std::endl;
