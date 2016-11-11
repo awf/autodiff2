@@ -1,9 +1,9 @@
 #ifdef DPS
-// #ifdef FUSED
-// #include "usecases_ba_opt_storaged.h"
-// #else
+#ifdef FUSED
+#include "usecases_gmm_opt_storaged.h"
+#else
 #include "usecases_gmm_storaged.h"
-// #endif
+#endif
 #else
 #ifdef FUSED
 #include "usecases_gmm_opt.h"
