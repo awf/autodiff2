@@ -1,0 +1,22 @@
+=== Run time Usage ===
+gmm.exe
+total =62705882.389991, time per call = 0.190746 ms
+gmm_opt.exe
+total =62705882.389991, time per call = 0.000015 ms
+gmm_dps.exe
+total =62705882.389991, time per call = 0.187377 ms
+gmm_cpp.out 
+total =62717787.052225, time per call = 0.170620 ms
+gmm_fixed_cpp.out 
+total =62717787.052225, time per call = 0.040493 ms
+=== Memory Usage ===
+gmm.exe
+ 779563008  maximum resident set size
+gmm_opt.exe
+    704512  maximum resident set size
+gmm_dps.exe
+    753664  maximum resident set size
+gmm_cpp.out 
+    749568  maximum resident set size
+gmm_fixed_cpp.out 
+    745472  maximum resident set size
