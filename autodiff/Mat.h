@@ -5,7 +5,8 @@
 
 struct Mat_Identity {};
 
-template <class T, size_t M, size_t N>
+// Typically viewed as a vector of column vectors.  Then gdot<Vec>(Mat, Vec) yields matrix-vector multiply
+template <class T, size_t M = 0, size_t N = 0>
 struct Mat : public Vec<Vec<T, N>, M> {
   typedef Vec<Vec<T, N>, M> base_t;
 
@@ -26,6 +27,11 @@ struct Mat : public Vec<Vec<T, N>, M> {
   Mat(Vec<Vec<T, N>, M>&& val) :
     base_t{ val }
   {}
+
+  T& operator()(size_t i, size_t j) { return (*this)[j][i]; }
+
+  size_t rows() const { return (*this)[0].size(); }
+  size_t cols() const { return size(); }
 };
 
 template <class T>

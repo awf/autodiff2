@@ -44,35 +44,3 @@ Vec2<Real> compute_reproj_err(Vec<Real, N_CAM_PARAMS> cam, Vec3<Real> x, Real w,
 {
     return (project(cam, x) - feat) * w;
 }
-
-/*
-let compute_zach_weight_error w =
-1. - w*w
-
-let w_err(w:Vector) =
-vectorMap compute_zach_weight_error w
-
-let reproj_err(cams:Matrix) (x:Matrix) (w:Vector) (obs:Matrix) (feat:Matrix) : Matrix =
-let n = length cams
-let p = length w
-let range = vectorRange(Card 0) (p . - (Card 1))
-vectorMapToMatrix(fun i->compute_reproj_err cams.[int obs.[int i].[0]] x.[int obs.[int i].[1]] w.[int i] feat.[int i]) range
-
-let run_ba_from_file(fn: string) (n: Cardinality) (m: Cardinality) (p: Cardinality) =
-let oneCard = Card 1
-let one_cam = vectorRead fn 1
-let cam = build n(fun x->one_cam)
-let one_x = vectorRead fn 2
-let x = build m(fun x->one_x)
-let one_w = numberRead fn 3
-let w = vectorMap(fun x->one_w)  (vectorRange oneCard p)
-let one_feat = vectorRead fn 4
-let feat = vectorMapToMatrix(fun x->one_feat)  (vectorRange oneCard p)
-let obs = build p(fun x ->[| double((int x) % (cardToInt n)); double((int x) % (cardToInt m)) | ])
-let t = tic()
-fold(fun acc cur->let x = reproj_err cam x w obs feat in()) () (vectorRange(Card 1) (Card 10))
-toc t "BA"
-reproj_err cam x w obs feat
-
-
-*/

@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "autodiff", "autodiff\autodi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "benchmark_ba", "benchmark_ba\benchmark_ba.vcxproj", "{56E84FC1-78C9-49C6-90A1-320942D60587}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "benchmark_gmm", "benchmark_gmm\benchmark_gmm.vcxproj", "{56E84FC1-78C9-49C6-90A1-320842D60587}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -29,6 +31,14 @@ Global
 		{56E84FC1-78C9-49C6-90A1-320942D60587}.Release|Win32.Build.0 = Release|Win32
 		{56E84FC1-78C9-49C6-90A1-320942D60587}.Release|x64.ActiveCfg = Release|x64
 		{56E84FC1-78C9-49C6-90A1-320942D60587}.Release|x64.Build.0 = Release|x64
+		{56E84FC1-78C9-49C6-90A1-320842D60587}.Debug|Win32.ActiveCfg = Debug|Win32
+		{56E84FC1-78C9-49C6-90A1-320842D60587}.Debug|Win32.Build.0 = Debug|Win32
+		{56E84FC1-78C9-49C6-90A1-320842D60587}.Debug|x64.ActiveCfg = Debug|x64
+		{56E84FC1-78C9-49C6-90A1-320842D60587}.Debug|x64.Build.0 = Debug|x64
+		{56E84FC1-78C9-49C6-90A1-320842D60587}.Release|Win32.ActiveCfg = Release|Win32
+		{56E84FC1-78C9-49C6-90A1-320842D60587}.Release|Win32.Build.0 = Release|Win32
+		{56E84FC1-78C9-49C6-90A1-320842D60587}.Release|x64.ActiveCfg = Release|x64
+		{56E84FC1-78C9-49C6-90A1-320842D60587}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
