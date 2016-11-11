@@ -11,10 +11,16 @@ Real gmm_objective(Vec<Vector> const& x,
   Vector const& alphas, Vec<Vector> const& means, Vec<Vector> const& qs, Vec<Vector> const& ls,
   Real wishart_gamma, Real wishart_m);
 
+Real dist(int seed) {
+  return ((double)rand()/(double)RAND_MAX);
+}
+
 int main()
 {
-  std::mt19937 rng(42);
-  std::uniform_real_distribution<Real> dist(0, 1);
+  int rng(42);
+  srand(rng);
+  // std::mt19937 rng(42);
+  // std::uniform_real_distribution<Real> dist(0, 1);
 
   // Problem size
   size_t n = 100;

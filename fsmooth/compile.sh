@@ -6,3 +6,4 @@ clang ba.c -O3 -DDPS -o ba_dps.exe
 clang ba.c -O3 -DBUMP -DDPS -o ba_dps_bump.exe
 clang ba.c -O3 -DDPS -DFUSED -o ba_opt_dps.exe
 clang ba.c -O3 -DBUMP -DDPS -DFUSED -o ba_opt_dps_bump.exe
+clang gmm.c -O3 -o gmm.exe
