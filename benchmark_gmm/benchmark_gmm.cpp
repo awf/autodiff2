@@ -57,5 +57,8 @@ int main()
 
   std::cout << "total =" << total << ", time per call = " << t.elapsed().wall / double(N) / 1000.0 << "us" << std::endl;
 
+  std::cout.flush();
+  getchar();
+
   return 0;
 }
