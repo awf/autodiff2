@@ -4,13 +4,13 @@
 // #else
 #include "usecases_gmm_storaged.h"
 // #endif
-// #else
-// #ifdef FUSED
-// #include "usecases_ba_opt.h"
+#else
+#ifdef FUSED
+#include "usecases_gmm_opt.h"
 #else
 #include "usecases_gmm.h"
 #endif
-// #endif
+#endif
 
 const size_t GMM_K = 5;
 const size_t GMM_D = 3;
