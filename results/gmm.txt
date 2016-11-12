@@ -39,6 +39,10 @@ total =62705882.389991, time per call = 0.000010 ms
 total =62717787.052225, time per call = 0.163484 ms
 ../benchmark_gmm/gmm_fixed_cpp.out
 total =62717787.052225, time per call = 0.039536 ms
+gmm_fs.exe
+total =-1008431.520513, time per call = 0.159600 ms
+gmm_opt_fs.exe
+total =-4682757.429703, time per call = 0.485100 ms
 === Memory Usage ===
 gmm.exe
  779427840  maximum resident set size
@@ -54,3 +58,7 @@ gmm_opt_dps_bump.exe
     618496  maximum resident set size
 ../benchmark_gmm/gmm_fixed_cpp.out
     618496  maximum resident set size
+gmm_fs.exe
+  16601088  maximum resident set size
+gmm_opt_fs.exe
+  16175104  maximum resident set size
