@@ -12,5 +12,5 @@ static const int RAD_IDX = 9;
 
 Vec2<Real> radial_distort(Vec2<Real> rad_params, Vec2<Real> proj);
 Vec3<Real> rodrigues_rotate_point(Vec3<Real> rot, Vec3<Real> x);
-Vec2<Real> project(Vec<Real, N_CAM_PARAMS> cam, Vec3<Real> x);
-Vec2<Real> compute_reproj_err(Vec<Real, N_CAM_PARAMS> cam, Vec3<Real> x, Real w, Vec2<Real> feat);
+Vec2<Real> project(VecF<Real, N_CAM_PARAMS> cam, Vec3<Real> x);
+Vec2<Real> compute_reproj_err(VecF<Real, N_CAM_PARAMS> cam, Vec3<Real> x, Real w, Vec2<Real> feat);

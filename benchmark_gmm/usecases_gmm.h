@@ -20,7 +20,7 @@ const size_t GMM_D = 3;
 
 // Should/could be faster for fixed K
 #ifdef FIXED_SIZES
-typedef Vec<Real, GMM_D> VectorD;
+typedef VecF<Real, GMM_D> VectorD;
 typedef Vec<Real> Vector;
 #else
 typedef Vec<Real> VectorD;
@@ -29,11 +29,19 @@ typedef Vec<Real> Vector;
 
 typedef Vec<Real> Vector;
 
-int tri(int n);
-
 Real logsumexp(Vector const& arr);
 VectorD Qtimesv(VectorD const& q, Vector const& l, VectorD const& v);
-Real gmm_objective(Vec<VectorD> const& x,
-Vector const& alphas, Vec<VectorD> const& means, Vec<VectorD> const& qs, Vec<Vector> const& ls, Real wishart_gamma, Real wishart_m);
+Real gmm_objective(std::vector<VectorD> const& x,
+Vector const& alphas, std::vector<VectorD> const& means, std::vector<VectorD> const& qs, std::vector<Vector> const& ls, Real wishart_gamma, Real wishart_m);
 
 void Qtimesv_test();
+
+// nth triangular number (0 1 3 6)
+// tri 0 = 0
+// tri 1 = 1
+// tri 2 = 3
+// tri 3 = 6
+inline size_t tri(size_t n)
+{
+  return n * (n + 1) / 2;
+}

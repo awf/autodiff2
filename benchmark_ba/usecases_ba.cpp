@@ -30,17 +30,17 @@ Vec3<Real> rodrigues_rotate_point(Vec3<Real> rot, Vec3<Real> x)
         return x + cross(rot, x);
 }
 
-Vec2<Real> project(Vec<Real, N_CAM_PARAMS> cam, Vec3<Real> x)
+Vec2<Real> project(VecF<Real, N_CAM_PARAMS> cam, Vec3<Real> x)
 {
-    Vec3<Real> rot = cam.segment<ROT_IDX, ROT_IDX + 2>();
-    Vec3<Real> center = cam.segment<CENTER_IDX, CENTER_IDX + 2>();
+    Vec3<Real> rot = cam.segment<3>(ROT_IDX);
+    Vec3<Real> center = cam.segment<3>(CENTER_IDX);
     Vec3<Real> Xcam = rodrigues_rotate_point(rot, x - center);
-    Vec2<Real> rad_params = cam.segment<RAD_IDX, RAD_IDX + 1>();
+    Vec2<Real> rad_params = cam.segment<2>(RAD_IDX);
     Vec2<Real> distorted = radial_distort(rad_params, Xcam.head<2>() / Xcam[2]);
-    return cam.segment<X0_IDX, X0_IDX + 1>() + distorted * cam[FOCAL_IDX];
+    return cam.segment<2>(X0_IDX) + distorted * cam[FOCAL_IDX];
 }
 
-Vec2<Real> compute_reproj_err(Vec<Real, N_CAM_PARAMS> cam, Vec3<Real> x, Real w, Vec2<Real> feat)
+Vec2<Real> compute_reproj_err(VecF<Real, N_CAM_PARAMS> cam, Vec3<Real> x, Real w, Vec2<Real> feat)
 {
     return (project(cam, x) - feat) * w;
 }

@@ -16,7 +16,7 @@ int main()
         0.009, 1.2e-4      // RAD_IDX = 9;
         );
 
-    auto X = vec(0.03, 0.11, -0.7);
+    Vec3<Real> X = vec(0.03, 0.11, -0.7);
 
 
     // boost::timer::auto_cpu_timer t;
@@ -25,7 +25,7 @@ int main()
     // Debug 150s 
     // Release 1s
     double total = 0;
-    int N = 10000000;
+    int N = 100000000;
 #ifdef _DEBUG
     N = N / 100;  // Debug is roughly this much slower than release -- multiply timings.
 #endif
