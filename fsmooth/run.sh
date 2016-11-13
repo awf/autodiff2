@@ -1,6 +1,10 @@
-declare -a files=("ba.exe" "ba_opt.exe" "ba_dps.exe" "ba_opt_dps.exe" "ba_opt_dps_bump.exe" "../benchmark_ba/ba_cpp.out")
-# declare -a files=("gmm.exe" "gmm_opt.exe" "gmm_dps.exe" "gmm_opt_dps.exe" "gmm_opt_dps_bump.exe" 
-# 	"../benchmark_gmm/gmm_cpp.out" "../benchmark_gmm/gmm_fixed_cpp.out")
+declare -a files=("ba.exe" "ba_opt.exe" "ba_dps.exe" "ba_opt_dps.exe" "ba_opt_dps_bump.exe" 
+	"../benchmark_ba/ba_cpp.exe" "../benchmark_ba/ba_eigen_cpp.exe"
+	)
+# declare -a files=(
+#     "gmm.exe" "gmm_opt.exe" "gmm_dps.exe" "gmm_opt_dps.exe" "gmm_opt_dps_bump.exe" 
+# 	"../benchmark_gmm/gmm_fixed_cpp.exe" "../benchmark_gmm/gmm_eigen_cpp.exe"
+#     )
 
 echo "=== Run time Usage ==="
 

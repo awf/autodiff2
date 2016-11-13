@@ -25,7 +25,7 @@ int main()
     // Debug 150s 
     // Release 1s
     double total = 0;
-    int N = 100000000;
+    int N = 10000000;
 #ifdef _DEBUG
     N = N / 100;  // Debug is roughly this much slower than release -- multiply timings.
 #endif
