@@ -23,30 +23,33 @@ int main()
   // std::uniform_real_distribution<Real> dist(0, 1);
 
   // Problem size
-  size_t n = 100;
-  size_t d = GMM_D;
-  size_t K = GMM_K;
+  cardinality_t n = 100;
+  cardinality_t d = GMM_D;
+  cardinality_t K = GMM_K;
+  size_t n2 = 100;
+  size_t K2 = GMM_K;
+
 
   // Declare and fill GMM coeffs
   Vector alphas{ K };
-  std::vector<VectorD> means{ K, VectorD{ d } };
-  std::vector<VectorD> qs{ K, VectorD{ d } };
+  std::vector<VectorD> means{ K2, VectorD{ d } };
+  std::vector<VectorD> qs{ K2, VectorD{ d } };
   Vector l0{ tri(d) };
-  std::vector<Vector> ls{ K, l0 };
-  for (size_t k = 0; k < K; ++k) {
+  std::vector<Vector> ls{ K2, l0 };
+  for (cardinality_t k = 0; k < K; ++k) {
     alphas[k] = dist(rng);
-    for (size_t j = 0; j < d; ++j) {
+    for (cardinality_t j = 0; j < d; ++j) {
       means[k][j] = dist(rng) - 0.5;
       qs[k][j] = 10.0*dist(rng) - 5.0;
     }
-    for (size_t j = 0; j < size_t(ls[k].size()); ++j)
+    for (cardinality_t j = 0; j < cardinality_t(ls[k].size()); ++j)
       ls[k][j] = dist(rng) - 0.5;
   }
 
   // Declare and fill xs
-  std::vector<VectorD> xs{ n, Vector{ d } };
-  for (size_t i = 0; i < n; ++i)
-    for (size_t j = 0; j < d; ++j)
+  std::vector<VectorD> xs{ n2, Vector{ d } };
+  for (cardinality_t i = 0; i < n; ++i)
+    for (cardinality_t j = 0; j < d; ++j)
       xs[i][j] = dist(rng);
 
   // Qtimesv_test();
@@ -58,12 +61,12 @@ int main()
   // Debug 150s 
     // Release 1s
   double total = 0;
-  size_t N = 100000;
+  cardinality_t N = 100000;
 #ifdef _DEBUG
   N = N / 10;  // Debug is roughly this much slower than release -- multiply timings.
 #endif
   double wishart_m = 2.0;
-  for (size_t count = 0; count < N; ++count) {
+  for (cardinality_t count = 0; count < N; ++count) {
     double wishart_gamma = 1.0 / (1.0 + count);
     total += gmm_objective(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
   }

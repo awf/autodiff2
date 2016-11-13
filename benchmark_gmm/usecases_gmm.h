@@ -41,7 +41,7 @@ void Qtimesv_test();
 // tri 1 = 1
 // tri 2 = 3
 // tri 3 = 6
-inline size_t tri(size_t n)
+inline cardinality_t tri(cardinality_t n)
 {
   return n * (n + 1) / 2;
 }

@@ -69,7 +69,7 @@ Real gmm_objective(std::vector<VectorD> const& x,
 {
   size_t n = x.size();
   size_t d = x[0].size();
-  size_t K = alphas.size();
+  cardinality_t K = alphas.size();
   //    assert (K = rows means)
   //    assert (d = cols means)
   //    assert (K = rows qs)

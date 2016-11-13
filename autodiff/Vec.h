@@ -15,6 +15,9 @@ typedef double Real;
 #if EIGEN
 #include <Eigen/Dense>
 
+typedef long cardinality_t; 
+
+
 template <class T>
 using Vec = Eigen::Matrix<T, Eigen::Dynamic, 1>;
 
@@ -98,6 +101,8 @@ auto vec(T t, Ts ... ts) -> VecF<T, 1 + sizeof...(Ts)> {
 #include "counting_iterator.h"
 
 #include "Zero.h"
+
+typedef size_t cardinality_t; 
 
 ///////////////---------------------------
 
