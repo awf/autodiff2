@@ -61,7 +61,7 @@ int main()
   // Debug 150s 
     // Release 1s
   double total = 0;
-  cardinality_t N = 100000;
+  cardinality_t N = 10000;
 #ifdef _DEBUG
   N = N / 10;  // Debug is roughly this much slower than release -- multiply timings.
 #endif
