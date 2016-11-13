@@ -9,10 +9,10 @@ N=1000000;
 
 for i in "${files[@]}"
 do
-   echo "$i"
-   eval "./$i $N"
-   # l=$(eval "./$i $N" | awk '{print $7;}')
-   # echo "$i,$l"
+   # echo "$i"
+   # eval "./$i $N"
+   l=$(eval "./$i $N" | awk '{print $7;}')
+   echo "$i,$l"
 done
 
 declare -a iters=(1000 10000 100000 1000000 10000000)
