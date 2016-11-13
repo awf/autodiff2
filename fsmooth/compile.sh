@@ -19,4 +19,5 @@ clang micro.c -O3 -DBUMP -DDPS -DFUSED -o micro_add3_opt_dps_bump.exe
 echo "Compiling CPP files ..."
 cd ..; cd benchmark_gmm; make
 cd ..; cd benchmark_ba; make
+cd ..; cd benchmark_micro; make
 cd ..; cd fsmooth
