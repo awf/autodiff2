@@ -20,10 +20,17 @@ int main(int argc, char** argv)
   int rng = 42;
   srand(rng);
 
-  cardinality_t DIM = 100;
+#ifdef ADD3
+    cardinality_t DIM = 100;
+    Vector vec1{ DIM };
+    Vector vec2{ DIM };
+#elif CROSS
+    cardinality_t DIM = 3;
+    Vec3<Real> vec1;
+    Vec3<Real> vec2;
+#endif
 
-  Vector vec1{ DIM };
-  Vector vec2{ DIM };
+
   Vector vec3{ DIM };
 
   for (cardinality_t k = 0; k < DIM; ++k) {
@@ -38,8 +45,12 @@ int main(int argc, char** argv)
 
   for (cardinality_t count = 0; count < N; ++count) {
     vec1[0] += 1.0 / (2.0 + vec1[0]);
-    vec2[10] += 1.0 / (2.0 + vec2[10]);
+    vec2[1] += 1.0 / (2.0 + vec2[1]);
+#ifdef ADD3
     total += sum(vec1 + vec2 + vec3);
+#elif CROSS
+    total += sum(cross(vec1, vec2));
+#endif
   }
 
   auto elapsed = toc(t);

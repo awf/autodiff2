@@ -11,11 +11,16 @@ clang gmm.c -O3 -DDPS -o gmm_dps.exe
 clang gmm.c -O3 -DDPS -DFUSED -o gmm_opt_dps.exe
 clang gmm.c -O3 -DBUMP -DDPS -DFUSED -o gmm_opt_dps_bump.exe
 echo "Compiling Micro Benchmarks ..."
-clang micro.c -O3 -o micro_add3.exe
-clang micro.c -O3 -DFUSED -o micro_add3_opt.exe
-clang micro.c -O3 -DDPS -o micro_add3_dps.exe
-clang micro.c -O3 -DDPS -DFUSED -o micro_add3_opt_dps.exe
-clang micro.c -O3 -DBUMP -DDPS -DFUSED -o micro_add3_opt_dps_bump.exe
+clang micro.c -O3 -DADD3 -o micro_add3.exe
+clang micro.c -O3 -DADD3 -DFUSED -o micro_add3_opt.exe
+clang micro.c -O3 -DADD3 -DDPS -o micro_add3_dps.exe
+clang micro.c -O3 -DADD3 -DDPS -DFUSED -o micro_add3_opt_dps.exe
+clang micro.c -O3 -DADD3 -DBUMP -DDPS -DFUSED -o micro_add3_opt_dps_bump.exe
+clang micro.c -O3 -DCROSS -o micro_cross.exe
+clang micro.c -O3 -DCROSS -DFUSED -o micro_cross_opt.exe
+clang micro.c -O3 -DCROSS -DDPS -o micro_cross_dps.exe
+clang micro.c -O3 -DCROSS -DDPS -DFUSED -o micro_cross_opt_dps.exe
+clang micro.c -O3 -DCROSS -DBUMP -DDPS -DFUSED -o micro_cross_opt_dps_bump.exe
 echo "Compiling CPP files ..."
 cd ..; cd benchmark_gmm; make
 cd ..; cd benchmark_ba; make

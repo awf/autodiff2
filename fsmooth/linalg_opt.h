@@ -4,6 +4,16 @@
 #include <stdio.h>
 #include <math.h>
 
+array_number_t TOP_LEVEL_linalg_cross(array_number_t a, array_number_t b) {
+	array_number_t array40 = (array_number_t)storage_alloc(sizeof(int) * 2);
+	array40->length=3;
+	array40->arr = (number_t*)storage_alloc(sizeof(number_t) * 3);
+	array40->arr[0] = ((a->arr[1]) * (b->arr[2])) - ((a->arr[2]) * (b->arr[1]));
+	array40->arr[1] = ((a->arr[2]) * (b->arr[0])) - ((a->arr[0]) * (b->arr[2]));
+	array40->arr[2] = ((a->arr[0]) * (b->arr[1])) - ((a->arr[1]) * (b->arr[0]));;
+	return array40;
+}
+
 array_array_number_t TOP_LEVEL_linalg_matrixFill(card_t rows, card_t cols, number_t value) {
 	array_array_number_t macroDef79 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
 	macroDef79->length=rows;

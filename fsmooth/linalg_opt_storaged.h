@@ -4,6 +4,16 @@
 #include <stdio.h>
 #include <math.h>
 
+array_number_t TOP_LEVEL_linalg_cross_dps(storage_t stgVar181, array_number_t a_dps, array_number_t b_dps, card_t a_shp, card_t b_shp) {
+	array_number_t macroDef197 = (array_number_t)stgVar181;
+	macroDef197->length=3;
+	macroDef197->arr=(number_t*)(STG_OFFSET(stgVar181, VECTOR_HEADER_BYTES));
+	macroDef197->arr[0] = ((a_dps->arr[1]) * (b_dps->arr[2])) - ((a_dps->arr[2]) * (b_dps->arr[1]));
+	macroDef197->arr[1] = ((a_dps->arr[2]) * (b_dps->arr[0])) - ((a_dps->arr[0]) * (b_dps->arr[2]));
+	macroDef197->arr[2] = ((a_dps->arr[0]) * (b_dps->arr[1])) - ((a_dps->arr[1]) * (b_dps->arr[0]));;
+	return macroDef197;
+}
+
 array_array_number_t TOP_LEVEL_linalg_matrixFill_dps(storage_t stgVar381, card_t rows_dps, card_t cols_dps, number_t value_dps, card_t rows_shp, card_t cols_shp, card_t value_shp) {
 	array_array_number_t macroDef385 = (array_array_number_t)stgVar381;
 		macroDef385->length=rows_dps;

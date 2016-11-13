@@ -12,7 +12,12 @@
 #endif
 #endif
 
-const size_t DIM = 100;
+#ifdef ADD3
+    const size_t DIM = 100;
+#elif CROSS
+    const size_t DIM = 3;
+#endif
+
 
 array_array_number_t matrix_fill(card_t rows, card_t cols, number_t value) {
 #ifdef DPS
@@ -67,10 +72,18 @@ int main(int argc, char** argv)
     for (int count = 0; count < N; ++count) {
         vec1->arr[0] += 1.0 / (2.0 + vec1->arr[0]);
         vec2->arr[10] += 1.0 / (2.0 + vec2->arr[10]);
-#ifdef DPS
+#ifdef ADD3
+    #ifdef DPS
         total += vectorSum(TOP_LEVEL_linalg_vectorAdd3_dps(s, vec1, vec2, vec3, DIM, DIM, DIM));
-#else
+	#else
         total += vectorSum(TOP_LEVEL_linalg_vectorAdd3(vec1, vec2, vec3));
+	#endif
+#elif CROSS
+    #ifdef DPS
+        total += vectorSum(TOP_LEVEL_linalg_cross_dps(s, vec1, vec2, DIM, DIM));
+	#else
+        total += vectorSum(TOP_LEVEL_linalg_cross(vec1, vec2));
+	#endif
 #endif
     }
     float elapsed = toc2(t);
