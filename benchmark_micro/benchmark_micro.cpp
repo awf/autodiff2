@@ -24,6 +24,10 @@ int main(int argc, char** argv)
     cardinality_t DIM = 100;
     Vector vec1{ DIM };
     Vector vec2{ DIM };
+#elif DOT
+    cardinality_t DIM = 100;
+    Vector vec1{ DIM };
+    Vector vec2{ DIM };
 #elif CROSS
     cardinality_t DIM = 3;
     Vec3<Real> vec1;
@@ -48,6 +52,8 @@ int main(int argc, char** argv)
     vec2[1] += 1.0 / (2.0 + vec2[1]);
 #ifdef ADD3
     total += sum(vec1 + vec2 + vec3);
+#elif DOT
+    total += dot(vec1, vec2);
 #elif CROSS
     total += sum(cross(vec1, vec2));
 #endif

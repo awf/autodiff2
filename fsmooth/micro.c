@@ -14,6 +14,8 @@
 
 #ifdef ADD3
     const size_t DIM = 100;
+#elif DOT
+    const size_t DIM = 100;
 #elif CROSS
     const size_t DIM = 3;
 #endif
@@ -77,6 +79,12 @@ int main(int argc, char** argv)
         total += vectorSum(TOP_LEVEL_linalg_vectorAdd3_dps(s, vec1, vec2, vec3, DIM, DIM, DIM));
 	#else
         total += vectorSum(TOP_LEVEL_linalg_vectorAdd3(vec1, vec2, vec3));
+	#endif
+#elif DOT
+	#ifdef DPS
+        total += TOP_LEVEL_linalg_dot_prod_dps(s, vec1, vec2, DIM, DIM);
+	#else
+        total += TOP_LEVEL_linalg_dot_prod(vec1, vec2);
 	#endif
 #elif CROSS
     #ifdef DPS

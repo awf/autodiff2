@@ -4,6 +4,14 @@
 #include <stdio.h>
 #include <math.h>
 
+number_t TOP_LEVEL_linalg_dot_prod(array_number_t a, array_number_t b) {
+	number_t macroDef26 = 0;
+	for(int cur_idx = 0; cur_idx < a->length; cur_idx++){
+		macroDef26 = (macroDef26) + (a->arr[cur_idx]*b->arr[cur_idx]);;
+	}
+	return macroDef26;
+}
+
 array_number_t TOP_LEVEL_linalg_cross(array_number_t a, array_number_t b) {
 	array_number_t array40 = (array_number_t)storage_alloc(sizeof(int) * 2);
 	array40->length=3;

@@ -4,6 +4,15 @@
 #include <stdio.h>
 #include <math.h>
 
+number_t TOP_LEVEL_linalg_dot_prod_dps(storage_t stgVar311, array_number_t a_dps, array_number_t b_dps, card_t a_shp, card_t b_shp) {
+	number_t macroDef141 = 0;
+	array_number_t cur_dps_range = a_dps;
+	for(int cur_dps_idx = 0; cur_dps_idx < cur_dps_range->length; cur_dps_idx++){		
+		macroDef141 = (macroDef141) + (a_dps->arr[cur_dps_idx]*b_dps->arr[cur_dps_idx]);;
+	}
+	return macroDef141;
+}
+
 array_number_t TOP_LEVEL_linalg_cross_dps(storage_t stgVar181, array_number_t a_dps, array_number_t b_dps, card_t a_shp, card_t b_shp) {
 	array_number_t macroDef197 = (array_number_t)stgVar181;
 	macroDef197->length=3;
