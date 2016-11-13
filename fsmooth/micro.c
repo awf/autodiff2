@@ -16,7 +16,7 @@ const size_t DIM = 100;
 
 array_array_number_t matrix_fill(card_t rows, card_t cols, number_t value) {
 #ifdef DPS
-  return TOP_LEVEL_linalg_matrixFill_dps(malloc(MATRIX_ROWS_OFFSET(rows, cols, rows)), rows, cols, value, rows, cols, 0);
+  return TOP_LEVEL_linalg_matrixFill_dps(storage_alloc(MATRIX_ROWS_OFFSET(rows, cols, rows)), rows, cols, value, rows, cols, 0);
 #else
   return TOP_LEVEL_linalg_matrixFill(rows, cols, value);
 #endif
@@ -28,6 +28,16 @@ array_number_t vector_fill(card_t rows, number_t value) {
 
 double dist(int seed) {
   return ((double)rand()/(double)RAND_MAX);
+}
+
+number_t vectorSum(array_number_t v) {
+	number_t macroDef26 = 0;
+	for(int cur_idx = 0; cur_idx < v->length; cur_idx++){
+		number_t cur = v->arr[cur_idx];
+		
+		macroDef26 = (macroDef26) + (cur);
+	}
+	return macroDef26;
 }
 
 int main(int argc, char** argv)
@@ -58,9 +68,9 @@ int main(int argc, char** argv)
         vec1->arr[0] += 1.0 / (2.0 + vec1->arr[0]);
         vec2->arr[10] += 1.0 / (2.0 + vec2->arr[10]);
 #ifdef DPS
-        // total += TOP_LEVEL_linalg_sqnorm_dps(empty_storage, TOP_LEVEL_usecases_ba_project_dps(s, cam, X, 11, 3), 2);
+        total += vectorSum(TOP_LEVEL_linalg_vectorAdd3_dps(s, vec1, vec2, vec3, DIM, DIM, DIM));
 #else
-        total += TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_linalg_vectorAdd3(vec1, vec2, vec3));
+        total += vectorSum(TOP_LEVEL_linalg_vectorAdd3(vec1, vec2, vec3));
 #endif
     }
     float elapsed = toc2(t);
