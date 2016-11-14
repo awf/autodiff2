@@ -6,7 +6,7 @@ micro_add3_dps.exe,0.000250
 micro_add3_opt_dps.exe,0.000128
 micro_add3_opt_dps_bump.exe,0.000124
 ../benchmark_micro/micro_add3_cpp.exe,0.000403
-../benchmark_micro/micro_add3_eigen_cpp.exe,0.000051
+../benchmark_micro/micro_add3_eigen_cpp.exe,0.000137
 === Memory Usage ===
 micro_add3_fs.exe,1000,13156352
 micro_add3_fs.exe,10000,15536128
@@ -43,8 +43,8 @@ micro_add3_opt_dps_bump.exe,10000000,581632
 ../benchmark_micro/micro_add3_cpp.exe,100000,561152
 ../benchmark_micro/micro_add3_cpp.exe,1000000,593920
 ../benchmark_micro/micro_add3_cpp.exe,10000000,606208
-../benchmark_micro/micro_add3_eigen_cpp.exe,1000,561152
-../benchmark_micro/micro_add3_eigen_cpp.exe,10000,561152
-../benchmark_micro/micro_add3_eigen_cpp.exe,100000,577536
-../benchmark_micro/micro_add3_eigen_cpp.exe,1000000,577536
-../benchmark_micro/micro_add3_eigen_cpp.exe,10000000,577536
+../benchmark_micro/micro_cross_eigen_cpp.exe,1000,548864
+../benchmark_micro/micro_cross_eigen_cpp.exe,10000,548864
+../benchmark_micro/micro_cross_eigen_cpp.exe,100000,557056
+../benchmark_micro/micro_cross_eigen_cpp.exe,1000000,548864
+../benchmark_micro/micro_cross_eigen_cpp.exe,10000000,565248

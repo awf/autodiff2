@@ -24,6 +24,10 @@ int main(int argc, char** argv)
     cardinality_t DIM = 100;
     Vector vec1{ DIM };
     Vector vec2{ DIM };
+    Vector vec3{ DIM };
+    // VecF<Real, 100> vec1;
+    // VecF<Real, 100> vec2;
+    // VecF<Real, 100> vec3;
 #elif DOT
     cardinality_t DIM = 100;
     Vector vec1{ DIM };
@@ -34,13 +38,12 @@ int main(int argc, char** argv)
     Vec3<Real> vec2;
 #endif
 
-
-  Vector vec3{ DIM };
-
   for (cardinality_t k = 0; k < DIM; ++k) {
     vec1[k] = dist(rng);
     vec2[k] = dist(rng);
+#ifdef ADD3
     vec3[k] = dist(rng);
+#endif
   }
 
   timer_t t = tic();
@@ -51,7 +54,11 @@ int main(int argc, char** argv)
     vec1[0] += 1.0 / (2.0 + vec1[0]);
     vec2[1] += 1.0 / (2.0 + vec2[1]);
 #ifdef ADD3
-    total += sum(vec1 + vec2 + vec3);
+  #ifdef EIGEN
+    total += sum((vec1 + vec2 + vec3).eval());
+  #else
+    total += sum((vec1 + vec2 + vec3));
+  #endif
 #elif DOT
     total += dot(vec1, vec2);
 #elif CROSS
