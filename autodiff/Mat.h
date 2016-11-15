@@ -1,37 +1,47 @@
 #pragma once
 
-#include "test.h"
 #include "Vec.h"
 
 struct Mat_Identity {};
 
+// Matrix derives from Vec<Vec> which is sometimes plausible, see https://github.com/awf/autodiff2/blob/master/autodiff/Differentiating%20Containers.md
 // Typically viewed as a vector of column vectors.  Then gdot<Vec>(Mat, Vec) yields matrix-vector multiply
 template <class T, size_t M = 0, size_t N = 0>
-struct Mat : public Vec<Vec<T, N>, M> {
-  typedef Vec<Vec<T, N>, M> base_t;
+struct Mat : public Vec<Vec<T, M>, N> {
+  typedef Vec<Vec<T, M>, N> base_t;
 
   Mat() {}
   Mat(size_t M_, size_t N_) :
-    base_t{ M_, Vec<T, N>{N_} }
+    base_t{ N_, Vec<T, M>{M_} }
   {}
 
   Mat(size_t M_, size_t N_, T const& val) :
-    base_t{ M_, Vec<T, N>{N_, val} }
+    base_t{ N_, Vec<T, N>{M_, val} }
   {}
 
   template <class U>
-  Mat(Vec<Vec<U, N>, M> const& val) :
+  Mat(Vec<Vec<U, M>, N> const& val) :
     base_t{ val }
   {}
 
-  Mat(Vec<Vec<T, N>, M>&& val) :
+  Mat(base_t&& val) :
     base_t{ val }
   {}
 
-  T& operator()(size_t i, size_t j) { return (*this)[j][i]; }
+  T&       operator()(size_t i, size_t j)       { return (*this)[j][i]; }
+  T const& operator()(size_t i, size_t j) const { return (*this)[j][i]; }
 
   size_t rows() const { return (*this)[0].size(); }
-  size_t cols() const { return size(); }
+  size_t cols() const { return (*this).size(); }
+
+  template <size_t Rows, size_t Cols>
+  Mat<T, Rows, Cols> block(size_t start_row, size_t start_col) const {
+    Mat<T, Rows, Cols> ret;
+    for (size_t i = 0; i < Rows; ++i)
+      for (size_t j = 0; j < Cols; ++j)
+        ret(i, j) = (*this)(i + start_row, j + start_col);
+    return ret;
+  }
 };
 
 template <class T>
@@ -46,7 +56,7 @@ Vec<T, N, Vec_GE> diag(Mat<T, N, N> const& m)
   return out;
 }
 
-template <class T, size_t N, class CT>
+template <class T, int N, class CT>
 Mat<T, N, N> diaginv(Vec<T, N, CT> const& v)
 {
   Mat<T, N, N> out = Mat<Zero, N, N>{ v.size(), v.size() };
@@ -68,3 +78,27 @@ T trace(Mat<T, N, M> const& m)
 {
   return sum(diag(m));
 }
+
+template <class T, size_t N, size_t C, size_t M>
+Mat<T, N, M> operator*(Mat<T, N, C> const& a, Mat<T, C, M> const& b)
+{
+  size_t N_ = a.rows();
+  size_t M_ = b.cols();
+  size_t C_ = a.cols();
+  assert(a.cols() == b.rows());
+  Mat<T, N, M> ret{ N_, M_ };
+  for (int i = 0; i < N_; ++i)
+    for (int j = 0; j < M_; ++j) {
+      T accum = 0;
+      for (int k = 0; k < C_; ++k)
+        accum += a[k][i]*b[j][k];
+      ret[j][i] = accum;
+    }
+  return ret;
+}
+
+/*
+Vec<Vec<float, 3>, 3> a;
+Vec<Vec<float, 3>, 7> b;
+auto x = a*b;
+*/
