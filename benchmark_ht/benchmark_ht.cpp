@@ -87,15 +87,22 @@ int main()
   // Release 1s
   double total = 0;
   size_t N = 1000;
+  std::vector<Vec3<Real>> pose_params = to_pose_params(theta, n_bones);
+  // printf("%f-%f-%f:%f\n", pose_params[0][0], pose_params[0][1], pose_params[0][2], sumsq(pose_params[0]));
+  // Vec3<Real> angle = pose_params[0];
+  Vec3<Real> angle;
+  for(int i=0; i<3; i++) {
+    angle[i] = rand01();
+  }
 #ifdef _DEBUG
   N = N / 10;  // Debug is roughly this much slower than release -- multiply timings.
 #endif
   for (size_t count = 0; count < N; ++count) {
-    std::vector<Vec3<Real>> pose_params = to_pose_params(theta, n_bones);
-      
-    Mat<Real, 3, N_VERTS> verts = get_skinned_vertex_positions(base_relatives, parents, base_positions, weights, pose_params);
+    angle[0] -= 1.0 / N;
+    // Mat<Real, 3, N_VERTS> verts = get_skinned_vertex_positions(base_relatives, parents, base_positions, weights, pose_params);
+    Real3x3 verts = angle_axis_to_rotation_matrix(angle);
 
-    total += sumsq(verts[1]);
+    total += sumsq(verts[0]);
   }
 
   // std::cout << "total =" << total << ", time per call = " << t.elapsed().wall / double(N) / 1e6 << "ms" << std::endl;
