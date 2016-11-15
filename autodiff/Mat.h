@@ -32,7 +32,7 @@ struct Mat : public Vec<Vec<T, M>, N> {
   T const& operator()(size_t i, size_t j) const { return (*this)[j][i]; }
 
   size_t rows() const { return (*this)[0].size(); }
-  size_t cols() const { return size(); }
+  size_t cols() const { return (*this).size(); }
 
   template <size_t Rows, size_t Cols>
   Mat<T, Rows, Cols> block(size_t start_row, size_t start_col) const {
@@ -56,7 +56,7 @@ Vec<T, N, Vec_GE> diag(Mat<T, N, N> const& m)
   return out;
 }
 
-template <class T, size_t N, class CT>
+template <class T, int N, class CT>
 Mat<T, N, N> diaginv(Vec<T, N, CT> const& v)
 {
   Mat<T, N, N> out = Mat<Zero, N, N>{ v.size(), v.size() };

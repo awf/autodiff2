@@ -7,34 +7,60 @@
 
 #include "usecases_ht.h"
 
-std::mt19937 rng(42);
+// std::mt19937 rng(42);
 
-template <class T, size_t Size, class DIST>
-void fillrand(Vec<T, Size>* vec, DIST& dist)
+// template <class T, size_t Size, class DIST>
+// void fillrand(Vec<T, Size>* vec, DIST& dist)
+// {
+//   for (int k = 0; k < vec->size(); ++k)
+//     (*vec)[k] = dist(rng);
+// }
+
+
+Real dist01() {
+  return ((double)rand()/(double)RAND_MAX);
+}
+
+Real dist(double min, double max) {
+  return dist01() * (max - min) + min;
+}
+
+template <class T, int Size>
+void fillrand(Vec<T, Size>* vec, double min, double max)
 {
   for (int k = 0; k < vec->size(); ++k)
-    (*vec)[k] = dist(rng);
+    (*vec)[k] = dist(min, max);
 }
+
+Real rand01() {
+  return dist(0, 1);
+}
+
 
 int main()
 {
-  std::uniform_real_distribution<Real> dist(0, 1);
-  auto rand = [&dist] { return dist(rng); };
+  int rng = 42;
+  srand(rng);
+  // std::uniform_real_distribution<Real> dist(0, 1);
+  // auto rand = [&dist] { return dist(rng); };
+
 
   Vec<Real> theta{ 26 };
   size_t n_bones = 15;
   size_t n_verts = 500;
 
-  fillrand(&theta, std::uniform_real_distribution<Real>(-1, 1));
+  fillrand(&theta, -1, 1);
 
   Mat<Real, 3, N_VERTS> base_positions{ 3, n_verts };
   for (int i = 0; i < n_verts; ++i)
-    fillrand(&base_positions[i], std::uniform_real_distribution<Real>(1, 10));
+    fillrand(&base_positions[i], 1, 10);
 
   std::vector<Real4x4> base_relatives{ n_bones };
   for (int i = 0; i < n_bones; ++i) {
-    Vec<Real, 3> rvec; fillrand(&rvec, std::uniform_real_distribution<Real>(-2, 2));
-    Vec<Real, 3> tvec; fillrand(&tvec, std::uniform_real_distribution<Real>(1, 2));
+    Vec<Real, 3> rvec; 
+    fillrand(&rvec, -2, 2);
+    Vec<Real, 3> tvec; 
+    fillrand(&tvec, 1, 2);
     base_relatives[i] = Rt_to_transform(angle_axis_to_rotation_matrix(rvec), tvec);
   }
     
@@ -49,12 +75,13 @@ int main()
   Mat<Real, N_VERTS, N_BONES> weights{ n_verts, n_bones };
   for (int i = 0; i < n_verts; ++i) 
     for (int j = 0; j < n_bones; ++j) {
-      if (rand() < 4.0 / n_bones)
-        weights[j][i] = rand();
+      if (rand01() < 4.0 / n_bones)
+        weights[j][i] = rand01();
     }
 
 
-  boost::timer::auto_cpu_timer t;
+  // boost::timer::auto_cpu_timer t;
+  timer_t t = tic();
 
   // Debug 150s 
   // Release 1s
@@ -71,7 +98,9 @@ int main()
     total += sumsq(verts[1]);
   }
 
-  std::cout << "total =" << total << ", time per call = " << t.elapsed().wall / double(N) / 1e6 << "ms" << std::endl;
+  // std::cout << "total =" << total << ", time per call = " << t.elapsed().wall / double(N) / 1e6 << "ms" << std::endl;
+  auto elapsed = toc(t);
+  printf("total =%f, time per call = %f ms\n", total, elapsed / double(N));
 
   return 0;
 }

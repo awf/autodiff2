@@ -307,7 +307,7 @@ struct Vec<T, 0, Vec_GE> {
 
   template <size_t start_index, size_t end_index>
   auto segment_start_end() const {
-    BOOST_STATIC_ASSERT(end_index < Size);
+    // BOOST_STATIC_ASSERT(end_index < Size);
     Vec<T, end_index - start_index + 1, Vec_GE> out;
     for (size_t i = 0; i < out.size(); ++i)
       out[i] = (*this)[start_index + i];
