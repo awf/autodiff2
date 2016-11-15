@@ -86,7 +86,7 @@ int main()
   // Debug 150s 
   // Release 1s
   double total = 0;
-  size_t N = 1000;
+  size_t N = 10000000;
   // std::vector<Vec3<Real>> pose_params = to_pose_params(theta, n_bones);
   // printf("%f-%f-%f:%f\n", pose_params[0][0], pose_params[0][1], pose_params[0][2], sumsq(pose_params[0]));
   // Vec3<Real> angle = pose_params[0];
