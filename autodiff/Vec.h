@@ -11,7 +11,7 @@
 // TODO better inference of scalars vs containers..
 typedef double Real;
 
-#if 1
+#if 0
 #include <Eigen/Dense>
 
 template <class T>
@@ -175,7 +175,7 @@ struct Vec<T, Size, Vec_GE> {
   // Vec(Vec)
   template <class U, int S, class C>
   Vec(Vec<U, S, C> const& that) {
-    assert(that.size() == Size);
+    assert(that.size() == size());
     std::copy(that.begin(), that.end(), storage.begin());
   }
 
@@ -298,6 +298,25 @@ struct Vec<T, 0, Vec_GE> {
   // Vec[size_t]
   T& operator[](size_t i) { return storage[i]; }
   T const& operator[](size_t i) const { return storage[i]; }
+
+  template <size_t start_index, size_t end_index>
+  auto segment_start_end() const {
+    BOOST_STATIC_ASSERT(end_index < Size);
+    Vec<T, end_index - start_index + 1, Vec_GE> out;
+    for (size_t i = 0; i < out.size(); ++i)
+      out[i] = (*this)[start_index + i];
+    return out;
+  }
+
+  template <size_t n>
+  auto segment(size_t start_index) const {
+    assert(start_index + n <= size());
+    Vec<T, n, Vec_GE> out;
+    for (size_t i = 0; i < n; ++i)
+      out[i] = (*this)[start_index + i];
+    return out;
+  }
+
 
 
   Vec<T>& operator+=(Vec<T> const&);
