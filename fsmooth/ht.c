@@ -75,20 +75,30 @@ int main(int argc, char** argv)
 
 
   timer_t t = tic();
-
-  storage_t s = storage_alloc(100);
+#ifdef HOIST
+  storage_t s = storage_alloc(256);
+#endif
 
   double total = 0;
   int N = 10000000;
   for (int count = 0; count < N; ++count) {
     angle->arr[0] -= 1.0 / N;
 #ifdef DPS
+#ifndef HOIST
+    storage_t s = storage_alloc(256);
+#endif
     array_array_number_t verts = TOP_LEVEL_usecases_ht_angle_axis_to_rotation_matrix_dps(s, angle, 3);
 #else
     array_array_number_t verts = TOP_LEVEL_usecases_ht_angle_axis_to_rotation_matrix(angle);
 #endif
     array_number_t verts1 = verts->arr[0];
     total += vectorNorm(verts1);
+#ifdef DPS
+#ifndef HOIST
+    storage_free(s, 256);
+#endif
+#endif
+    // printf("%d--\n", count);
   }
 
   double elapsed = toc2(t);
