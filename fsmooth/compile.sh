@@ -17,8 +17,10 @@ clang ht.c -O3 -DFUSED -o ht_opt.exe
 clang ht.c -O3 -DDPS -o ht_dps.exe
 clang ht.c -O3 -DDPS -DHOIST -o ht_dps_hoist.exe
 clang ht.c -O3 -DDPS -DFUSED -o ht_opt_dps.exe
+clang ht.c -O3 -DDPS -DFUSED -DHOIST -o ht_opt_dps_hoist.exe
 clang ht.c -O3 -DBUMP -DDPS -o ht_dps_bump.exe
-clang ht.c -O3 -DBUMP -DDPS -DHOIST -o ht_dps_hoist_bump.exe
+clang ht.c -O3 -DBUMP -DDPS -DFUSED -o ht_opt_dps_bump.exe
+clang ht.c -O3 -DBUMP -DDPS -DHOIST -DFUSED -o ht_opt_dps_hoist_bump.exe
 # echo "Compiling Micro Benchmarks ..."
 # echo "Compiling Add3 ..."
 # clang micro.c -O3 -DADD3 -o micro_add3.exe

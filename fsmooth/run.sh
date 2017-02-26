@@ -5,7 +5,8 @@ declare -a files=(
  #    "gmm.exe" "gmm_opt.exe" "gmm_dps.exe" "gmm_opt_dps.exe" "gmm_opt_dps_bump.exe" 
 	# "../benchmark_gmm/gmm_fixed_cpp.exe" "../benchmark_gmm/gmm_eigen_cpp.exe"
 
-	"ht.exe" "ht_opt.exe" "ht_dps.exe" "ht_opt_dps.exe" "ht_opt_dps_bump.exe" 
+	# "ht.exe" "ht_opt.exe" "ht_dps.exe" "ht_opt_dps.exe" "ht_opt_dps_bump.exe" 
+	"ht.exe" "ht_gc.exe" "ht_opt.exe" "ht_dps.exe" "ht_dps_hoist.exe" "ht_opt_dps.exe" "ht_opt_dps_hoist.exe" "ht_dps_bump.exe" "ht_opt_dps_bump.exe" "ht_opt_dps_hoist_bump.exe"
 	"../benchmark_ht/ht_cpp.exe"
 	)
 
