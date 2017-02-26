@@ -1,7 +1,7 @@
 declare -a files=(
-	"micro_add3.exe" "micro_add3_opt.exe" "micro_add3_dps.exe" "micro_add3_opt_dps.exe" "micro_add3_opt_dps_bump.exe" 
+   "micro_add3.exe" "micro_add3_gc.exe" "micro_add3_opt.exe" "micro_add3_dps.exe" "micro_add3_opt_dps.exe" "micro_add3_opt_dps_hoist.exe" "micro_add3_opt_dps_hoist_bump.exe"
    "../benchmark_micro/micro_add3_cpp.exe" "../benchmark_micro/micro_add3_eigen_cpp.exe"
-   "micro_cross.exe" "micro_cross_opt.exe" "micro_cross_dps.exe" "micro_cross_opt_dps.exe" "micro_cross_opt_dps_bump.exe" 
+   "micro_cross.exe" "micro_cross_gc.exe" "micro_cross_opt.exe" "micro_cross_dps.exe" "micro_cross_opt_dps.exe" "micro_cross_opt_dps_hoist.exe" "micro_cross_opt_dps_hoist_bump.exe"
    "../benchmark_micro/micro_cross_cpp.exe" "../benchmark_micro/micro_cross_eigen_cpp.exe"
    # "micro_dot.exe" "micro_dot_opt.exe" "micro_dot_dps.exe" "micro_dot_opt_dps.exe" "micro_dot_opt_dps_bump.exe" 
    # "../benchmark_micro/micro_dot_cpp.exe" "../benchmark_micro/micro_dot_eigen_cpp.exe"
