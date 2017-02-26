@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <assert.h>
 #include "types.h"
+#ifdef GC
+#include "gc.h"
+#endif
 
 #define INIT_HEAP_SIZE (1 << 20)
 #define ALLIGN_BY_16(x) (((((x) + 15) >> 4) << 4))
@@ -68,7 +71,11 @@ storage_t storage_alloc(memory_size_t size) {
 #ifdef BUMP
 	return bulk_alloc(size);
 #else
+#ifdef GC
+  return GC_malloc(size);
+#else
 	return malloc(size);
+#endif
 #endif
 }
 
