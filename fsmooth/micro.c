@@ -66,7 +66,9 @@ int main(int argc, char** argv)
 		vec3->arr[i] = dist(rng);
 	}
 
+#ifdef HOIST
 	storage_t s = storage_alloc(VECTOR_ALL_BYTES(DIM));
+#endif
 	
     timer_t t = tic();
 
@@ -74,6 +76,11 @@ int main(int argc, char** argv)
     for (int count = 0; count < N; ++count) {
         vec1->arr[0] += 1.0 / (2.0 + vec1->arr[0]);
         vec2->arr[10] += 1.0 / (2.0 + vec2->arr[10]);
+#ifdef DPS
+#ifndef HOIST
+	storage_t s = storage_alloc(VECTOR_ALL_BYTES(DIM));
+#endif
+#endif
 #ifdef ADD3
     #ifdef DPS
         total += vectorSum(TOP_LEVEL_linalg_vectorAdd3_dps(s, vec1, vec2, vec3, DIM, DIM, DIM));
@@ -92,6 +99,11 @@ int main(int argc, char** argv)
 	#else
         total += vectorSum(TOP_LEVEL_linalg_cross(vec1, vec2));
 	#endif
+#endif
+#ifdef DPS
+#ifndef HOIST
+	storage_free(s, VECTOR_ALL_BYTES(DIM));
+#endif
 #endif
     }
     float elapsed = toc2(t);
