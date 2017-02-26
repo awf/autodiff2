@@ -55,7 +55,9 @@ int main(int argc, char** argv)
 	X->arr[2] = -0.7;
     timer_t t = tic();
 
-    storage_t s = storage_alloc(100);
+#ifdef HOIST
+  storage_t s = storage_alloc(256);
+#endif
 
     // Debug 150s 
     // Release 1s
@@ -68,7 +70,13 @@ int main(int argc, char** argv)
         X->arr[0] = 1.0 / (2.0 + count);
         cam->arr[5] = 1.0 + count * 1e-6;
 #ifdef DPS
+#ifndef HOIST
+    storage_t s = storage_alloc(256);
+#endif
         total += TOP_LEVEL_linalg_sqnorm_dps(empty_storage, TOP_LEVEL_usecases_ba_project_dps(s, cam, X, 11, 3), 2);
+#ifndef HOIST
+    storage_free(s, 256);
+#endif
 #else
         total += TOP_LEVEL_linalg_sqnorm(TOP_LEVEL_usecases_ba_project(cam, X));
 #endif
