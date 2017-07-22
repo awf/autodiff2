@@ -28,7 +28,8 @@ list<matrix<Real>> foo(suitcase<vector<Real>>, packet<Real>);
  * When a derivative is a block of zeroes, or the identity matrix, we need to make sure the compiler can see it and generate optimal code.
  * If we do it right, we will easily be able to mix handwritten, symbolically generated and autodiffed derivatives, while generating optimal code.
  * And we'll probably not write ``∇foo`` for the derivative of `foo` by the power of unicode.  People will complain.
-
+ * And other gotchas like proper tangent bundles etc can be dealt with, but are not included here -- email me.
+ 
 ### Introduction
 
 We always knew how to write the derivatives of scalar functions of matrix arguments:
