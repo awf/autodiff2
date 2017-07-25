@@ -8,4 +8,5 @@ FILES_TAP=tapanade-main.cpp
 compile:
 	$(CC) $(OPTFLAG) $(CFLAGS) -DDO_BA $(LIBS) $(FILES_ADEPT) -o ba_adept.exe;
 	$(CC) $(OPTFLAG) $(CFLAGS) -DDO_MICRO -DDOT $(LIBS) $(FILES_ADEPT) -o micro_dot_adept.exe;
+	$(CC) $(OPTFLAG) $(CFLAGS) -DDO_BA $(LIBS) $(FILES_TAP) -o ba_tap.exe;
 	$(CC) $(OPTFLAG) $(CFLAGS) -DDO_MICRO -DDOT $(LIBS) $(FILES_TAP) -o micro_dot_tap.exe;
