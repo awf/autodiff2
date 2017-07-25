@@ -46,6 +46,9 @@ build/
 *.log
 *.scc
 
+*.exe
+*.exe.*
+
 # Visual C++ cache files
 ipch/
 *.aps
@@ -156,3 +159,5 @@ $RECYCLE.BIN/
 .DS_Store
 awf-build/
 *.opendb
+
+adept-1.1/

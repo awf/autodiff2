@@ -325,6 +325,10 @@ int test_ba()
         };
     X = {0.03, 0.11, -0.7};
 
+    adept::Stack stack;
+    adouble acam[BA_NCAMPARAMS],
+      aX[3];
+
     // boost::timer::auto_cpu_timer t;
     timer_t t = tic();
 
@@ -338,9 +342,22 @@ int test_ba()
     for (int count = 0; count < N; ++count) {
         X[0] = 1.0 / (2.0 + count);
         cam[5] = 1.0 + count * 1e-6;
+        adept::set_values(acam, BA_NCAMPARAMS, cam.data());
+        adept::set_values(aX, 3, X.data());
 
+        stack.new_recording();
+
+        adouble aproj[2];
         double proj[2];
-        project(cam.data(), X.data(), proj);
+        project(acam, aX, aproj);
+        stack.independent(acam, BA_NCAMPARAMS);
+        stack.independent(aX, 3);
+        stack.dependent(aproj, 2);
+        double init[2] = {1.0, 1.0};
+        adept::set_gradients(acam, BA_NCAMPARAMS, cam.data());
+        adept::set_gradients(aX, 3, X.data());
+        stack.compute_tangent_linear();
+        adept::get_gradients(aproj, 2, proj);
 
         total += sqsum(2, proj);
     }
