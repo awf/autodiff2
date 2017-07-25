@@ -19,12 +19,13 @@ int main()
     Vec3<Real> X = vec(0.03, 0.11, -0.7);
 
 
-    boost::timer::auto_cpu_timer t;
+    // boost::timer::auto_cpu_timer t;
+    timer_t t = tic();
 
     // Debug 150s 
     // Release 1s
     double total = 0;
-    int N = 100000000;
+    int N = 10000000;
 #ifdef _DEBUG
     N = N / 100;  // Debug is roughly this much slower than release -- multiply timings.
 #endif
@@ -35,7 +36,10 @@ int main()
         total += sumsq(project(cam, X));
     }
 
-    std::cout << "total =" << total << ", time per call = " << t.elapsed().wall/double(N) << "ns" << std::endl;
-
+    // std::cout << "total =" << total << ", time per call = " << t.elapsed().wall/double(N) << "ns" << std::endl;
+    // std::cout << "total =" << total << std::endl;
+    auto elapsed = toc(t);
+    printf("total =%f, time per call = %f ms\n", total, elapsed / double(N));
+    
     return 0;
 }

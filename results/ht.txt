@@ -1,0 +1,30 @@
+=== Run time Usage ===
+ht.exe
+total =10000000.000000, time per call = 0.000492 ms
+ht_opt.exe
+total =10000000.000000, time per call = 0.000488 ms
+ht_dps.exe
+total =10000000.000000, time per call = 0.000097 ms
+ht_opt_dps.exe
+total =10000000.000000, time per call = 0.000098 ms
+ht_opt_dps_bump.exe
+total =10000000.000000, time per call = 0.000055 ms
+../benchmark_ht/ht_cpp.exe
+total =10000000.000000, time per call = 0.000042 ms
+./ht_fs.exe
+total =10000000.000000, time per call = 0.000235 ms
+=== Memory Usage ===
+ht.exe
+2275987456  maximum resident set size
+ht_opt.exe
+2275975168  maximum resident set size
+ht_dps.exe
+    598016  maximum resident set size
+ht_opt_dps.exe
+    598016  maximum resident set size
+ht_opt_dps_bump.exe
+    589824  maximum resident set size
+../benchmark_ht/ht_cpp.exe
+    565248  maximum resident set size
+./ht_fs.exe
+  15781888  maximum resident set size

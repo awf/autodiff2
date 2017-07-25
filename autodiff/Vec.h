@@ -5,14 +5,18 @@
 #include <array>
 #include <vector>
 #include <iostream>
+#include <math.h>
 
-#include <boost/static_assert.hpp>
+// #include <boost/static_assert.hpp>
 
 // TODO better inference of scalars vs containers..
 typedef double Real;
 
-#if 0
+#if EIGEN
 #include <Eigen/Dense>
+
+typedef long cardinality_t; 
+
 
 template <class T>
 using Vec = Eigen::Matrix<T, Eigen::Dynamic, 1>;
@@ -98,6 +102,8 @@ auto vec(T t, Ts ... ts) -> VecF<T, 1 + sizeof...(Ts)> {
 
 #include "Zero.h"
 
+typedef size_t cardinality_t; 
+
 ///////////////---------------------------
 
 template <typename T>
@@ -143,8 +149,8 @@ struct Vec_BV {};
 
 template <class Vec_U, class Vec_V>
 struct CT_traits {
-  typedef typename Vec_GE result_of_add;
-  typedef typename Vec_GE result_of_mul;
+  typedef Vec_GE result_of_add;
+  typedef Vec_GE result_of_mul;
 };
 
 ///////////////---------------------------
@@ -206,7 +212,7 @@ struct Vec<T, Size, Vec_GE> {
 
   template <size_t start_index, size_t end_index>
   auto segment_start_end() const {
-    BOOST_STATIC_ASSERT(end_index < Size);
+    // BOOST_STATIC_ASSERT(end_index < Size);
     Vec<T, end_index - start_index + 1, Vec_GE> out;
     for (size_t i = 0; i < out.size(); ++i)
       out[i] = (*this)[start_index + i];
@@ -301,7 +307,7 @@ struct Vec<T, 0, Vec_GE> {
 
   template <size_t start_index, size_t end_index>
   auto segment_start_end() const {
-    BOOST_STATIC_ASSERT(end_index < Size);
+    // BOOST_STATIC_ASSERT(end_index < Size);
     Vec<T, end_index - start_index + 1, Vec_GE> out;
     for (size_t i = 0; i < out.size(); ++i)
       out[i] = (*this)[start_index + i];
@@ -462,49 +468,94 @@ struct run_elementwise_binary {
   }
 };
 
-#define DECLARE_BINOP_2(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_T, Ret_N, Ret_CT) \
-auto operator OPERATOR(Vec<AT, AN, ACT> const& a, Vec<BT, BN, BCT> const& b) -> Vec<Ret_T, Ret_N, Ret_CT>\
+// #define DECLARE_BINOP_2(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_T, Ret_N, Ret_CT) \
+// auto operator OPERATOR(Vec<AT, AN, ACT> const& a, Vec<BT, BN, BCT> const& b) -> Vec<Ret_T, Ret_N, Ret_CT> \
+// {\
+//   auto f = [](AT aa, BT bb) { return aa OPERATOR bb; };\
+//   return run_elementwise_binary<decltype(a OPERATOR b)>()(a, b, f);\
+// }
+
+// #define DECLARE_BINOP(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_N, Ret_CT) \
+//   DECLARE_BINOP_2(OPERATOR, AT,AN,ACT,BT,BN,BCT,decltype(a[0] OPERATOR b[0]),Ret_N,Ret_CT)
+
+#define DECLARE_BINOP(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_N) \
+auto operator OPERATOR(Vec<AT, AN, ACT> const& a, Vec<BT, BN, BCT> const& b) -> Vec<decltype(a[0] OPERATOR b[0]), Ret_N, ADD_CT(CTa, CTb)> \
 {\
   auto f = [](AT aa, BT bb) { return aa OPERATOR bb; };\
   return run_elementwise_binary<decltype(a OPERATOR b)>()(a, b, f);\
 }
 
-#define DECLARE_BINOP(OPERATOR, AT, AN, ACT, BT, BN, BCT, Ret_N, Ret_CT) \
-  DECLARE_BINOP_2(OPERATOR, AT,AN,ACT,BT,BN,BCT,decltype(a[0] OPERATOR b[0]),Ret_N,Ret_CT)
-
 #define ADD_CT(CTa, CTb) typename CT_traits<CTa, CTb>::result_of_add
 
 // Add: Fixedsize, Anysize -> Fixedsize
 template <class T, int N, class CTa, class U, class CTb>
-DECLARE_BINOP(+, T, N, CTa, U, 0, CTb, N, ADD_CT(CTa, CTb))
+DECLARE_BINOP(+, T, N, CTa, U, 0, CTb, N)
+// template <class AT, int AN, class ACT, class BT, class BCT>
+// auto operator +(Vec<AT, AN, ACT> const& a, Vec<BT, 0, BCT> const& b) -> Vec<decltype(a[0] + b[0]), AN, ADD_CT(ACT, BCT)>
+// {
+//   auto f = [](AT aa, BT bb) { return aa + bb; };
+//   return run_elementwise_binary<decltype(a + b)>()(a, b, f);
+// }
+
+// compilation errors related to C macro expansion!
 
 // Add: Anysize, Fixedsize -> Fixedsize
 template <class T, int N, class CTa, class U, class CTb>
-DECLARE_BINOP(+, T, 0, CTa, U, N, CTb, N, ADD_CT(CTa, CTb))
+DECLARE_BINOP(+, T, 0, CTa, U, N, CTb, N)
 
 // Add: Anysize, Anysize -> Anysize
 template <class T, class CTa, class U, class CTb>
-DECLARE_BINOP(+, T, 0, CTa, U, 0, CTb, 0, ADD_CT(CTa, CTb))
+DECLARE_BINOP(+, T, 0, CTa, U, 0, CTb, 0)
 
 // Add: Fixedsize, Fixedsize -> Fixedsize
 template <class T, int N, class CTa, class U, int M, class CTb>
-DECLARE_BINOP(+, T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
+DECLARE_BINOP(+, T, N, CTa, U, M, CTb, N)
 
 // Sub: Fixedsize, Anysize -> Fixedsize
 template <class T, int N, class CTa, class U, class CTb>
-DECLARE_BINOP(-, T, N, CTa, U, 0, CTb, N, ADD_CT(CTa, CTb))
+DECLARE_BINOP(-, T, N, CTa, U, 0, CTb, N)
 
 // Sub: Anysize, Fixedsize -> Fixedsize
 template <class T, int N, class CTa, class U, class CTb>
-DECLARE_BINOP(-, T, 0, CTa, U, N, CTb, N, ADD_CT(CTa, CTb))
+DECLARE_BINOP(-, T, 0, CTa, U, N, CTb, N)
 
 // Sub: Anysize, Anysize -> Anysize
 template <class T, class CTa, class U, class CTb>
-DECLARE_BINOP(-, T, 0, CTa, U, 0, CTb, 0, ADD_CT(CTa, CTb))
+DECLARE_BINOP(-, T, 0, CTa, U, 0, CTb, 0)
 
 // Sub: Fixedsize, Fixedsize -> Fixedsize
 template <class T, int N, class CTa, class U, int M, class CTb>
-DECLARE_BINOP(-, T, N, CTa, U, M, CTb, N, ADD_CT(CTa, CTb))
+DECLARE_BINOP(-, T, N, CTa, U, M, CTb, N)
+
+
+// // Add: Anysize, Fixedsize -> Fixedsize
+// template <class T, int N, class CTa, class U, class CTb>
+// auto operator +(Vec<T, 0, CTa> const& a, Vec<U, N, CTb> const& b) -> Vec<decltype(a[0] + b[0]), N, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa + bb; }; return run_elementwise_binary<decltype(a + b)>()(a, b, f);}
+
+// // Add: Anysize, Anysize -> Anysize
+// template <class T, class CTa, class U, class CTb>
+// auto operator +(Vec<T, 0, CTa> const& a, Vec<U, 0, CTb> const& b) -> Vec<decltype(a[0] + b[0]), 0, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa + bb; }; return run_elementwise_binary<decltype(a + b)>()(a, b, f);}
+
+// // Add: Fixedsize, Fixedsize -> Fixedsize
+// template <class T, int N, class CTa, class U, int M, class CTb>
+// auto operator +(Vec<T, N, CTa> const& a, Vec<U, M, CTb> const& b) -> Vec<decltype(a[0] + b[0]), N, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa + bb; }; return run_elementwise_binary<decltype(a + b)>()(a, b, f);}
+
+
+// template <class T, int N, class CTa, class U, class CTb>
+// auto operator -(Vec<T, N, CTa> const& a, Vec<U, 0, CTb> const& b) -> Vec<decltype(a[0] - b[0]), N, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa - bb; }; return run_elementwise_binary<decltype(a - b)>()(a, b, f);}
+
+
+// template <class T, int N, class CTa, class U, class CTb>
+// auto operator -(Vec<T, 0, CTa> const& a, Vec<U, N, CTb> const& b) -> Vec<decltype(a[0] - b[0]), N, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa - bb; }; return run_elementwise_binary<decltype(a - b)>()(a, b, f);}
+
+
+// template <class T, class CTa, class U, class CTb>
+// auto operator -(Vec<T, 0, CTa> const& a, Vec<U, 0, CTb> const& b) -> Vec<decltype(a[0] - b[0]), 0, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa - bb; }; return run_elementwise_binary<decltype(a - b)>()(a, b, f);}
+
+
+// template <class T, int N, class CTa, class U, int M, class CTb>
+// auto operator -(Vec<T, N, CTa> const& a, Vec<U, M, CTb> const& b) -> Vec<decltype(a[0] - b[0]), N, ADD_CT(CTa, CTb)> { auto f = [](T aa, U bb) { return aa - bb; }; return run_elementwise_binary<decltype(a - b)>()(a, b, f);}
+
 
 
 // FUN: transpose
@@ -737,67 +788,67 @@ bool operator!=(Vec<T, Size, CT> const& a, Vec<T2, Size2, CT2> const& b)
 
 // ENDFUN ==
 
-#include <boost/test/tools/floating_point_comparison.hpp>
+// #include <boost/test/tools/floating_point_comparison.hpp>
 
-// Declare boost::math::fpc::close_at_tolerance for vectors
-template<typename T, size_t Size, class ContentsTag>
-class boost::math::fpc::close_at_tolerance<Vec<T, Size, ContentsTag>> {
-  typedef Vec<T, Size, ContentsTag> FPT;
-  typedef decltype(sumsq(FPT())) Real;
+// // Declare boost::math::fpc::close_at_tolerance for vectors
+// template<typename T, size_t Size, class ContentsTag>
+// class boost::math::fpc::close_at_tolerance<Vec<T, Size, ContentsTag>> {
+//   typedef Vec<T, Size, ContentsTag> FPT;
+//   typedef decltype(sumsq(FPT())) Real;
 
-public:
-  // Public typedefs
-  typedef bool result_type;
+// public:
+//   // Public typedefs
+//   typedef bool result_type;
 
-  // Constructor
-  template<typename ToleranceType>
-  explicit    close_at_tolerance(ToleranceType tolerance, fpc::strength fpc_strength = FPC_STRONG)
-    : m_fraction_tolerance(fpc_detail::fraction_tolerance<Real>(tolerance))
-    , m_strength(fpc_strength)
-    , m_tested_rel_diff(0)
-  {
-    BOOST_ASSERT_MSG(m_fraction_tolerance >= Real(0), "tolerance must not be negative!"); // no reason for tolerance to be negative
-  }
+//   // Constructor
+//   template<typename ToleranceType>
+//   explicit    close_at_tolerance(ToleranceType tolerance, fpc::strength fpc_strength = FPC_STRONG)
+//     : m_fraction_tolerance(fpc_detail::fraction_tolerance<Real>(tolerance))
+//     , m_strength(fpc_strength)
+//     , m_tested_rel_diff(0)
+//   {
+//     // BOOST_ASSERT_MSG(m_fraction_tolerance >= Real(0), "tolerance must not be negative!"); // no reason for tolerance to be negative
+//   }
 
-  // Access methods
-  //! Returns the tolerance
-  Real                 fraction_tolerance() const { return m_fraction_tolerance; }
+//   // Access methods
+//   //! Returns the tolerance
+//   Real                 fraction_tolerance() const { return m_fraction_tolerance; }
 
-  //! Returns the comparison method
-  fpc::strength       strength() const { return m_strength; }
+//   //! Returns the comparison method
+//   fpc::strength       strength() const { return m_strength; }
 
-  //! Returns the failing fraction
-  Real                tested_rel_diff() const { return m_tested_rel_diff; }
+//   //! Returns the failing fraction
+//   Real                tested_rel_diff() const { return m_tested_rel_diff; }
 
-  /*! Compares two floating point numbers a and b such that their "left" relative difference |a-b|/a and/or
-  * "right" relative difference |a-b|/b does not exceed specified relative (fraction) tolerance.
-  *
-  *  @param[in] left first floating point number to be compared
-  *  @param[in] right second floating point number to be compared
-  *
-  * What is reported by @c tested_rel_diff in case of failure depends on the comparison method:
-  * - for @c FPC_STRONG: the max of the two fractions
-  * - for @c FPC_WEAK: the min of the two fractions
-  * The rationale behind is to report the tolerance to set in order to make a test pass.
-  */
-  bool                operator()(FPT left, FPT right) const
-  {
-    if (left.size() != right.size())
-      return false;
+//   /*! Compares two floating point numbers a and b such that their "left" relative difference |a-b|/a and/or
+//   * "right" relative difference |a-b|/b does not exceed specified relative (fraction) tolerance.
+//   *
+//   *  @param[in] left first floating point number to be compared
+//   *  @param[in] right second floating point number to be compared
+//   *
+//   * What is reported by @c tested_rel_diff in case of failure depends on the comparison method:
+//   * - for @c FPC_STRONG: the max of the two fractions
+//   * - for @c FPC_WEAK: the min of the two fractions
+//   * The rationale behind is to report the tolerance to set in order to make a test pass.
+//   */
+//   bool                operator()(FPT left, FPT right) const
+//   {
+//     if (left.size() != right.size())
+//       return false;
 
-    Real diff = sqrt(sumsq(left - right));
+//     Real diff = sqrt(sumsq(left - right));
 
-    m_tested_rel_diff = diff;
+//     m_tested_rel_diff = diff;
 
-    return m_tested_rel_diff <= m_fraction_tolerance;
-  }
+//     return m_tested_rel_diff <= m_fraction_tolerance;
+//   }
 
-private:
-  // Data members
-  Real m_fraction_tolerance;
-  fpc::strength       m_strength;
-  mutable Real         m_tested_rel_diff;
-};
+// private:
+//   // Data members
+//   Real m_fraction_tolerance;
+//   fpc::strength       m_strength;
+//   mutable Real         m_tested_rel_diff;
+// };
 
 template <class T, size_t Size>
 using VecF = Vec<T, Size>;

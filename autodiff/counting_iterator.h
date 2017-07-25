@@ -2,7 +2,7 @@
 
 template <class T>
 struct counting_iterator {
-  typedef typename counting_iterator<T> this_t;
+  typedef counting_iterator<T> this_t;
   size_t count;
   T retval;
   counting_iterator(size_t n, T retval) : count(n), retval(retval) {}

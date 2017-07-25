@@ -11,11 +11,12 @@
 //   Matrix of vectorized lower triangles of component inverse covariance matrices
 
 #include "stdafx.h"
+#include <math.h>
 
 const size_t GMM_K = 5;
 const size_t GMM_D = 3;
 
-#define FIXED_SIZES
+// #define FIXED_SIZES
 
 // Should/could be faster for fixed K
 #ifdef FIXED_SIZES
@@ -40,7 +41,7 @@ void Qtimesv_test();
 // tri 1 = 1
 // tri 2 = 3
 // tri 3 = 6
-inline size_t tri(size_t n)
+inline cardinality_t tri(cardinality_t n)
 {
   return n * (n + 1) / 2;
 }

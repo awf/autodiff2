@@ -8,8 +8,23 @@
 #include "targetver.h"
 
 #include <stdio.h>
-#include <tchar.h>
+// #include <tchar.h>
 
-#include <boost/timer/timer.hpp>
+// #include <boost/timer/timer.hpp>
 
-#include "Vec.h"
+// #include "Vec.h"
+#include "../autodiff/Vec.h"
+
+#include <stdlib.h>
+#include <time.h>
+
+/** Timing */
+
+typedef struct timer_t {
+	clock_t start;
+} timer_t;
+
+timer_t tic();
+
+float toc(timer_t t);
+

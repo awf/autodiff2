@@ -2,6 +2,21 @@
 
 #include "Vec.h"
 
+
+#if EIGEN
+#include <Eigen/Dense>
+
+template <class T, size_t R, size_t C>
+using Mat = Eigen::Matrix<T, R, C>;
+
+template <class T, int M, int N>
+VecF<T, M>& getRow(Mat<T, M, N> const& m, int i)                 { 
+  return m.row(i); 
+}
+
+
+#else
+
 struct Mat_Identity {};
 
 // Matrix derives from Vec<Vec> which is sometimes plausible, see https://github.com/awf/autodiff2/blob/master/autodiff/Differentiating%20Containers.md
@@ -30,9 +45,12 @@ struct Mat : public Vec<Vec<T, M>, N> {
 
   T&       operator()(size_t i, size_t j)       { return (*this)[j][i]; }
   T const& operator()(size_t i, size_t j) const { return (*this)[j][i]; }
+  // Vec<T, M>& operator()(size_t i)               { return (*this)[i]; }
+  // T const& operator()(size_t i, size_t j) const { return (*this)[j][i]; }
 
+  Vec<T, M>& getRow(size_t i)                 { return (*this)[i]; }
   size_t rows() const { return (*this)[0].size(); }
-  size_t cols() const { return size(); }
+  size_t cols() const { return (*this).size(); }
 
   template <size_t Rows, size_t Cols>
   Mat<T, Rows, Cols> block(size_t start_row, size_t start_col) const {
@@ -56,7 +74,7 @@ Vec<T, N, Vec_GE> diag(Mat<T, N, N> const& m)
   return out;
 }
 
-template <class T, size_t N, class CT>
+template <class T, int N, class CT>
 Mat<T, N, N> diaginv(Vec<T, N, CT> const& v)
 {
   Mat<T, N, N> out = Mat<Zero, N, N>{ v.size(), v.size() };
@@ -97,8 +115,16 @@ Mat<T, N, M> operator*(Mat<T, N, C> const& a, Mat<T, C, M> const& b)
   return ret;
 }
 
+
+template <class T, size_t M, size_t N>
+Vec<T, M> getRow(Mat<T, M, N> const& m, size_t i)                 { 
+  return m[i]; 
+}
+
+
 /*
 Vec<Vec<float, 3>, 3> a;
 Vec<Vec<float, 3>, 7> b;
 auto x = a*b;
 */
+#endif
