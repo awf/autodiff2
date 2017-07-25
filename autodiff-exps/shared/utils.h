@@ -16,6 +16,7 @@
 typedef double Real;
 
 typedef long cardinality_t; 
+typedef int card_t; 
 
 
 template <class T>
