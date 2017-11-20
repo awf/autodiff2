@@ -68,6 +68,120 @@ int test_ba()
     return 0;
 }
 
+#elif defined DO_GMM
+#include "tapanade/gmm.h"
+
+typedef double number_t;
+typedef struct array_number_t_struct {
+    number_t *arr;
+    int length;
+} * array_number_t;
+
+typedef struct array_array_number_t_struct {
+    array_number_t *arr;
+    int length;
+} * array_array_number_t;
+
+const size_t GMM_K = 5;
+const size_t GMM_D = 3;
+
+double dist(int seed) {
+  return ((double)rand()/(double)RAND_MAX);
+}
+
+array_array_number_t matrix_fill(card_t rows, card_t cols, number_t value) {
+  array_array_number_t macroDef83 = (array_array_number_t)malloc(sizeof(int) * 2);
+  macroDef83->length=rows;
+  macroDef83->arr = (array_number_t*)malloc(sizeof(array_number_t) * rows);
+    for(int r = 0; r < macroDef83->length; r++){
+      array_number_t macroDef82 = (array_number_t)malloc(sizeof(int) * 2);
+  macroDef82->length=cols;
+  macroDef82->arr = (number_t*)malloc(sizeof(number_t) * cols);
+    for(int c = 0; c < macroDef82->length; c++){
+      
+      macroDef82->arr[c] = value;;
+    }
+      macroDef83->arr[r] = macroDef82;;
+    }
+  return macroDef83;
+}
+
+array_number_t vector_fill(card_t rows, number_t value) {
+  return matrix_fill(1, rows, value)->arr[0];
+}
+
+void test_gmm()
+{
+  int rng = 42;
+  srand(rng);
+  // std::mt19937 rng(42);
+  // std::uniform_real_distribution<Real> dist(0, 1);
+
+  // Problem size
+  size_t n = 100;
+  size_t d = GMM_D;
+  size_t K = GMM_K;
+  size_t td = ((d) * ((d) + (1))) / (2);
+  
+
+  // Declare and fill GMM coeffs
+  // Vector alphas{ K };
+  // Vec<VectorD> means{ K, VectorD{ d } };
+  // Vec<VectorD> qs{ K, VectorD{ d } };
+  // Vector l0{ size_t(tri(d)) };
+  // Vec<Vector> ls{ K, l0 };
+  array_number_t alphas = vector_fill(K, 0);
+  array_number_t means = vector_fill(K * d, 0);
+  array_number_t qs = vector_fill(K * d, 0);
+  array_number_t ls = vector_fill(K * td, 0);
+  for (int k = 0; k < K; ++k) {
+    alphas->arr[k] = dist(rng);
+    for (int j = 0; j < d; ++j) {
+      means->arr[k * d + j] = dist(rng) - 0.5;
+      qs->arr[k * d + j] = 10.0*dist(rng) - 5.0;
+    }
+    for (int j = 0; j < td; ++j)
+      ls->arr[k * td + j] = dist(rng) - 0.5;
+  }
+
+  // Declare and fill xs
+  // Vec<VectorD> xs{ n, Vector{ d } };
+  array_number_t xs = vector_fill(n * d, 0);
+  for (int i = 0; i < n; ++i)
+    for (int j = 0; j < d; ++j)
+      xs->arr[i * d + j] = dist(rng);
+
+  // TOP_LEVEL_usecases_gmm_Qtimesv_test(0);
+
+  // boost::timer::auto_cpu_timer t;
+  timer_t t = tic();
+
+  // Debug 150s 
+    // Release 1s
+  double total = 0;
+  int N = 10000;
+#ifdef _DEBUG
+  N = N / 10;  // Debug is roughly this much slower than release -- multiply timings.
+#endif
+  double wishart_m = 2.0;
+  for (int count = 0; count < N; ++count) {
+    double wishart_gamma = 1.0 / (1.0 + count);
+    Wishart w;
+    w.gamma = wishart_gamma;
+    w.m = wishart_m;
+    double res;
+
+    // TODO icf instead of qs and ls
+    gmm_objective(d, K, n, alphas->arr, means->arr, qs->arr/*, ls*/, xs->arr, w, &res);
+    total += res;
+  }
+
+  // std::cout << "total =" << total << ", time per call = " << t.elapsed().wall / double(N) / 1000.0 << "us" << std::endl;
+  double elapsed = toc(t);
+  printf("total =%f, time per call = %f ms\n", total, elapsed / (double)(N));
+}
+
+
 
 #elif defined DO_MICRO
 
@@ -133,6 +247,8 @@ int main(int argc, char *argv[])
 {
 #if defined DO_BA
   test_ba();
+#elif defined DO_GMM
+  test_gmm();
 #elif defined DO_MICRO
   if(argc != 2) {
     printf("You should use the following format for running this program: %s <Number of Iterations>\n", argv[0]);
