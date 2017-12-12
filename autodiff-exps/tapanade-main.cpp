@@ -134,14 +134,21 @@ void test_gmm()
   array_number_t means = vector_fill(K * d, 0);
   array_number_t qs = vector_fill(K * d, 0);
   array_number_t ls = vector_fill(K * td, 0);
+  array_number_t icf = vector_fill(K * td, 0);
   for (int k = 0; k < K; ++k) {
     alphas->arr[k] = dist(rng);
     for (int j = 0; j < d; ++j) {
       means->arr[k * d + j] = dist(rng) - 0.5;
       qs->arr[k * d + j] = 10.0*dist(rng) - 5.0;
     }
-    for (int j = 0; j < td; ++j)
+    for (int j = 0; j < td; ++j) {
       ls->arr[k * td + j] = dist(rng) - 0.5;
+      if(j < d) {
+        icf->arr[k * td + j] = qs->arr[k * d + j];
+      } else {
+        icf->arr[k * td + j] = ls->arr[k * td + j - d];
+      }
+    }
   }
 
   // Declare and fill xs
@@ -172,7 +179,7 @@ void test_gmm()
     double res;
 
     // TODO icf instead of qs and ls
-    gmm_objective(d, K, n, alphas->arr, means->arr, qs->arr/*, ls*/, xs->arr, w, &res);
+    gmm_objective(d, K, n, alphas->arr, means->arr, icf->arr/*, ls*/, xs->arr, w, &res);
     total += res;
   }
 

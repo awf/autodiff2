@@ -70,21 +70,21 @@ double log_wishart_prior(int p, int k,
   int n, ik, icf_sz;
   double out, C, frobenius;
 
-  n = p + wishart.m + 1;
+  // n = p + wishart.m + 1;
   icf_sz = p*(p + 1) / 2;
 
-  C = n*p*(log(wishart.gamma) - 0.5*log(2)) - log_gamma_distrib(0.5*n, p);
+  // C = n*p*(log(wishart.gamma) - 0.5*log(2)) - log_gamma_distrib(0.5*n, p);
 
   out = 0;
   for (ik = 0; ik < k; ik++)
   {
     frobenius = sqnorm(p, &Qdiags[ik*p]) + sqnorm(icf_sz - p, &icf[ik*icf_sz + p]);
-    out = out + 0.5*wishart.gamma*wishart.gamma*frobenius
-      -wishart.m * sum_qs[ik];
+    out = out + 0.5 /* *wishart.gamma*wishart.gamma */ * frobenius
+      /*-wishart.m */ * sum_qs[ik];
   }
 
   // the last bit is here so that tapenade would recognize that means and inv_cov_factors are variables
-  return out - k*C + (Qdiags[0] - Qdiags[0]) + (icf[0] - icf[0]);
+  return out /* - k*C + (Qdiags[0] - Qdiags[0]) + (icf[0] - icf[0]) */;
 }
 
 void preprocess_qs(int d, int k,
@@ -154,7 +154,7 @@ void gmm_objective(int d, int k, int n,
   int ik, ix, icf_sz;
   double *main_term, *sum_qs, *Qdiags, *xcentered, *Qxcentered;
   double slse, lse_alphas, CONSTANT;
-  CONSTANT = -n*d*0.5*log(2 * PI);
+  // CONSTANT = -n*d*0.5*log(2 * PI);
   icf_sz = d*(d + 1) / 2;
 
   main_term = (double *)malloc(k*sizeof(double));
@@ -182,7 +182,7 @@ void gmm_objective(int d, int k, int n,
   free(Qxcentered);
 
   lse_alphas = logsumexp(k, alphas);
-  *err = CONSTANT + slse - n*lse_alphas;
+  *err = /*CONSTANT + */slse - n*lse_alphas;
 
   *err = *err + log_wishart_prior(d, k, wishart, sum_qs, Qdiags, icf);
 
@@ -190,8 +190,8 @@ void gmm_objective(int d, int k, int n,
   free(Qdiags);
 
   // this is here so that tapenade would recognize that means and inv_cov_factors are variables
-  *err = *err + ((means[0] - means[0]) +
-    (icf[0] - icf[0]));
+  *err = *err /* + ((means[0] - means[0]) +
+    (icf[0] - icf[0])) */;
 }
 
 void gmm_objective_split_inner(int d, int k,
