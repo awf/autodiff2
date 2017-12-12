@@ -69,7 +69,8 @@ int test_ba()
 }
 
 #elif defined DO_GMM
-#include "tapanade/gmm.h"
+// #include "tapanade/gmm.h"
+#include "tapanade/gmm_d-all.h"
 
 typedef double number_t;
 typedef struct array_number_t_struct {
@@ -173,14 +174,11 @@ void test_gmm()
   double wishart_m = 2.0;
   for (int count = 0; count < N; ++count) {
     double wishart_gamma = 1.0 / (1.0 + count);
-    Wishart w;
-    w.gamma = wishart_gamma;
-    w.m = wishart_m;
-    double res;
+    double res, resd;
 
     // TODO icf instead of qs and ls
-    gmm_objective(d, K, n, alphas->arr, means->arr, icf->arr/*, ls*/, xs->arr, w, &res);
-    total += res;
+    gmm_objective_d(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xs->arr, wishart_gamma, wishart_m, &res, &resd);
+    total += resd;
   }
 
   // std::cout << "total =" << total << ", time per call = " << t.elapsed().wall / double(N) / 1000.0 << "us" << std::endl;
