@@ -64,8 +64,7 @@ double log_wishart_prior(int p, int k,
   for (ik = 0; ik < k; ik++)
   {
     frobenius = sqnorm(p, &Qdiags[ik*p]) + sqnorm(icf_sz - p, &icf[ik*icf_sz + p]);
-    out = out + 0.5 /* *wishart.gamma*wishart.gamma */ * frobenius
-      /*-wishart.m */ * sum_qs[ik];
+    out = out + 0.5 * frobenius;
   }
 
   // the last bit is here so that tapenade would recognize that means and inv_cov_factors are variables

@@ -90,8 +90,8 @@ double log_wishart_prior_d(int p, int k, double wishart_gamma, double
                             p], &result2);
         frobeniusd = result1d + result2d;
         frobenius = result1 + result2;
-        outd = outd + 0.5*(frobeniusd*sum_qs[ik]+frobenius*sum_qsd[ik]);
-        out = out + 0.5*frobenius*sum_qs[ik];
+        outd = outd + 0.5*frobeniusd;
+        out = out + 0.5*frobenius;
     }
     *log_wishart_prior = out;
     /* *wishart.gamma*wishart.gamma 

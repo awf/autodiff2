@@ -111,6 +111,17 @@ array_number_t vector_fill(card_t rows, number_t value) {
   return matrix_fill(1, rows, value)->arr[0];
 }
 
+void array_print(array_number_t arr) {
+  printf("[");
+  for (int i = 0; i < arr->length; i++) {
+    printf("%f", arr->arr[i]);
+    if (i != arr->length - 1)
+      printf(", ");
+  }
+  printf("]\n");
+}
+
+
 void test_gmm()
 {
   int rng = 42;
@@ -144,6 +155,8 @@ void test_gmm()
     }
     for (int j = 0; j < td; ++j) {
       ls->arr[k * td + j] = dist(rng) - 0.5;
+      if(j >= td - d)
+        ls->arr[k * td + j] = 0;
       if(j < d) {
         icf->arr[k * td + j] = qs->arr[k * d + j];
       } else {
@@ -174,11 +187,13 @@ void test_gmm()
   double wishart_m = 2.0;
   for (int count = 0; count < N; ++count) {
     double wishart_gamma = 1.0 / (1.0 + count);
-    double res, resd;
+    double res, tmp;
 
     // TODO icf instead of qs and ls
-    gmm_objective_d(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xs->arr, wishart_gamma, wishart_m, &res, &resd);
-    total += resd;
+    // gmm_objective(d, K, n, alphas->arr, means->arr, icf->arr, xs->arr, wishart_gamma, wishart_m, &res);
+    // total += res;
+    gmm_objective_d(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xs->arr, wishart_gamma, wishart_m, &tmp, &res);
+    total += res;
   }
 
   // std::cout << "total =" << total << ", time per call = " << t.elapsed().wall / double(N) / 1000.0 << "us" << std::endl;
