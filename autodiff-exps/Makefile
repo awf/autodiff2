@@ -16,8 +16,10 @@ compile:
 	# $(CPP) $(OPTFLAG) $(CFLAGS) -DDO_GMM $(LIBS) $(FILES_TAP) -o gmm_tap.exe;
 	$(CPP) $(OPTFLAG) $(CFLAGS) -DTAPENADE -DDO_GMM $(LIBS) $(FILES_ALL) -o gmm_tap_all.exe;
 	$(CPP) $(OPTFLAG) $(CFLAGS) -DTAPENADE -DDO_BA $(LIBS) $(FILES_ALL) -o ba_tap_all.exe;
-	$(CPP) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DDO_BA $(LIBS) ba_diff_fused.o $(FILES_ALL) -o ba_all.exe;
+	$(CPP) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DFUSED -DDO_BA $(LIBS) ba_diff_fused.o $(FILES_ALL) -o ba_diff_fused.exe;
+	$(CPP) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DFUSED -DDPS -DDO_BA $(LIBS) ba_diff_fused_dps.o $(FILES_ALL) -o ba_diff_fused_dps.exe;
 
 
 c:
-	$(CC) $(OPTFLAG) -DDIFFSMOOTH -DFUSED -DDO_BA $(C_FILES) -c -o ba_diff_fused.o;
+	$(CC) $(OPTFLAG) -DDIFFSMOOTH -DBUMP -DFUSED -DDO_BA $(C_FILES) -c -o ba_diff_fused.o;
+	$(CC) $(OPTFLAG) -DDIFFSMOOTH -DBUMP -DFUSED -DDPS -DDO_BA $(C_FILES) -c -o ba_diff_fused_dps.o;

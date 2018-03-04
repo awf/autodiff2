@@ -268,7 +268,15 @@ void test_ba(const string& fn_in, const string& fn_out,
   #ifdef TAPENADE
   string name = "Tapenade";
   #elif defined DIFFSMOOTH 
-  string name = "DiffSmooth";
+    #if defined DPS && defined FUSED
+    string name = "DiffSmooth_fused_dps";
+    #elif defined DPS
+    string name = "DiffSmooth_dps";
+    #elif defined FUSED
+    string name = "DiffSmooth_fused";
+    #else
+    string name = "DiffSmooth";
+    #endif
   #endif
 
   //write_J_sparse(fn_out + "_J_" + name + ".txt", J);

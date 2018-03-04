@@ -1,5 +1,5 @@
-#ifndef __USECASES_BA_H__ 
-#define __USECASES_BA_H__ 
+#ifndef __USECASES_BA_D_H__ 
+#define __USECASES_BA_D_H__ 
 #include "fsharp.h"
 #include <stdio.h>
 #include <math.h>

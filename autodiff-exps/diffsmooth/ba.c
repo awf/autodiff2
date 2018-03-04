@@ -18,8 +18,10 @@
 
 array_number_t cam, camd;
 array_number_t X, Xd;
+storage_t s;
 
 void ba_init() {
+	s = storage_alloc(256);	
 	cam = (array_number_t)storage_alloc(sizeof(int) * 2);	
 	cam->length=11;
 	X = (array_number_t)storage_alloc(sizeof(int) * 2);
@@ -44,6 +46,7 @@ void project_d(double *cam_arr, double *camd_arr, double *X_arr, double *Xd_arr,
 	X->arr = X_arr;
 	Xd->arr = Xd_arr;
 #ifdef DPS
+	projd = TOP_LEVEL_usecases_ba_project_dps_d(s, cam, X, camd, Xd, 11, 3, 11, 3)->arr;
 #else
 	projd = TOP_LEVEL_usecases_ba_project_d(cam, X, camd, Xd)->arr;
 #endif
