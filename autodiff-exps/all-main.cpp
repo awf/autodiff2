@@ -16,8 +16,7 @@ extern "C"
 {
 #if defined DO_GMM
   #if defined TAPENADE
-    #include "tapanade/gmm.h"
-    #include "tapanade/gmm_d-all.h"
+    #include "tapanade/gmm_all.h"
   #elif defined DIFFSMOOTH
     #include "diffsmooth/gmm.h"
   #endif
