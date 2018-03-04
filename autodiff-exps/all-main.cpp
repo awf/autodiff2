@@ -15,9 +15,12 @@
 extern "C"
 {
 #if defined DO_GMM
-#include "tapanade/gmm.h"
-#include "tapanade/gmm_d-all.h"
-
+  #if defined TAPENADE
+    #include "tapanade/gmm.h"
+    #include "tapanade/gmm_d-all.h"
+  #elif defined DIFFSMOOTH
+    #include "diffsmooth/gmm.h"
+  #endif
 #elif defined DO_BA
   #if defined TAPENADE
     #include "tapanade/ba.h"
@@ -67,6 +70,7 @@ void test_gmm(const string& fn_in, const string& fn_out,
   read_gmm_instance(fn_in + ".txt", &d, &k, &n,
     alphas, means, icf, x, wishart, replicate_point);
 
+  gmm_init(d, k, n);
   printf("read!\n");
 
   int icf_sz = d*(d + 1) / 2;
@@ -99,9 +103,19 @@ void test_gmm(const string& fn_in, const string& fn_out,
   cout << "err: " << e2 << endl;
 
   /////////////////// results //////////////////////////
-#if defined DO_GMM
+  #if defined TAPENADE
   string name("Tapenade");
-#endif
+  #elif defined DIFFSMOOTH 
+    #if defined DPS && defined FUSED
+    string name = "DiffSmooth_fused_dps";
+    #elif defined DPS
+    string name = "DiffSmooth_dps";
+    #elif defined FUSED
+    string name = "DiffSmooth_fused";
+    #else
+    string name = "DiffSmooth";
+    #endif
+  #endif
   write_J(fn_out + "_J_" + name + ".txt", 1, Jsz, J.data());
   //write_times(tf, tb);
   write_times(fn_out + "_times_" + name + ".txt", tf, tb);

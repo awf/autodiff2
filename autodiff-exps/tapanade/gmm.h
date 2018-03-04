@@ -179,4 +179,5 @@ void gmm_objective(int d, int k, int n,
     (icf[0] - icf[0])) */;
 }
 
+void gmm_init(int d_p, int k_p, int n_p){}
 #endif // TEST_TAPENADE_GMM
