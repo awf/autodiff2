@@ -17,9 +17,14 @@ extern "C"
 #if defined DO_GMM
 #include "tapanade/gmm.h"
 #include "tapanade/gmm_d-all.h"
+
 #elif defined DO_BA
-#include "tapanade/ba.h"
-#include "tapanade/ba_d-all.h"
+  #if defined TAPENADE
+    #include "tapanade/ba.h"
+    #include "tapanade/ba_d-all.h"
+  #elif defined DIFFSMOOTH
+    #include "diffsmooth/ba.h"
+  #endif
 #endif
 }
 
@@ -233,6 +238,7 @@ void test_ba(const string& fn_in, const string& fn_out,
   //read instance
   read_ba_instance(fn_in + ".txt", n, m, p,
     cams, X, w, obs, feats);
+  ba_init();
 
   vector<double> reproj_err(2 * p);
   vector<double> w_err(p);
@@ -259,7 +265,11 @@ void test_ba(const string& fn_in, const string& fn_out,
   end = high_resolution_clock::now();
   tJ = duration_cast<duration<double>>(end - start).count() / nruns_J;
 
+  #ifdef TAPENADE
   string name = "Tapenade";
+  #elif defined DIFFSMOOTH 
+  string name = "DiffSmooth";
+  #endif
 
   //write_J_sparse(fn_out + "_J_" + name + ".txt", J);
   write_times(fn_out + "_times_" + name + ".txt", tf, tJ);

@@ -89,3 +89,8 @@ void project(double *cam, double *X, double *proj)
   for (i = 0; i < 2; i++)
     proj[i] = proj[i] * cam[BA_F_IDX] + cam[BA_X0_IDX + i];
 }
+
+void ba_init() 
+{
+  
+}
