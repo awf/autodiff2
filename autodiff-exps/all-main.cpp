@@ -18,6 +18,7 @@ extern "C"
 #include "tapanade/gmm.h"
 #include "tapanade/gmm_d-all.h"
 #elif defined DO_BA
+#include "tapanade/ba.h"
 #include "tapanade/ba_d-all.h"
 #endif
 }
@@ -103,39 +104,89 @@ void test_gmm(const string& fn_in, const string& fn_out,
 
 #elif defined DO_BA
 
-void compute_reproj_error_Jbv_block(double* cam, double* X,
-  double w, double *feat, double *err, double *J)
+void computeZachWeightError_d(double w, double *err, double *J)
 {
-  double camb[BA_NCAMPARAMS][NB_DIRS_REPROJ_BV];
-  double Xb[3][NB_DIRS_REPROJ_BV];
-  double wb[NB_DIRS_REPROJ_BV];
-  for (int i = 0; i < BA_NCAMPARAMS; i++)
-    memset(camb[i], 0, NB_DIRS_REPROJ_BV*sizeof(double));
-  for (int i = 0; i < 3; i++)
-    memset(Xb[i], 0, NB_DIRS_REPROJ_BV * sizeof(double));
-  memset(wb, 0, NB_DIRS_REPROJ_BV*sizeof(double));
+  *err = 1 - w*w;
+  *J = -2 * w;
+}
 
-  double errb[2][NB_DIRS_REPROJ_BV];
-  errb[0][0] = 1.;
-  errb[0][1] = 0.;
-  errb[1][0] = 0.;
-  errb[1][1] = 1.;
+void computeReprojError_d(
+  double* cam,
+  double* X, 
+  double w, 
+  double feat_x,
+  double feat_y, 
+  double *err, 
+  double *J)
+{
+  double proj[2];
+  double proj_d[2];
+  project_d(cam, cam , X, X, proj, proj_d);
 
-  computeReprojError_bv(cam, camb, X, Xb, &w, &wb,
-    feat[0], feat[1], err, errb, NB_DIRS_REPROJ_BV);
-
-  for (int i = 0; i < 2; i++)
+  int Jw_idx = 2 * (BA_NCAMPARAMS + 3);
+  J[Jw_idx + 0] = (proj[0] - feat_x);
+  J[Jw_idx + 1] = (proj[1] - feat_y);
+  err[0] = w*J[Jw_idx + 0];
+  err[1] = w*J[Jw_idx + 1];
+  for (int i = 0; i < 2 * (BA_NCAMPARAMS + 3); i++)
   {
-    for (int j = 0; j < BA_NCAMPARAMS; j++)
-      J[j * 2 + i] = camb[j][i];
-
-    int off = BA_NCAMPARAMS * 2;
-    for (int j = 0; j < 3; j++)
-      J[j * 2 + i + off] = Xb[j][i];
-
-    off += 3 * 2;
-    J[i + off] = wb[i];
+    J[i] *= w;
   }
+}
+
+
+void computeReprojError(
+  double *cam,
+  double *X, 
+  double *w, 
+  double feat_x, 
+  double feat_y,
+  double *err)
+{
+  double proj[2];
+  project(cam, X, proj);
+
+  err[0] = (*w)*(proj[0] - feat_x);
+  err[1] = (*w)*(proj[1] - feat_y);
+
+  // This term is here so that tapenade correctly 
+  // recognizes inputs to be the inputs
+  err[0] = err[0] + (cam[0] - cam[0]) + (X[0] - X[0]);
+}
+
+void computeZachWeightError(double *w, double *err)
+{
+  *err = 1 - (*w)*(*w);
+}
+
+void ba_objective(int n, int m, int p, 
+  double *cams, 
+  double *X,
+  double *w, 
+  int *obs, 
+  double *feats,
+  double *reproj_err, 
+  double *w_err)
+{
+  int i, camIdx, ptIdx;
+
+  for (i = 0; i < p; i++)
+  {
+    camIdx = obs[i * 2 + 0];
+    ptIdx = obs[i * 2 + 1];
+    computeReprojError(&cams[camIdx * BA_NCAMPARAMS], &X[ptIdx * 3],
+      &w[i], feats[i * 2 + 0], feats[i * 2 + 1], &reproj_err[2 * i]);
+  }
+
+  for (i = 0; i < p; i++)
+  {
+    computeZachWeightError(&w[i], &w_err[i]);
+  }
+
+  // This term is here so that tapenade correctly 
+  // recognizes inputs to be the inputs
+  //reproj_err[0] = reproj_err[0] + ((cams[0] - cams[0]) +
+  //  (X[0] - X[0]) + (w[0] - w[0]));
 }
 
 void compute_ba_Jbv(int n, int m, int p, double *cams, double *X,
@@ -152,11 +203,11 @@ void compute_ba_Jbv(int n, int m, int p, double *cams, double *X,
 
     int camIdx = obs[2 * i + 0];
     int ptIdx = obs[2 * i + 1];
-    compute_reproj_error_Jbv_block(
+    computeReprojError_d(
       &cams[BA_NCAMPARAMS*camIdx],
       &X[ptIdx * 3],
       w[i],
-      &feats[2 * i],
+      feats[2 * i + 0], feats[2 * i + 1],
       &reproj_err[2 * i],
       reproj_err_d.data());
 
@@ -165,11 +216,10 @@ void compute_ba_Jbv(int n, int m, int p, double *cams, double *X,
 
   for (int i = 0; i < p; i++)
   {
-    double err_b = 1.;
-    double w_b = 0.;
-    computeZachWeightError_b(&w[i], &w_b, &w_err[i], &err_b);
+    double w_d = 0;
+    computeZachWeightError_d(w[i], &w_err[i], &w_d);
 
-    J.insert_w_err_block(i, w_b);
+    J.insert_w_err_block(i, w_d);
   }
 }
 
