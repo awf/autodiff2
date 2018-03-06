@@ -2,17 +2,18 @@
 #include <math.h>
 #include <float.h>
 #include "ba.h"
-#include "usecases_ba_opt.h"
 
 #ifdef DPS
   #ifdef FUSED
+	#include "usecases_ba_opt.h"
     #include "usecases_ba_opt_dps_d.h"
   #endif
 #else
   #ifdef FUSED
+	#include "usecases_ba_opt.h"
     #include "usecases_ba_opt_d.h"
   #else
-    // #include "usecases_ba_d.h" // TODO
+    #include "usecases_ba_d.h"
   #endif
 #endif
 
