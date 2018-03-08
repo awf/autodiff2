@@ -71,7 +71,8 @@ def nmf(distribution, m, n, k, sanity_check, runs):
         muH = (-1*H) / theano.dot(T.transpose(W), T.ones_like(A))
         muW = (-1*W) / theano.dot(T.ones_like(A), T.transpose(H))
         
-    neglogexp = -1*T.log( T.prod(  exprs  ))
+    # neglogexp = -1*T.log( T.prod(  exprs  ))
+    neglogexp = T.sum(T.log(Abar) + A / Abar)
     diffH = T.grad(neglogexp, H)
     # diffW = T.grad(neglogexp, W)
     # theanoRuleH = theano.function([A, W, H], H + muH*diffH)
