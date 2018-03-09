@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import numpy as np
+from numpy import linalg as LA
 import theano
 import theano.tensor as T
 import datetime
@@ -8,6 +9,26 @@ import cProfile
 import pstats
 from theano import pp
 from scipy.spatial import distance
+
+def topLevel(m1, m2, m3):
+  # res = np.empty([m1.shape[0], m1[0].shape[0]])
+  # for ii in range(0, m1.shape[0]):
+  #   for jj in range(0, m1[0].shape[0]):
+  #     x11402 = 0.0
+  #     for x11264 in range(0, (m3).shape[0]):
+  #       x11630 = (m2[x11264])
+  #       x11379 = 0.0
+  #       for x11332 in range(0, (x11630).shape[0]):
+  #         x11379 = (x11379) + (((x11630[x11332])) * (((m1[x11332])[jj])))
+  #       x11632 = x11379
+        
+  #       x11402 = (x11402) + ((((m3[x11264])[jj])) * (((0.0) - ((x11630[ii]))) * ((1.0) * ((1.0) / ((x11632) * (x11632))))))
+  #       x11402
+  #     x11633 = x11402
+      
+  #     res[ii][jj] = x11633
+  return np.dot(np.transpose(m2), ((m3 / (np.dot(m2, m1) * np.dot(m2, m1)))))
+  
     
 def nmf(distribution, m, n, k, sanity_check, runs):
     W = T.dmatrix('W')
@@ -21,6 +42,7 @@ def nmf(distribution, m, n, k, sanity_check, runs):
     elif distribution == "exponential":
         # lagoRuleH = theano.function([A, W, H], (H * theano.dot(T.transpose(W), (A / T.pow(theano.dot(W, H), 2)))) / theano.dot(T.transpose(W), (1 / theano.dot(W, H))))
         lagoRuleH = theano.function([A, W, H], theano.dot(T.transpose(W), ((A / T.pow(theano.dot(W, H), 2)) - (1 / theano.dot(W, H)))))
+        # lagoRuleH = theano.function([A, W, H], theano.dot(W, H))
         # lagoRuleW = theano.function([A, W, H], (W * theano.dot((A / T.pow(theano.dot(W, H), 2)), T.transpose(H))) / theano.dot((1 / theano.dot(W, H)), T.transpose(H)))
     elif distribution == "poisson":
         lagoRuleH = theano.function([A, W, H], (H * theano.dot(T.transpose(W), (A / theano.dot(W, H)))) / theano.dot(T.transpose(W), T.ones((m, n))))
@@ -49,7 +71,8 @@ def nmf(distribution, m, n, k, sanity_check, runs):
         pr = cProfile.Profile()
         pr.enable()
         # Hlago, Wlago = lagoRuleH(a, Wlago, Hlago), lagoRuleW(a, Wlago, Hlago)
-        Hlago = lagoRuleH(a, Wlago, Hlago)
+        # Hlago = lagoRuleH(a, Wlago, Hlago)
+        Hlago = topLevel(Hlago, Wlago, a)
         pr.create_stats()
         stats = pstats.Stats(pr)
         print "\t\tExecution time spent is %s." % stats.total_tt
