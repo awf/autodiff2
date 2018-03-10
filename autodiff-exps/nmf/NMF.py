@@ -71,8 +71,8 @@ def nmf(distribution, m, n, k, sanity_check, runs):
         pr = cProfile.Profile()
         pr.enable()
         # Hlago, Wlago = lagoRuleH(a, Wlago, Hlago), lagoRuleW(a, Wlago, Hlago)
-        # Hlago = lagoRuleH(a, Wlago, Hlago)
-        Hlago = topLevel(Hlago, Wlago, a)
+        Hlago = lagoRuleH(a, Wlago, Hlago)
+        # Hlago = topLevel(Hlago, Wlago, a)
         pr.create_stats()
         stats = pstats.Stats(pr)
         print "\t\tExecution time spent is %s." % stats.total_tt
