@@ -46,6 +46,12 @@ using namespace std::chrono;
 #if defined DO_GMM
   #if defined DIFFSMOOTH
 
+
+index_t TOP_LEVEL_usecases_gmm_tri(index_t n) {
+  
+  return ((n) * ((n) + (1))) / (2);
+}
+
 inline void compute_gmm_Jb(int d, int k, int n,
   array_number_t alphas_data,
   array_array_number_t means_data,
@@ -61,15 +67,17 @@ inline void compute_gmm_Jb(int d, int k, int n,
   double* err, double* Jb)
 {
   int Jsz = (k*(d + 1)*(d + 2)) / 2;
+  int td = TOP_LEVEL_usecases_gmm_tri(d);
 
   double eb = 1.;
   memset(Jb, 0, Jsz*sizeof(double));
 
   alphasd_data->arr = &Jb[0];
-  for(int i=0; i<d; i++) {
-    meansd_data->arr[i]->arr = &Jb[k + i * k];
+  for(int i = 0; i<k; i++) {
+    meansd_data->arr[i]->arr = &Jb[k + i * d];
+    qsd_data->arr[i]->arr = &Jb[k + k * d + i*td];
+    lsd_data->arr[i]->arr = &Jb[k + k * d + i*td+d];
   }
-  // TODO link Jb to lsd_data and qsd_data
   *err = gmm_objective_d(xs_data, alphas_data, means_data, qs_data, ls_data, wishart.gamma, wishart.m,
       xsd_data, alphasd_data, meansd_data, qsd_data, lsd_data, wishart.gamma, wishart.m);
 }
@@ -96,11 +104,6 @@ void compute_gmm_Jb(int d, int k, int n,
 
 #if defined DO_GMM
 #if defined DIFFSMOOTH
-
-index_t TOP_LEVEL_usecases_gmm_tri(index_t n) {
-  
-  return ((n) * ((n) + (1))) / (2);
-}
 array_array_number_t TOP_LEVEL_linalg_matrixFill(card_t rows, card_t cols, number_t value) {
   array_array_number_t macroDef79 = (array_array_number_t)malloc(sizeof(int) * 2);
   macroDef79->length=rows;

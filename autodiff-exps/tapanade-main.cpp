@@ -75,7 +75,10 @@ extern "C"
 #if defined TAPENADE
 #include "tapanade/gmm_all.h"
 #else 
-#include "diffsmooth/gmm.h"
+extern "C"
+{
+#include "diffsmooth/gmm_compact.h"
+}
 #endif
 }
 
@@ -594,7 +597,7 @@ void test_gmm()
 #if defined TAPENADE
     gmm_objective2(d, K, n, alphas->arr, means->arr, icf->arr, xs->arr, wishart_gamma, wishart_m, &res);
 #else
-    res = gmm_objective3(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
+    res = gmm_objective(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
 #endif
     // total += res;
     // gmm_objective_d(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xs->arr, wishart_gamma, wishart_m, &tmp, &res);

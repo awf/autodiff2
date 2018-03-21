@@ -3,6 +3,8 @@
 #include <float.h>
 #include "types.h"
 
+void gmm_init(int d_p, int k_p, int n_p) {}
+
 tuple_number_t_number_t pair(number_t _1, number_t _2) {
   tuple_number_t_number_t res;
   res._1 = _1;
@@ -11,204 +13,361 @@ tuple_number_t_number_t pair(number_t _1, number_t _2) {
 }
 
 number_t gmm_objective(array_array_number_t x, array_number_t alphas, array_array_number_t means, array_array_number_t qs, array_array_number_t ls, number_t wishart_gamma, number_t wishart_m) {
-  card_t macroDef175 = x->length;
-  card_t n = macroDef175;
-  card_t macroDef176 = alphas->length;
-  card_t K = macroDef176;
-  number_t macroDef189 = 0;
-  for(int idx = 0; idx < n; idx++){
-    number_t acc0 = macroDef189;
-    index_t i = idx;
-    number_t macroDef182 = -1000;
-  for(int idx0 = 0; idx0 < K; idx0++){
-    number_t acc2 = macroDef182;
-    index_t k = idx0;
-    array_number_t v = qs->arr[k];
-    number_t macroDef177 = 0;
-  for(int cur_idx = 0; cur_idx < v->length; cur_idx++){
-    number_t cur = v->arr[cur_idx];
+//   card_t macroDef175 = x->length;
+//   card_t n = macroDef175;
+//   card_t macroDef176 = alphas->length;
+//   card_t K = macroDef176;
+//   number_t macroDef189 = 0;
+//   for(int idx = 0; idx < n; idx++){
+//     number_t acc0 = macroDef189;
+//     index_t i = idx;
+//     number_t macroDef182 = -1000;
+//   for(int idx0 = 0; idx0 < K; idx0++){
+//     number_t acc2 = macroDef182;
+//     index_t k = idx0;
+//     array_number_t v = qs->arr[k];
+//     number_t macroDef177 = 0;
+//   for(int cur_idx = 0; cur_idx < v->length; cur_idx++){
+//     number_t cur = v->arr[cur_idx];
     
-    macroDef177 = (macroDef177) + (cur);;
-  }
-    array_number_t q = qs->arr[k];
-    array_number_t l = ls->arr[k];
-    array_number_t x0 = x->arr[i];
-    array_number_t y = means->arr[k];
-    card_t macroDef180 = x0->length;
-    number_t macroDef181 = 0;
-  for(int idx1 = 0; idx1 <= (macroDef180) - (1); idx1++){
-    number_t acc4 = macroDef181;
-    index_t i0 = idx1;
-    index_t n0 = (i0) - (1);
-    index_t tis = ((n0) * ((n0) + (1))) / (2);
-    card_t s = 0;
-    card_t macroDef178 = l->length;
-    card_t e = macroDef178;
-    number_t macroDef179 = 0;
-  for(int idx2 = 0; idx2 <= (((e) - (s)) + (1)) - (1); idx2++){
-    number_t acc6 = macroDef179;
-    index_t i1 = idx2;
-    number_t cur = (double)(((s)) + (i1));
-    index_t idx3 = (int)(cur);
-    index_t j = (idx3) - (tis);
-    bool_t isInRange = 0;
-  if((j) >= (0)) {
+//     macroDef177 = (macroDef177) + (cur);;
+//   }
+//     array_number_t q = qs->arr[k];
+//     array_number_t l = ls->arr[k];
+//     array_number_t x0 = x->arr[i];
+//     array_number_t y = means->arr[k];
+//     card_t macroDef180 = x0->length;
+//     number_t macroDef181 = 0;
+//   for(int idx1 = 0; idx1 <= (macroDef180) - (1); idx1++){
+//     number_t acc4 = macroDef181;
+//     index_t i0 = idx1;
+//     index_t n0 = (i0) - (1);
+//     index_t tis = ((n0) * ((n0) + (1))) / (2);
+//     card_t s = 0;
+//     card_t macroDef178 = l->length;
+//     card_t e = macroDef178;
+//     number_t macroDef179 = 0;
+//   for(int idx2 = 0; idx2 <= (((e) - (s)) + (1)) - (1); idx2++){
+//     number_t acc6 = macroDef179;
+//     index_t i1 = idx2;
+//     number_t cur = (double)(((s)) + (i1));
+//     index_t idx3 = (int)(cur);
+//     index_t j = (idx3) - (tis);
+//     bool_t isInRange = 0;
+//   if((j) >= (0)) {
     
-    isInRange = (j) < (i0);;
-  } else {
+//     isInRange = (j) < (i0);;
+//   } else {
     
-    isInRange = false;;
-  }
-    number_t ite198 = 0;
-  if(isInRange) {
-    number_t x1 = x0->arr[j];
-    number_t y0 = y->arr[j];
-    ite198 = (acc6) + ((l->arr[idx3]) * ((x1) - (y0)));;
-  } else {
+//     isInRange = false;;
+//   }
+//     number_t ite198 = 0;
+//   if(isInRange) {
+//     number_t x1 = x0->arr[j];
+//     number_t y0 = y->arr[j];
+//     ite198 = (acc6) + ((l->arr[idx3]) * ((x1) - (y0)));;
+//   } else {
     
-    ite198 = acc6;;
-  }
-    macroDef179 = ite198;;
-  }
-    number_t sum = macroDef179;
-    number_t x1 = x0->arr[i0];
-    number_t y0 = y->arr[i0];
-    number_t x10 = (sum) + ((exp(q->arr[i0])) * ((x1) - (y0)));
-    number_t cur = (x10) * (x10);
-    macroDef181 = (acc4) + (cur);;
-  }
-    number_t cur = ((alphas->arr[k]) + (macroDef177)) - ((0.5) * (macroDef181));
-    number_t ite199 = 0;
-  if((acc2) > (cur)) {
+//     ite198 = acc6;;
+//   }
+//     macroDef179 = ite198;;
+//   }
+//     number_t sum = macroDef179;
+//     number_t x1 = x0->arr[i0];
+//     number_t y0 = y->arr[i0];
+//     number_t x10 = (sum) + ((exp(q->arr[i0])) * ((x1) - (y0)));
+//     number_t cur = (x10) * (x10);
+//     macroDef181 = (acc4) + (cur);;
+//   }
+//     number_t cur = ((alphas->arr[k]) + (macroDef177)) - ((0.5) * (macroDef181));
+//     number_t ite199 = 0;
+//   if((acc2) > (cur)) {
     
-    ite199 = acc2;;
-  } else {
+//     ite199 = acc2;;
+//   } else {
     
-    ite199 = cur;;
-  }
-    macroDef182 = ite199;;
-  }
-    number_t mx148 = macroDef182;
-    number_t macroDef188 = 0;
-  for(int idx0 = 0; idx0 < K; idx0++){
-    number_t acc2 = macroDef188;
-    index_t i0 = idx0;
-    array_number_t v149 = qs->arr[i0];
-    number_t macroDef183 = 0;
-  for(int cur_idx = 0; cur_idx < v149->length; cur_idx++){
-    number_t cur = v149->arr[cur_idx];
+//     ite199 = cur;;
+//   }
+//     macroDef182 = ite199;;
+//   }
+//     number_t mx148 = macroDef182;
+//     number_t macroDef188 = 0;
+//   for(int idx0 = 0; idx0 < K; idx0++){
+//     number_t acc2 = macroDef188;
+//     index_t i0 = idx0;
+//     array_number_t v149 = qs->arr[i0];
+//     number_t macroDef183 = 0;
+//   for(int cur_idx = 0; cur_idx < v149->length; cur_idx++){
+//     number_t cur = v149->arr[cur_idx];
     
-    macroDef183 = (macroDef183) + (cur);;
-  }
-    array_number_t q150 = qs->arr[i0];
-    array_number_t l151 = ls->arr[i0];
-    array_number_t x152 = x->arr[i];
-    array_number_t y153 = means->arr[i0];
-    card_t macroDef186 = x152->length;
-    number_t macroDef187 = 0;
-  for(int idx1 = 0; idx1 <= (macroDef186) - (1); idx1++){
-    number_t acc4 = macroDef187;
-    index_t i1 = idx1;
-    index_t n154 = (i1) - (1);
-    index_t tis155 = ((n154) * ((n154) + (1))) / (2);
-    card_t s156 = 0;
-    card_t macroDef184 = l151->length;
-    card_t e157 = macroDef184;
-    number_t macroDef185 = 0;
-  for(int idx2 = 0; idx2 <= (((e157) - (s156)) + (1)) - (1); idx2++){
-    number_t acc6 = macroDef185;
-    index_t i2 = idx2;
-    number_t cur = (double)(((s156)) + (i2));
-    index_t idx158 = (int)(cur);
-    index_t j159 = (idx158) - (tis155);
-    bool_t isInRange160 = 0;
-  if((j159) >= (0)) {
+//     macroDef183 = (macroDef183) + (cur);;
+//   }
+//     array_number_t q150 = qs->arr[i0];
+//     array_number_t l151 = ls->arr[i0];
+//     array_number_t x152 = x->arr[i];
+//     array_number_t y153 = means->arr[i0];
+//     card_t macroDef186 = x152->length;
+//     number_t macroDef187 = 0;
+//   for(int idx1 = 0; idx1 <= (macroDef186) - (1); idx1++){
+//     number_t acc4 = macroDef187;
+//     index_t i1 = idx1;
+//     index_t n154 = (i1) - (1);
+//     index_t tis155 = ((n154) * ((n154) + (1))) / (2);
+//     card_t s156 = 0;
+//     card_t macroDef184 = l151->length;
+//     card_t e157 = macroDef184;
+//     number_t macroDef185 = 0;
+//   for(int idx2 = 0; idx2 <= (((e157) - (s156)) + (1)) - (1); idx2++){
+//     number_t acc6 = macroDef185;
+//     index_t i2 = idx2;
+//     number_t cur = (double)(((s156)) + (i2));
+//     index_t idx158 = (int)(cur);
+//     index_t j159 = (idx158) - (tis155);
+//     bool_t isInRange160 = 0;
+//   if((j159) >= (0)) {
     
-    isInRange160 = (j159) < (i1);;
-  } else {
+//     isInRange160 = (j159) < (i1);;
+//   } else {
     
-    isInRange160 = false;;
-  }
-    number_t ite200 = 0;
-  if(isInRange160) {
-    number_t x161 = x152->arr[j159];
-    number_t y162 = y153->arr[j159];
-    ite200 = (acc6) + ((l151->arr[idx158]) * ((x161) - (y162)));;
-  } else {
+//     isInRange160 = false;;
+//   }
+//     number_t ite200 = 0;
+//   if(isInRange160) {
+//     number_t x161 = x152->arr[j159];
+//     number_t y162 = y153->arr[j159];
+//     ite200 = (acc6) + ((l151->arr[idx158]) * ((x161) - (y162)));;
+//   } else {
     
-    ite200 = acc6;;
-  }
-    macroDef185 = ite200;;
-  }
-    number_t sum163 = macroDef185;
-    number_t x164 = x152->arr[i1];
-    number_t y165 = y153->arr[i1];
-    number_t x1166 = (sum163) + ((exp(q150->arr[i1])) * ((x164) - (y165)));
-    number_t cur = (x1166) * (x1166);
-    macroDef187 = (acc4) + (cur);;
-  }
-    number_t x168 = ((alphas->arr[i0]) + (macroDef183)) - ((0.5) * (macroDef187));
-    number_t cur = exp((x168) - (mx148));
-    macroDef188 = (acc2) + (cur);;
-  }
-    number_t semx170172 = macroDef188;
-    number_t cur = (log(semx170172)) + (mx148);
-    macroDef189 = (acc0) + (cur);;
-  }
-  number_t macroDef190 = -1000;
-  for(int cur_idx = 0; cur_idx < alphas->length; cur_idx++){
-    number_t cur = alphas->arr[cur_idx];
-    number_t ite201 = 0;
-  if((macroDef190) > (cur)) {
+//     ite200 = acc6;;
+//   }
+//     macroDef185 = ite200;;
+//   }
+//     number_t sum163 = macroDef185;
+//     number_t x164 = x152->arr[i1];
+//     number_t y165 = y153->arr[i1];
+//     number_t x1166 = (sum163) + ((exp(q150->arr[i1])) * ((x164) - (y165)));
+//     number_t cur = (x1166) * (x1166);
+//     macroDef187 = (acc4) + (cur);;
+//   }
+//     number_t x168 = ((alphas->arr[i0]) + (macroDef183)) - ((0.5) * (macroDef187));
+//     number_t cur = exp((x168) - (mx148));
+//     macroDef188 = (acc2) + (cur);;
+//   }
+//     number_t semx170172 = macroDef188;
+//     number_t cur = (log(semx170172)) + (mx148);
+//     macroDef189 = (acc0) + (cur);;
+//   }
+//   number_t macroDef190 = -1000;
+//   for(int cur_idx = 0; cur_idx < alphas->length; cur_idx++){
+//     number_t cur = alphas->arr[cur_idx];
+//     number_t ite201 = 0;
+//   if((macroDef190) > (cur)) {
     
-    ite201 = macroDef190;;
-  } else {
+//     ite201 = macroDef190;;
+//   } else {
     
-    ite201 = cur;;
+//     ite201 = cur;;
+//   }
+//     macroDef190 = ite201;;
+//   }
+//   number_t mx = macroDef190;
+//   card_t macroDef191 = alphas->length;
+//   number_t macroDef192 = 0;
+//   for(int idx = 0; idx <= (macroDef191) - (1); idx++){
+//     number_t acc0 = macroDef192;
+//     index_t i = idx;
+//     number_t x0 = alphas->arr[i];
+//     number_t cur = exp((x0) - (mx));
+//     macroDef192 = (acc0) + (cur);;
+//   }
+//   number_t semx174 = macroDef192;
+//   number_t macroDef197 = 0;
+//   for(int idx = 0; idx < K; idx++){
+//     number_t acc0 = macroDef197;
+//     index_t k = idx;
+//     array_number_t v = qs->arr[k];
+//     card_t macroDef193 = v->length;
+//     number_t macroDef194 = 0;
+//   for(int idx0 = 0; idx0 <= (macroDef193) - (1); idx0++){
+//     number_t acc2 = macroDef194;
+//     index_t i = idx0;
+//     number_t value = v->arr[i];
+//     number_t x1 = exp(value);
+//     number_t cur = (x1) * (x1);
+//     macroDef194 = (acc2) + (cur);;
+//   }
+//     array_number_t x0 = ls->arr[k];
+//     card_t macroDef195 = x0->length;
+//     number_t macroDef196 = 0;
+//   for(int idx0 = 0; idx0 <= (macroDef195) - (1); idx0++){
+//     number_t acc2 = macroDef196;
+//     index_t i = idx0;
+//     number_t x1 = x0->arr[i];
+//     number_t cur = (x1) * (x1);
+//     macroDef196 = (acc2) + (cur);;
+//   }
+//     number_t cur = (macroDef194) + (macroDef196);
+//     macroDef197 = (acc0) + (cur);;
+//   }
+//   return ((macroDef189) - (((double)((n))) * ((log(semx174)) + (mx)))) + ((0.5) * (macroDef197));
+// }
+  index_t x266 = (x)->length;
+  index_t x11886 = (alphas)->length;
+  number_t x11865 = -1000;
+  for (int idx = 0; idx < (alphas)->length; idx++) {
+    number_t acc = x11865;
+    number_t cur = (alphas->arr[idx]);
+    number_t x11896;
+    if ((acc) > (cur)) {
+      x11896 = acc;
+    } else {
+      x11896 = cur;
+    }
+    acc = x11896;
+    x11865 = acc;
   }
-    macroDef190 = ite201;;
+  
+  number_t x11909 = 0;
+  for (int idx = 0; idx < x266; idx++) {
+    number_t acc = x11909;
+    array_number_t x11878 = (x->arr[idx]);
+    array_number_t x11857 = (x->arr[idx]);
+    number_t x11833 = -1000;
+    for (int idx0 = 0; idx0 < x11886; idx0++) {
+      number_t acc0 = x11833;
+      array_number_t x11874 = (ls->arr[idx0]);
+      array_number_t x11850 = (qs->arr[idx0]);
+      number_t x11897 = 0;
+      for (int idx00 = 0; idx00 < (x11850)->length; idx00++) {
+        number_t acc00 = x11897;
+        acc00 = (acc00) + ((x11850->arr[idx00]));
+        x11897 = acc00;
+      }
+      
+      number_t x11901 = 0;
+      for (int idx00 = 0; idx00 < (x11878)->length; idx00++) {
+        number_t acc00 = x11901;
+        index_t x40 = (idx00) - (1);
+        number_t x11900 = 0;
+        for (int idx000 = 0; idx000 < (x11874)->length; idx000++) {
+          number_t acc000 = x11900;
+          index_t j = (idx000) - (((x40) * ((x40) + (1))) / (2));
+          index_t x11898;
+          if ((j) >= (0)) {
+            x11898 = (j) < (idx00);
+          } else {
+            x11898 = 0;
+          }
+          number_t x11899;
+          if (x11898) {
+            x11899 = (acc000) + (((x11874->arr[idx000])) * (((x11878->arr[j])) - (((means->arr[idx0])->arr[j]))));
+          } else {
+            x11899 = acc000;
+          }
+          acc000 = x11899;
+          x11900 = acc000;
+        }
+        
+        number_t x418 = (x11900) + ((exp(((qs->arr[idx0])->arr[idx00]))) * (((x11878->arr[idx00])) - (((means->arr[idx0])->arr[idx00]))));
+        acc00 = (acc00) + ((x418) * (x418));
+        x11901 = acc00;
+      }
+      
+      number_t cur = (((alphas->arr[idx0])) + (x11897)) - ((0.5) * (x11901));
+      number_t x11902;
+      if ((acc0) > (cur)) {
+        x11902 = acc0;
+      } else {
+        x11902 = cur;
+      }
+      acc0 = x11902;
+      x11833 = acc0;
+    }
+    
+    number_t x11908 = 0;
+    for (int idx0 = 0; idx0 < x11886; idx0++) {
+      number_t acc0 = x11908;
+      array_number_t x11870 = (qs->arr[idx0]);
+      array_number_t x11846 = (ls->arr[idx0]);
+      number_t x11903 = 0;
+      for (int idx00 = 0; idx00 < (x11870)->length; idx00++) {
+        number_t acc00 = x11903;
+        acc00 = (acc00) + ((x11870->arr[idx00]));
+        x11903 = acc00;
+      }
+      
+      number_t x11907 = 0;
+      for (int idx00 = 0; idx00 < (x11857)->length; idx00++) {
+        number_t acc00 = x11907;
+        index_t x40 = (idx00) - (1);
+        number_t x11906 = 0;
+        for (int idx000 = 0; idx000 < (x11846)->length; idx000++) {
+          number_t acc000 = x11906;
+          index_t j = (idx000) - (((x40) * ((x40) + (1))) / (2));
+          index_t x11904;
+          if ((j) >= (0)) {
+            x11904 = (j) < (idx00);
+          } else {
+            x11904 = 0;
+          }
+          number_t x11905;
+          if (x11904) {
+            x11905 = (acc000) + (((x11846->arr[idx000])) * (((x11857->arr[j])) - (((means->arr[idx0])->arr[j]))));
+          } else {
+            x11905 = acc000;
+          }
+          acc000 = x11905;
+          x11906 = acc000;
+        }
+        
+        number_t x272 = (x11906) + ((exp(((qs->arr[idx0])->arr[idx00]))) * (((x11857->arr[idx00])) - (((means->arr[idx0])->arr[idx00]))));
+        acc00 = (acc00) + ((x272) * (x272));
+        x11907 = acc00;
+      }
+      
+      acc0 = (acc0) + (exp(((((alphas->arr[idx0])) + (x11903)) - ((0.5) * (x11907))) - (x11833)));
+      x11908 = acc0;
+    }
+    
+    acc = (acc) + ((log(x11908)) + (x11833));
+    x11909 = acc;
   }
-  number_t mx = macroDef190;
-  card_t macroDef191 = alphas->length;
-  number_t macroDef192 = 0;
-  for(int idx = 0; idx <= (macroDef191) - (1); idx++){
-    number_t acc0 = macroDef192;
-    index_t i = idx;
-    number_t x0 = alphas->arr[i];
-    number_t cur = exp((x0) - (mx));
-    macroDef192 = (acc0) + (cur);;
+  
+  number_t x11910 = 0;
+  for (int idx = 0; idx < (alphas)->length; idx++) {
+    number_t acc = x11910;
+    acc = (acc) + (exp(((alphas->arr[idx])) - (x11865)));
+    x11910 = acc;
   }
-  number_t semx174 = macroDef192;
-  number_t macroDef197 = 0;
-  for(int idx = 0; idx < K; idx++){
-    number_t acc0 = macroDef197;
-    index_t k = idx;
-    array_number_t v = qs->arr[k];
-    card_t macroDef193 = v->length;
-    number_t macroDef194 = 0;
-  for(int idx0 = 0; idx0 <= (macroDef193) - (1); idx0++){
-    number_t acc2 = macroDef194;
-    index_t i = idx0;
-    number_t value = v->arr[i];
-    number_t x1 = exp(value);
-    number_t cur = (x1) * (x1);
-    macroDef194 = (acc2) + (cur);;
+  
+  number_t x11913 = 0;
+  for (int idx = 0; idx < x11886; idx++) {
+    number_t acc = x11913;
+    array_number_t x11882 = (qs->arr[idx]);
+    array_number_t x11861 = (ls->arr[idx]);
+    number_t x11911 = 0;
+    for (int idx0 = 0; idx0 < (x11882)->length; idx0++) {
+      number_t acc0 = x11911;
+      number_t x1078 = exp((x11882->arr[idx0]));
+      acc0 = (acc0) + ((x1078) * (x1078));
+      x11911 = acc0;
+    }
+    
+    number_t x11912 = 0;
+    for (int idx0 = 0; idx0 < (x11861)->length; idx0++) {
+      number_t acc0 = x11912;
+      number_t x1080 = (x11861->arr[idx0]);
+      acc0 = (acc0) + ((x1080) * (x1080));
+      x11912 = acc0;
+    }
+    
+    acc = (acc) + ((x11911) + (x11912));
+    x11913 = acc;
   }
-    array_number_t x0 = ls->arr[k];
-    card_t macroDef195 = x0->length;
-    number_t macroDef196 = 0;
-  for(int idx0 = 0; idx0 <= (macroDef195) - (1); idx0++){
-    number_t acc2 = macroDef196;
-    index_t i = idx0;
-    number_t x1 = x0->arr[i];
-    number_t cur = (x1) * (x1);
-    macroDef196 = (acc2) + (cur);;
-  }
-    number_t cur = (macroDef194) + (macroDef196);
-    macroDef197 = (acc0) + (cur);;
-  }
-  return ((macroDef189) - (((double)((n))) * ((log(semx174)) + (mx)))) + ((0.5) * (macroDef197));
+  
+  return ((x11909) - (((double)(x266)) * ((log(x11910)) + (x11865)))) + ((0.5) * (x11913));
 }
+
 
 number_t gmm_objective_d(array_array_number_t x, array_number_t alphas, array_array_number_t means, array_array_number_t qs, array_array_number_t ls, number_t wishart_gamma, number_t wishart_m, array_array_number_t x_d, array_number_t alphas_d, array_array_number_t means_d, array_array_number_t qs_d, array_array_number_t ls_d, number_t wishart_gamma_d, number_t wishart_m_d) {
   card_t macroDef157 = x->length;
