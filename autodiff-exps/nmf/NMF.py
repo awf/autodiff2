@@ -107,12 +107,14 @@ def nmf(distribution, m, n, k, sanity_check, runs):
     Wtheano = w
     print "Timing Theano update of H and W"
     timesTheano = []
+    total = 0.0
     for i in range(runs):
         print "\tIteration %d" % (i + 1)
         pr = cProfile.Profile()
         pr.enable()
         # Htheano, Wtheano = theanoRuleH(a, Wtheano, Htheano), theanoRuleW(a, Wtheano, Htheano)
         Htheano = theanoRuleH(a, Wtheano, Htheano)
+        total += T.sum(Htheano)
         pr.create_stats()
         stats = pstats.Stats(pr)
         print "\t\tExecution time spent is %s." % stats.total_tt

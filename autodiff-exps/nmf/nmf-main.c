@@ -154,16 +154,28 @@ array_array_number_t update3(array_array_number_t m1, array_array_number_t m2, a
 }
 
 array_number_t nmf_uv(array_number_t u, array_number_t v, array_array_number_t AA) {
-  array_number_t x18197 = (array_number_t)storage_alloc(sizeof(int) * 2);x18197->length=(u)->length;x18197->arr = (number_t*)storage_alloc(sizeof(number_t) * (u)->length);
-  for(int i = 0; i < x18197->length; i++){
-    number_t x18195 = 0;
-    // for (int x17980 = 0; x17980 < (v)->length; x17980++) {
-    //   number_t x18112 = x18195;
-    //   number_t x18148 = (v->arr[x17980]);
-    //   x18112 = (x18112) + ((x18148) / ((x18148) * ((u->arr[i]))));
-    //   x18195 = x18112;
-    // }
+  array_number_t x20434 = (array_number_t)storage_alloc(sizeof(int) * 2);x20434->length=(u)->length;x20434->arr = (number_t*)storage_alloc(sizeof(number_t) * (u)->length);
+  for(int i = 0; i < x20434->length; i++){
+    number_t x20433 = 0;
+    for (int x19178 = 0; x19178 < (v)->length; x19178++) {
+      number_t x19286 = x20433;
+      number_t x20430 = (v->arr[x19178]);
+      number_t x20432 = (x20430) * ((u->arr[i]));
+      number_t x20428 = (v->arr[x19178]);
+      x19286 = (x19286) + (((x20428) / ((x20428) * ((u->arr[i])))) + (((0) - ((((AA->arr[x19178])->arr[i])) * (x20430))) / ((x20432) * (x20432))));
+      x20433 = x19286;
+    }
     
+    x20434->arr[i] = x20433;
+    
+  }
+  return x20434;
+}
+
+array_number_t nmf_uv_dps(storage_t s, array_number_t u, array_number_t v, array_array_number_t AA) {
+  array_number_t x18197 = (array_number_t)s;
+  for(int i = 0; i < x18197->length; i++){
+    number_t x18195 = 0;    
     number_t x18196 = 0;
     for (int x17976 = 0; x17976 < (AA)->length; x17976++) {
       number_t x18096 = x18196;
@@ -210,6 +222,7 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
 
   double total = 0;
 
+  array_number_t s = (array_number_t)storage_alloc(sizeof(int) * 2);s->length=N;s->arr = (number_t*)storage_alloc(sizeof(number_t) * N);
   for (card_t count = 0; count < iters; ++count) {
     H->arr[0]->arr[0] += 1.0 / (2.0 + H->arr[0]->arr[0]);
     W->arr[0]->arr[0] += 1.0 / (2.0 + W->arr[0]->arr[0]);
@@ -218,6 +231,7 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
     // total += matrix_sum(update3(H, W, A));
     if(K == 1)
       total += vector_sum(nmf_uv(H->arr[0], v, A));
+      // total += vector_sum(nmf_uv_dps(s, H->arr[0], v, A));
     else
       total += matrix_sum(update3(H, W, A));
   }
