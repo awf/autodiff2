@@ -33,6 +33,14 @@ array_number_t vector_fill(card_t rows, number_t value) {
   return matrix_fill(1, rows, value)->arr[0];
 }
 
+number_t vector_sum(array_number_t m) {
+  number_t result = 0;
+  for(int i=0; i<m->length; i++) {
+    result += m->arr[i];
+  }
+  return result;
+}
+
 number_t matrix_sum(array_array_number_t m) {
   number_t result = 0;
   for(int i=0; i<m->length; i++) {
@@ -44,29 +52,32 @@ number_t matrix_sum(array_array_number_t m) {
 }
 
 array_array_number_t update1(array_array_number_t m1, array_array_number_t m2, array_array_number_t m3) {
-  array_array_number_t x11230 = (array_array_number_t)storage_alloc(sizeof(int) * 2);x11230->length=(m1)->length;x11230->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * (m1)->length);
-  for(int ii = 0; ii < x11230->length; ii++){
-    array_number_t x11229 = (array_number_t)storage_alloc(sizeof(int) * 2);x11229->length=((m1->arr[0]))->length;x11229->arr = (number_t*)storage_alloc(sizeof(number_t) * ((m1->arr[0]))->length);
-    for(int jj = 0; jj < x11229->length; jj++){
-      number_t x11072 = 0;
-      for (int x10994 = 0; x10994 < (m2)->length; x10994++) {
-        array_number_t x11178 = (m2->arr[x10994]);
-        number_t x11063 = 0;
-        for (int x11028 = 0; x11028 < (x11178)->length; x11028++) {
-          x11063 = (x11063) + (((x11178->arr[x11028])) * (((m1->arr[x11028])->arr[jj])));
+  array_array_number_t x15325 = (array_array_number_t)storage_alloc(sizeof(int) * 2);x15325->length=(m1)->length;x15325->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * (m1)->length);
+  for(int ii = 0; ii < x15325->length; ii++){
+    array_number_t x15324 = (array_number_t)storage_alloc(sizeof(int) * 2);x15324->length=((m1->arr[0]))->length;x15324->arr = (number_t*)storage_alloc(sizeof(number_t) * ((m1->arr[0]))->length);
+    for(int jj = 0; jj < x15324->length; jj++){
+      number_t x15323 = 0;
+      for (int x15089 = 0; x15089 < (m2)->length; x15089++) {
+        number_t x15167 = x15323;
+        array_number_t x15273 = (m2->arr[x15089]);
+        number_t x15322 = 0;
+        for (int x15123 = 0; x15123 < (x15273)->length; x15123++) {
+          number_t x15158 = x15322;
+          x15158 = (x15158) + (((x15273->arr[x15123])) * (((m1->arr[x15123])->arr[jj])));
+          x15322 = x15158;
         }
-        number_t x11227 = x11063;
-        x11072 = (x11072) + (((x11178->arr[ii])) * ((1) * ((1) / (x11227))));
+        
+        x15167 = (x15167) + (((x15273->arr[ii])) / (x15322));
+        x15323 = x15167;
       }
-      number_t x11228 = x11072;
       
-      x11229->arr[jj] = x11228;
+      x15324->arr[jj] = x15323;
       
     }
-    x11230->arr[ii] = x11229;
+    x15325->arr[ii] = x15324;
     
   }
-  return x11230;
+  return x15325;
 }
 
 array_array_number_t update2(array_array_number_t m1, array_array_number_t m2, array_array_number_t m3) {
@@ -96,6 +107,81 @@ array_array_number_t update2(array_array_number_t m1, array_array_number_t m2, a
   return x11635;
 }
 
+array_array_number_t update3(array_array_number_t m1, array_array_number_t m2, array_array_number_t m3) {
+  array_array_number_t x17885 = (array_array_number_t)storage_alloc(sizeof(int) * 2);x17885->length=(m1)->length;x17885->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * (m1)->length);
+  for(int ii = 0; ii < x17885->length; ii++){
+    array_number_t x17884 = (array_number_t)storage_alloc(sizeof(int) * 2);x17884->length=((m1->arr[0]))->length;x17884->arr = (number_t*)storage_alloc(sizeof(number_t) * ((m1->arr[0]))->length);
+    for(int jj = 0; jj < x17884->length; jj++){
+      number_t x17882 = 0;
+      for (int x17308 = 0; x17308 < (m2)->length; x17308++) {
+        number_t x17484 = x17882;
+        array_number_t x17702 = (m2->arr[x17308]);
+        number_t x17881 = 0;
+        for (int x17370 = 0; x17370 < (x17702)->length; x17370++) {
+          number_t x17475 = x17881;
+          x17475 = (x17475) + (((x17702->arr[x17370])) * (((m1->arr[x17370])->arr[jj])));
+          x17881 = x17475;
+        }
+        
+        x17484 = (x17484) + (((x17702->arr[ii])) / (x17881));
+        x17882 = x17484;
+      }
+      
+      number_t x17883 = 0;
+      for (int x17304 = 0; x17304 < (m3)->length; x17304++) {
+        number_t x17464 = x17883;
+        array_number_t x17878 = (m2->arr[x17304]);
+        number_t x17880 = 0;
+        for (int x17386 = 0; x17386 < (x17878)->length; x17386++) {
+          number_t x17449 = x17880;
+          x17449 = (x17449) + (((x17878->arr[x17386])) * (((m1->arr[x17386])->arr[jj])));
+          x17880 = x17449;
+        }
+        
+        x17464 = (x17464) + (((0) - ((((m3->arr[x17304])->arr[jj])) * ((x17878->arr[ii])))) / ((x17880) * (x17880)));
+        // x17883 = x17464 + (((x17878->arr[ii])) / (x17880));
+        x17883 = x17464;
+      }
+      
+      // x17884->arr[jj] = x17883;
+      x17884->arr[jj] = (x17882) + (x17883);
+      
+    }
+    x17885->arr[ii] = x17884;
+    
+  }
+  return x17885;
+}
+
+array_number_t nmf_uv(array_number_t u, array_number_t v, array_array_number_t AA) {
+  array_number_t x18197 = (array_number_t)storage_alloc(sizeof(int) * 2);x18197->length=(u)->length;x18197->arr = (number_t*)storage_alloc(sizeof(number_t) * (u)->length);
+  for(int i = 0; i < x18197->length; i++){
+    number_t x18195 = 0;
+    // for (int x17980 = 0; x17980 < (v)->length; x17980++) {
+    //   number_t x18112 = x18195;
+    //   number_t x18148 = (v->arr[x17980]);
+    //   x18112 = (x18112) + ((x18148) / ((x18148) * ((u->arr[i]))));
+    //   x18195 = x18112;
+    // }
+    
+    number_t x18196 = 0;
+    for (int x17976 = 0; x17976 < (AA)->length; x17976++) {
+      number_t x18096 = x18196;
+      number_t x18192 = (v->arr[x17976]);
+      number_t x18148 = x18192;
+      number_t x18194 = (x18192) * ((u->arr[i]));
+      number_t x18112 = (x18148) / ((x18148) * ((u->arr[i])));
+      x18096 = (x18096) + (((0) - ((((AA->arr[x17976])->arr[i])) * (x18192))) / ((x18194) * (x18194)));
+      x18096 = x18096 + x18112;
+      x18196 = x18096;
+    }
+    
+    x18197->arr[i] = (x18195) + (x18196);
+    
+  }
+  return x18197;
+}
+
 void test_nmf(card_t M, card_t N, card_t K, card_t iters)
 {
   int rng = 42;
@@ -103,6 +189,7 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
   array_array_number_t A = matrix_fill(M, N, 0.0);
   array_array_number_t W = matrix_fill(M, K, 0.0);
   array_array_number_t H = matrix_fill(K, N, 0.0);
+  array_number_t v = vector_fill(M, 0.0);
 
   for (card_t m = 0; m < M; ++m) {
     for (card_t n = 0; n < N; ++n) {
@@ -111,6 +198,7 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
     for (card_t k = 0; k < K; ++k) {
       W->arr[m]->arr[k] = dist(rng);
     }
+    v->arr[m] = W->arr[m]->arr[0];
   }
   for (card_t k = 0; k < K; ++k) {
     for (card_t n = 0; n < N; ++n) {
@@ -125,11 +213,17 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
   for (card_t count = 0; count < iters; ++count) {
     H->arr[0]->arr[0] += 1.0 / (2.0 + H->arr[0]->arr[0]);
     W->arr[0]->arr[0] += 1.0 / (2.0 + W->arr[0]->arr[0]);
-    total +=  matrix_sum(update1(H, W, A)) + matrix_sum(update2(H, W, A));
+    v->arr[0] = W->arr[0]->arr[0];
+    // total +=  matrix_sum(update1(H, W, A)) + matrix_sum(update2(H, W, A));
+    // total += matrix_sum(update3(H, W, A));
+    if(K == 1)
+      total += vector_sum(nmf_uv(H->arr[0], v, A));
+    else
+      total += matrix_sum(update3(H, W, A));
   }
 
   double elapsed = toc2(t);
-  printf("total =%f, time per call = %f ms\n", total, elapsed / (double)(iters));
+  printf("total =%f, time per call = %f s\n", total, elapsed / (double)(iters) / 1000.0);
 }
 
 int main(int argc, char *argv[])
