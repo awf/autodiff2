@@ -69,17 +69,33 @@ inline void compute_gmm_Jb(int d, int k, int n,
   int Jsz = (k*(d + 1)*(d + 2)) / 2;
   int td = TOP_LEVEL_usecases_gmm_tri(d);
 
-  double eb = 1.;
-  memset(Jb, 0, Jsz*sizeof(double));
+  // double eb = 1.;
+  // memset(Jb, 0, Jsz*sizeof(double));
 
-  alphasd_data->arr = &Jb[0];
-  for(int i = 0; i<k; i++) {
-    meansd_data->arr[i]->arr = &Jb[k + i * d];
-    qsd_data->arr[i]->arr = &Jb[k + k * d + i*td];
-    lsd_data->arr[i]->arr = &Jb[k + k * d + i*td+d];
-  }
-  *err = gmm_objective_d(xs_data, alphas_data, means_data, qs_data, ls_data, wishart.gamma, wishart.m,
+  // alphasd_data->arr = &Jb[0];
+  // for(int i = 0; i<k; i++) {
+  //   meansd_data->arr[i]->arr = &Jb[k + i * d];
+  //   qsd_data->arr[i]->arr = &Jb[k + k * d + i*td];
+  //   lsd_data->arr[i]->arr = &Jb[k + k * d + i*td+d];
+  // }
+  Jb[0] = gmm_objective_d(xs_data, alphas_data, means_data, qs_data, ls_data, wishart.gamma, wishart.m,
       xsd_data, alphasd_data, meansd_data, qsd_data, lsd_data, wishart.gamma, wishart.m);
+  // for(int i = 0; i<Jsz; i++) {
+  //   if(i < k) {
+  //     alphasd_data->arr[i] = 1;
+  //   } else if (i >= k && i < k + k * d) {
+  //     int j = i - k;
+  //     meansd_data->arr[j / d]->arr[j % d] = 1;
+  //   } else if (i >= k + k * d && i < k + k * d + d) {
+  //     int j = i - k - k * d;
+  //     qsd_data->arr[j / td]->arr[j % td] = 1;
+  //   } else {
+  //     int j = i - k - k * d - d;
+  //     lsd_data->arr[j / td]->arr[j % td] = 1;
+  //   }
+  //   Jb[i] = gmm_objective_d(xs_data, alphas_data, means_data, qs_data, ls_data, wishart.gamma, wishart.m,
+  //     xsd_data, alphasd_data, meansd_data, qsd_data, lsd_data, wishart.gamma, wishart.m);
+  // }
 }
   #else
 void compute_gmm_Jb(int d, int k, int n,
@@ -224,7 +240,7 @@ void test_gmm(const string& fn_in, const string& fn_out,
     //   xsd_data, alphasd_data, meansd_data, qsd_data, lsd_data, wishart.gamma, wishart.m);
       compute_gmm_Jb(d, k, n, alphas_data, means_data, qs_data, ls_data, xs_data,
         alphasd_data, meansd_data, qsd_data, lsd_data, xsd_data,
-        wishart, &tmp, J_arr);
+        wishart, &e2, J_arr);
     #else
       compute_gmm_Jb(d, k, n, alphas_arr,
         means_arr, icf_arr, x_arr, wishart, &e2, J_arr);
