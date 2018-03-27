@@ -17,7 +17,9 @@
   #if defined TAPENADE
     #include "tapanade/gmm_all.h"
     #if defined REV_MODE
-    #include "tapanade/gmm_b-all.h"
+      extern "C" {
+        #include "tapanade/gmm_b-all.h"
+      }
     #endif
   #elif defined DIFFSMOOTH
 // extern "C"
@@ -81,24 +83,48 @@ inline void compute_gmm_Jb(int d, int k, int n,
   //   qsd_data->arr[i]->arr = &Jb[k + k * d + i*td];
   //   lsd_data->arr[i]->arr = &Jb[k + k * d + i*td+d];
   // }
-  Jb[0] = gmm_objective_d(xs_data, alphas_data, means_data, qs_data, ls_data, wishart.gamma, wishart.m,
-      xsd_data, alphasd_data, meansd_data, qsd_data, lsd_data, wishart.gamma, wishart.m);
-  // for(int i = 0; i<Jsz; i++) {
-  //   if(i < k) {
-  //     alphasd_data->arr[i] = 1;
-  //   } else if (i >= k && i < k + k * d) {
-  //     int j = i - k;
-  //     meansd_data->arr[j / d]->arr[j % d] = 1;
-  //   } else if (i >= k + k * d && i < k + k * d + d) {
-  //     int j = i - k - k * d;
-  //     qsd_data->arr[j / td]->arr[j % td] = 1;
-  //   } else {
-  //     int j = i - k - k * d - d;
-  //     lsd_data->arr[j / td]->arr[j % td] = 1;
-  //   }
-  //   Jb[i] = gmm_objective_d(xs_data, alphas_data, means_data, qs_data, ls_data, wishart.gamma, wishart.m,
+  // Jb[0] = gmm_objective_d(xs_data, alphas_data, means_data, qs_data, ls_data, wishart.gamma, wishart.m,
   //     xsd_data, alphasd_data, meansd_data, qsd_data, lsd_data, wishart.gamma, wishart.m);
-  // }
+  for(int i = 0; i<Jsz; i++) {
+    if(i < k) {
+      alphasd_data->arr[i] = 1;
+    } else if (i >= k && i < k + k * d) {
+      int j = i - k;
+      meansd_data->arr[j / d]->arr[j % d] = 1;
+    } else  //if (i >= k + k * d && i < k + k * d + k * td + d) 
+      {
+      int j = i - k - k * d;
+      int j1 = j % td;
+      int j2 = j / td;
+      if (j1 < d) {
+        qsd_data->arr[j2]->arr[j1] = 1;
+      } else {
+        lsd_data->arr[j2]->arr[j1 - d] = 1;  
+      }
+      //qsd_data->arr[j / td]->arr[j % td] = 1;
+    } 
+    // else {
+    //   int j = i - k - k * d - d;
+    //   lsd_data->arr[j / td]->arr[j % td] = 1;
+    // }
+    Jb[i] = gmm_objective_d(xs_data, alphas_data, means_data, qs_data, ls_data, wishart.gamma, wishart.m,
+      xsd_data, alphasd_data, meansd_data, qsd_data, lsd_data, wishart.gamma, wishart.m);
+    if(i < k) {
+      alphasd_data->arr[i] = 0;
+    } else if (i >= k && i < k + k * d) {
+      int j = i - k;
+      meansd_data->arr[j / d]->arr[j % d] = 0;
+    } else {
+      int j = i - k - k * d;
+      int j1 = j % td;
+      int j2 = j / td;
+      if (j1 < d) {
+        qsd_data->arr[j2]->arr[j1] = 0;
+      } else {
+        lsd_data->arr[j2]->arr[j1 - d] = 0;  
+      }
+    } 
+  }
 }
   #else
 void compute_gmm_Jb(int d, int k, int n,
@@ -111,12 +137,29 @@ void compute_gmm_Jb(int d, int k, int n,
   double eb = 1.;
   memset(Jb, 0, Jsz*sizeof(double));
 
+#if defined REV_MODE
+
   double *alphasb = &Jb[0];
   double *meansb = &Jb[k];
   double *icfb = &Jb[k + d*k];
-
-  gmm_objective_d(d, k, n, alphas, alphasb, means, meansb,
-    icf, icfb, x, x, wishart.gamma, wishart.m, err, &Jb[0]);
+  gmm_objective_b(d, k, n, alphas, alphasb, means, meansb,
+    icf, icfb, x, wishart, err, &eb);
+#else
+  double *alld = (double*)malloc(Jsz * sizeof(double));
+  memset(alld, 0, Jsz*sizeof(double));
+  double *alphasd = &alld[0];
+  double *meansd = &alld[k];
+  double *icfd = &alld[k + d*k];
+  double *xd = (double*)malloc(n * sizeof(double));
+  memset(xd, 0, n*sizeof(double));
+  for(int i = 0; i<Jsz; i++) {
+    alld[i] = 1;
+    gmm_objective_d(d, k, n, alphas, alphasd, means, meansd,
+      icf, icfd, x, xd, wishart.gamma, wishart.m, err, &Jb[i]);  
+    alld[i] = 0;
+  }
+  free(alld);
+#endif
 }
   #endif
 #endif
@@ -255,7 +298,11 @@ void test_gmm(const string& fn_in, const string& fn_out,
 
   /////////////////// results //////////////////////////
   #if defined TAPENADE
-  string name("Tapenade");
+    #if defined REV_MODE
+    string name("Tapenade_rev");
+    #else
+    string name("Tapenade_for");
+    #endif
   #elif defined DIFFSMOOTH 
     #if defined DPS && defined FUSED
     string name = "DiffSmooth_fused_dps";
