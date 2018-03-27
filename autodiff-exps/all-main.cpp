@@ -16,6 +16,7 @@
 #if defined DO_GMM
   #if defined TAPENADE
     #include "tapanade/gmm_all.h"
+    // #include "tapanade/gmm_b-all.h" // TODO
   #elif defined DIFFSMOOTH
 // extern "C"
 // {
@@ -113,7 +114,7 @@ void compute_gmm_Jb(int d, int k, int n,
   double *icfb = &Jb[k + d*k];
 
   gmm_objective_d(d, k, n, alphas, alphasb, means, meansb,
-    icf, icfb, x, x, wishart.gamma, wishart.m, err, &eb);
+    icf, icfb, x, x, wishart.gamma, wishart.m, err, &Jb[0]);
 }
   #endif
 #endif
