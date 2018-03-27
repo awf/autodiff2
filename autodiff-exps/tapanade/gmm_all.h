@@ -1,3 +1,4 @@
+#pragma once
 void gmm_objective_d(int d, int k, int n, double *alphas, double *alphasd, 
         double *means, double *meansd, double *icf, double *icfd, double *x, 
         double *xd, double wishart_gamma, double wishart_m, double *err, 

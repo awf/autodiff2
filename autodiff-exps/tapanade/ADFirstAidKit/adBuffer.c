@@ -1,4 +1,8 @@
-static char adSid[]="$Id: adBuffer.c $";
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+static char adBid[]="$Id: adBuffer.c $";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -374,7 +378,65 @@ void popreal8(double *x) {
   }
 }
 
-/******************* POINTERS (standard 32 bits) ******************/
+/************************** character ************************/
+static char ads1buf[512] ;
+static int ads1ibuf = 0 ;
+static char ads1lbuf[512] ;
+static int ads1ilbuf = -1 ;
+static int ads1inlbuf = 0 ;
+
+void pushcharacter(char x) {
+  addftraffic(1) ;
+  if (ads1ilbuf != -1) {
+    ads1ilbuf = -1 ;
+    ads1inlbuf = 0 ;
+  }
+  if (ads1ibuf >= 511) {
+    ads1buf[511] = x ;
+    pushNarray((void *)ads1buf, 512) ;
+    addftraffic(-512) ;
+    ads1ibuf = 0 ;
+  } else {
+    ads1buf[ads1ibuf] = x ;
+    ++ads1ibuf ;
+  }
+}
+
+void lookcharacter(char *x) {
+  if (ads1ilbuf == -1) {
+    ads1ilbuf = ads1ibuf ;
+    resetadlookstack_() ;
+  }
+  if (ads1ilbuf <= 0) {
+    lookNarray((void *)ads1lbuf, 512) ;
+    ads1inlbuf = 1 ;
+    ads1ilbuf = 511 ;
+    *x = ads1lbuf[511] ;
+  } else {
+    --ads1ilbuf ;
+    if (ads1inlbuf)
+      *x = ads1lbuf[ads1ilbuf] ;
+    else
+      *x = ads1buf[ads1ilbuf] ;
+  }
+}
+
+void popcharacter(char *x) {
+  if (ads1ilbuf != -1) {
+    ads1ilbuf = -1 ;
+    ads1inlbuf = 0 ;
+  }
+  if (ads1ibuf <= 0) {
+    popNarray((void *)ads1buf, 512) ;
+    ads1ibuf = 511 ;
+    *x = ads1buf[511] ;
+  } else {
+    --ads1ibuf ;
+    *x = ads1buf[ads1ibuf] ;
+  }
+}
+
+/******************* POINTERS (old short 32 bits) ******************/
 static void *adp4buf[512] ;
 static int adp4ibuf = 0 ;
 static void *adp4lbuf[512] ;
@@ -432,7 +494,7 @@ void poppointer4(void **x) {
   }
 }
 
-/********************** POINTERS (large 64 bits) *****************/
+/********************** POINTERS (new long 64 bits) *****************/
 static void *adp8buf[512] ;
 static int adp8ibuf = 0 ;
 static void *adp8lbuf[512] ;
@@ -440,6 +502,8 @@ static int adp8ilbuf = -1 ;
 static int adp8inlbuf = 0 ;
 
 void pushpointer8(void *x) {
+/*   printf("pushpointer8 %li",x); */
+/*   if (x) printf(" to %c\n",*((char*)x)) ; */
   addftraffic(8) ;
   if (adp8ilbuf != -1) {
     adp8ilbuf = -1 ;
@@ -520,8 +584,9 @@ void printbuffertop() {
   size += adr8ibuf*8 ;
   size += adp4ibuf*4 ;
   size += adp8ibuf*8 ;
-  printf("Buffer size:%i bytes i.e. %i Kbytes\n",
-         size, size/1024.0) ;
+  size += ads1ibuf ;
+  printf("Buffer size:%i bytes i.e. %f Kbytes\n",
+         size, ((float)size)/1024.0) ;
 }
 
 void showallstacks() {
@@ -531,7 +596,7 @@ void showallstacks() {
   for (i=0 ; i<adi4ibuf ; ++i) printf(" %i",adi4buf[i]) ;
   printf("\n") ;
   printf("REAL*8 BUFFER[%i]:",adr8ibuf) ;
-  for (i=0 ; i<adr8ibuf ; ++i) printf(" %d",adr8buf[i]) ;
+  for (i=0 ; i<adr8ibuf ; ++i) printf(" %f",adr8buf[i]) ;
   printf("\n") ;
   printf("REAL*4 BUFFER[%i]:",adr4ibuf) ;
   for (i=0 ; i<adr4ibuf ; ++i) printf(" %f",adr4buf[i]) ;
@@ -620,3 +685,7 @@ void popTTTT7(ctct *x) {
 */
 
 /**********************************************************/
+
+#ifdef __cplusplus
+}
+#endif

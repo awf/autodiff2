@@ -2,6 +2,8 @@
 #ifndef ADBUFFER_LOADED
 #define ADBUFFER_LOADED 1
 
+#include "adStack.h"
+
 extern void printtraffic() ;
 
 extern void pushinteger4(int x)  ;
@@ -31,6 +33,10 @@ extern void popreal4(float *x) ;
 extern void pushreal8(double x) ;
 extern void lookreal8(double *x) ;
 extern void popreal8(double *x) ;
+
+extern void pushcharacter(char x) ;
+extern void lookcharacter(char *x) ;
+extern void popcharacter(char *x) ;
 
 extern void pushpointer4(void *x) ;
 extern void lookpointer4(void **x) ;

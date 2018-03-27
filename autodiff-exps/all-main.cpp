@@ -16,7 +16,9 @@
 #if defined DO_GMM
   #if defined TAPENADE
     #include "tapanade/gmm_all.h"
-    // #include "tapanade/gmm_b-all.h" // TODO
+    #if defined REV_MODE
+    #include "tapanade/gmm_b-all.h"
+    #endif
   #elif defined DIFFSMOOTH
 // extern "C"
 // {

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-double arr_max(int n, double* x)
+inline double arr_max(int n, double* x)
 {
   double m;
   int i;
@@ -20,7 +20,7 @@ double arr_max(int n, double* x)
   return m;
 }
 
-double logsumexp(int n, double* x)
+inline double logsumexp(int n, double* x)
 {
   int i;
   double mx, semx;
@@ -34,7 +34,7 @@ double logsumexp(int n, double* x)
   return log(semx) + mx;
 }
 
-double sqnorm(int d,
+inline double sqnorm(int d,
   double* x)
 {
   int i;
@@ -48,7 +48,7 @@ double sqnorm(int d,
   return out;
 }
 
-double log_wishart_prior(int p, int k, 
+inline double log_wishart_prior(int p, int k, 
   double wishart_gamma, 
   double wishart_m,
   double *sum_qs,
@@ -71,7 +71,7 @@ double log_wishart_prior(int p, int k,
   return out /* - k*C + (Qdiags[0] - Qdiags[0]) + (icf[0] - icf[0]) */;
 }
 
-void preprocess_qs(int d, int k,
+inline void preprocess_qs(int d, int k,
   double* icf,
   double* sum_qs,
   double* Qdiags)
@@ -92,7 +92,7 @@ void preprocess_qs(int d, int k,
   }
 }
 
-void Qtimesx(int d,
+inline void Qtimesx(int d,
   double* Qdiag,
   double* ltri, // strictly lower triangular part
   double* x,
@@ -115,7 +115,7 @@ void Qtimesx(int d,
 }
 
 // out = a - b
-void subtract(int d,
+inline void subtract(int d,
   double* x,
   double* y,
   double* out)

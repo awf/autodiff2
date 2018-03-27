@@ -1,4 +1,8 @@
-static char adSid[]="$Id: adStack.c 5493 2015-01-16 16:16:05Z llh $";
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+static char adSid[]="$Id: adStack.c 6489 2017-07-27 13:10:07Z llh $";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -29,6 +33,13 @@ static long int mmctrafficM = 0 ;
 #ifdef STACK_SIZE_TRACING
 long int bigStackSize = 0;
 #endif
+
+int chcksum(char *contents, int len) {
+  int sum = 0 ;
+  int i ;
+  for (i=0 ; i<len ; ++i) sum += *(contents++) ;
+  return sum ;
+}
 
 /* PUSHes "nbChars" consecutive chars from a location starting at address "x".
  * Resets the LOOKing position if it was active.
@@ -78,6 +89,7 @@ void pushNarray(char *x, unsigned int nbChars) {
         /* new block created! */
       } else
 	curStack = curStack->next ;
+/* if (curStack->prev) {printf("+BLOCK sum:%i\n",chcksum(curStack->prev->contents,ONE_BLOCK_SIZE));} */
       inx -= ONE_BLOCK_SIZE ;
       if(inx>x)
         memcpy(curStack->contents,inx,ONE_BLOCK_SIZE) ;
@@ -109,8 +121,9 @@ void popNarray(char *x, unsigned int nbChars) {
     if (nbmax>0) memcpy(x,curStack->contents,nbmax) ;
     x+=nbmax ;
     while (x<tlx) {
+/* if (curStack->prev) {printf("-BLOCK sum:%i\n",chcksum(curStack->prev->contents,ONE_BLOCK_SIZE)) ;} */
       curStack = curStack->prev ;
-      if (curStack==NULL) printf("Popping from an empty stack!!!") ;
+      if (curStack==NULL) printf("Popping from an empty stack!!!\n") ;
       if (x+ONE_BLOCK_SIZE<tlx) {
 	memcpy(x,curStack->contents,ONE_BLOCK_SIZE) ;
 	x += ONE_BLOCK_SIZE ;
@@ -297,31 +310,6 @@ void lookcomplex32array_(void *x, unsigned int *n) {
   lookNarray((char *)x,(*n*32)) ;
 }
 
-/****** Exported PUSH/POP/LOOK functions for F95 POINTERS: ******/
-
-void pushpointer4_(void *ppp) {
-  pushNarray((char *)ppp, 4) ;
-}
-
-void lookpointer4_(void *ppp) {
-  lookNarray((char *)ppp, 4) ;
-}
-
-void poppointer4_(void *ppp) {
-  popNarray((char *)ppp, 4) ;  
-}
-
-void pushpointer8_(void *ppp) {
-  pushNarray((char *)ppp, 8) ;
-}
-
-void lookpointer8_(void *ppp) {
-  lookNarray((char *)ppp, 8) ;
-}
-
-void poppointer8_(void *ppp) {
-  popNarray((char *)ppp, 8) ;  
-}
 
 /*   --> Called from C:                                   */
 
@@ -714,3 +702,7 @@ void getbigcsizes_(int *nbblocks, int *remainder, int *nbblockslook, int *lookre
     *lookremainder = lookStackTop-(lookStack->contents) ;
   }
 }
+
+#ifdef __cplusplus
+}
+#endif
