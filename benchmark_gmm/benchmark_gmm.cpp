@@ -23,10 +23,10 @@ int main()
   // std::uniform_real_distribution<Real> dist(0, 1);
 
   // Problem size
-  cardinality_t n = 100;
+  cardinality_t n = 100000;
   cardinality_t d = GMM_D;
   cardinality_t K = GMM_K;
-  size_t n2 = 100;
+  size_t n2 = 100000;
   size_t K2 = GMM_K;
 
 
@@ -61,12 +61,13 @@ int main()
   // Debug 150s 
     // Release 1s
   double total = 0;
-  cardinality_t N = 10000;
+  cardinality_t N = 100;
 #ifdef _DEBUG
   N = N / 10;  // Debug is roughly this much slower than release -- multiply timings.
 #endif
   double wishart_m = 2.0;
   for (cardinality_t count = 0; count < N; ++count) {
+    alphas[0] += 1;
     double wishart_gamma = 1.0 / (1.0 + count);
     total += gmm_objective(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
   }

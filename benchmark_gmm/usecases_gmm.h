@@ -14,7 +14,7 @@
 #include <math.h>
 
 const size_t GMM_K = 5;
-const size_t GMM_D = 3;
+const size_t GMM_D = 2;
 
 // #define FIXED_SIZES
 
