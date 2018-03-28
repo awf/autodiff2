@@ -170,6 +170,7 @@ number_t gmm_objective3(array_array_number_t x, array_number_t alphas, array_arr
   } else {
     
     isInRange = false;;
+    break;
   }
     number_t ite198 = 0;
   if(isInRange) {
@@ -240,6 +241,7 @@ number_t gmm_objective3(array_array_number_t x, array_number_t alphas, array_arr
   } else {
     
     isInRange160 = false;;
+    break;
   }
     number_t ite200 = 0;
   if(isInRange160) {
@@ -584,23 +586,24 @@ void test_gmm()
   // Debug 150s 
     // Release 1s
   double total = 0;
-  int N = 100;
+  int N = 10;
 #ifdef _DEBUG
   N = N / 10;  // Debug is roughly this much slower than release -- multiply timings.
 #endif
   double wishart_m = 2.0;
   for (int count = 0; count < N; ++count) {
+    alphas->arr[0] += 1;
     double wishart_gamma = 1.0 / (1.0 + count);
     double res, tmp;
 
     // TODO icf instead of qs and ls
 #if defined TAPENADE
     gmm_objective2(d, K, n, alphas->arr, means->arr, icf->arr, xs->arr, wishart_gamma, wishart_m, &res);
+    // gmm_objective_d(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xs->arr, wishart_gamma, wishart_m, &tmp, &res);
 #else
     res = gmm_objective(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
+    // res = gmm_objective_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
 #endif
-    // total += res;
-    // gmm_objective_d(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xs->arr, wishart_gamma, wishart_m, &tmp, &res);
     total += res;
   }
 
