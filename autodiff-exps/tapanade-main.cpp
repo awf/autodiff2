@@ -460,17 +460,18 @@ void gmm_objective2(int d, int k, int n,
   // CONSTANT = -n*d*0.5*log(2 * PI);
   icf_sz = d*(d + 1) / 2;
 
-  main_term = (double *)malloc(k*sizeof(double));
   sum_qs = (double *)malloc(k*sizeof(double));
   Qdiags = (double *)malloc(d*k*sizeof(double));
-  xcentered = (double *)malloc(d*sizeof(double));
-  Qxcentered = (double *)malloc(d*sizeof(double));
 
   preprocess_qs(d, k, icf, sum_qs, Qdiags);
+  main_term = (double *)malloc(k*sizeof(double));
+  xcentered = (double *)malloc(d*sizeof(double));
+  Qxcentered = (double *)malloc(d*sizeof(double));
 
   slse = 0.;
   for (ix = 0; ix < n; ix++)
   {
+
     for (ik = 0; ik < k; ik++)
     {
       subtract(d, &x[ix*d], &means[ik*d], xcentered);
@@ -483,6 +484,7 @@ void gmm_objective2(int d, int k, int n,
   free(main_term);
   free(xcentered);
   free(Qxcentered);
+
 
   lse_alphas = logsumexp(k, alphas);
   *err = /*CONSTANT + */slse - n*lse_alphas;
@@ -586,7 +588,7 @@ void test_gmm()
   // Debug 150s 
     // Release 1s
   double total = 0;
-  int N = 10;
+  int N = 100;
 #ifdef _DEBUG
   N = N / 10;  // Debug is roughly this much slower than release -- multiply timings.
 #endif
@@ -601,7 +603,7 @@ void test_gmm()
     gmm_objective2(d, K, n, alphas->arr, means->arr, icf->arr, xs->arr, wishart_gamma, wishart_m, &res);
     // gmm_objective_d(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xs->arr, wishart_gamma, wishart_m, &tmp, &res);
 #else
-    res = gmm_objective(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
+    res = gmm_objective3(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
     // res = gmm_objective_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
 #endif
     total += res;
