@@ -122,206 +122,532 @@ void array_print(array_number_t arr) {
 }
 
 #if defined DIFFSMOOTH 
+
+#include "diffsmooth/fsmooth_core.h"
+
+array_number_t gmm_objective3_d_alphas(array_array_number_t x, array_number_t alphas, array_array_number_t means, array_array_number_t qs, array_array_number_t ls, number_t wishart_gamma, number_t wishart_m) {
+  array_number_t x27461 = (array_number_t)storage_alloc(sizeof(int) * 2);x27461->length=(alphas)->length;x27461->arr = (number_t*)storage_alloc(sizeof(number_t) * (alphas)->length);
+  for(int i = 0; i < x27461->length; i++){
+    tuple_number_t_index_t x14820 = {-1000, 0};
+    for (int x13098 = 0; x13098 < (alphas)->length; x13098++) {
+      tuple_number_t_index_t x13097 = x14820;
+      tuple_number_t_index_t x27450;
+      if (((x13097)._1) > ((alphas->arr[x13098]))) {
+        x27450 = x13097;
+      } else {
+        index_t x27449;
+        if ((i) = (x13098)) {
+          x27449 = 1;
+        } else {
+          x27449 = 0;
+        }
+        x27450 = {(alphas->arr[x13098]), x27449};
+      }
+      x13097 = x27450;
+      x14820 = x13097;
+    }
+    
+    tuple_number_t_number_t x14864 = {0, 0};
+    for (int x13172 = 0; x13172 < (alphas)->length; x13172++) {
+      tuple_number_t_number_t x13171 = x14864;
+      number_t x14092 = exp(((alphas->arr[x13172])) - ((x14820)._1));
+      number_t x27451;
+      if ((i) = (x13172)) {
+        x27451 = ((x13171)._2) + (((1) - ((x14820)._2)) * (x14092));
+      } else {
+        x27451 = ((x13171)._2) + (((0) - ((x14820)._2)) * (x14092));
+      }
+      x13171 = {((x13171)._1) + (x14092), x27451};
+      x14864 = x13171;
+    }
+    
+    tuple_number_t_number_t x27459 = {0, 0};
+    for (int x13154 = 0; x13154 < (x)->length; x13154++) {
+      tuple_number_t_number_t x13153 = x27459;
+      array_number_t x27444 = (x->arr[x13154]);
+      array_number_t x27410 = (x->arr[x13154]);
+      tuple_number_t_number_t x27378 = {-1000, 0};
+      for (int x13228 = 0; x13228 < (alphas)->length; x13228++) {
+        tuple_number_t_number_t x13227 = x27378;
+        array_number_t x27406 = (qs->arr[x13228]);
+        tuple_number_t_index_t x27442 = {0, 0};
+        for (int x13362 = 0; x13362 < (x27406)->length; x13362++) {
+          tuple_number_t_index_t x13361 = x27442;
+          x13361 = {((x13361)._1) + ((x27406->arr[x13362])), (x13361)._2};
+          x27442 = x13361;
+        }
+        
+        array_number_t x27346 = (ls->arr[x13228]);
+        tuple_number_t_number_t x27376 = {0, 0};
+        for (int x13358 = 0; x13358 < (x27444)->length; x13358++) {
+          tuple_number_t_number_t x13357 = x27376;
+          number_t x27438 = ((x27444->arr[x13358])) - (((means->arr[x13228])->arr[x13358]));
+          index_t x27402 = ((x13358) - (1)) + (1);
+          index_t x27372 = (x13358) - (1);
+          tuple_number_t_index_t x27400 = {0, 0};
+          for (int x13498 = 0; x13498 < (x27346)->length; x13498++) {
+            tuple_number_t_index_t x13497 = x27400;
+            tuple_index_t_index_t x27452;
+            if (((x13498) - (((x27372) * (x27402)) / (2))) >= (0)) {
+              x27452 = {((x13498) - (((x27372) * (x27402)) / (2))) < (x13358), 0};
+            } else {
+              x27452 = {0, 0};
+            }
+            tuple_number_t_index_t x27453;
+            if ((x27452)._1) {
+              x27453 = {((x13497)._1) + (((x27346->arr[x13498])) * (((x27444->arr[(x13498) - (((x27372) * (x27402)) / (2))])) - (((means->arr[x13228])->arr[(x13498) - (((x27372) * (x27402)) / (2))])))), (x13497)._2};
+            } else {
+              x27453 = x13497;
+            }
+            x13497 = x27453;
+            x27400 = x13497;
+          }
+          
+          number_t x27310 = exp(((qs->arr[x13228])->arr[x13358]));
+          number_t x27430 = ((x27400)._1) + ((x27310) * (x27438));
+          number_t x27396 = ((x27400)._1) + ((x27310) * (x27438));
+          x13357 = {((x13357)._1) + ((x27430) * (x27396)), ((x13357)._2) + ((((x27400)._2) * (x27396)) + ((x27430) * ((x27400)._2)))};
+          x27376 = x13357;
+        }
+        
+        tuple_number_t_number_t x27455;
+        if (((x13227)._1) > ((((alphas->arr[x13228])) + ((x27442)._1)) - ((0.5) * ((x27376)._1)))) {
+          x27455 = x13227;
+        } else {
+          number_t x27454;
+          if ((i) = (x13228)) {
+            x27454 = ((1) + ((x27442)._2)) - ((0.5) * ((x27376)._2));
+          } else {
+            x27454 = ((x27442)._2) - ((0.5) * ((x27376)._2));
+          }
+          x27455 = {(((alphas->arr[x13228])) + ((x27442)._1)) - ((0.5) * ((x27376)._1)), x27454};
+        }
+        x13227 = x27455;
+        x27378 = x13227;
+      }
+      
+      tuple_number_t_number_t x13892 = {0, 0};
+      for (int x13266 = 0; x13266 < (alphas)->length; x13266++) {
+        tuple_number_t_number_t x13265 = x13892;
+        array_number_t x27428 = (qs->arr[x13266]);
+        array_number_t x27394 = (ls->arr[x13266]);
+        tuple_number_t_index_t x27426 = {0, 0};
+        for (int x13458 = 0; x13458 < (x27428)->length; x13458++) {
+          tuple_number_t_index_t x13457 = x27426;
+          x13457 = {((x13457)._1) + ((x27428->arr[x13458])), (x13457)._2};
+          x27426 = x13457;
+        }
+        
+        tuple_number_t_number_t x27392 = {0, 0};
+        for (int x13454 = 0; x13454 < (x27410)->length; x13454++) {
+          tuple_number_t_number_t x13453 = x27392;
+          number_t x27424 = ((x27410->arr[x13454])) - (((means->arr[x13266])->arr[x13454]));
+          index_t x27390 = ((x13454) - (1)) + (1);
+          index_t x27360 = (x13454) - (1);
+          tuple_number_t_index_t x27388 = {0, 0};
+          for (int x13614 = 0; x13614 < (x27394)->length; x13614++) {
+            tuple_number_t_index_t x13613 = x27388;
+            tuple_index_t_index_t x27456;
+            if (((x13614) - (((x27360) * (x27390)) / (2))) >= (0)) {
+              x27456 = {((x13614) - (((x27360) * (x27390)) / (2))) < (x13454), 0};
+            } else {
+              x27456 = {0, 0};
+            }
+            tuple_number_t_index_t x27457;
+            if ((x27456)._1) {
+              x27457 = {((x13613)._1) + (((x27394->arr[x13614])) * (((x27410->arr[(x13614) - (((x27360) * (x27390)) / (2))])) - (((means->arr[x13266])->arr[(x13614) - (((x27360) * (x27390)) / (2))])))), (x13613)._2};
+            } else {
+              x27457 = x13613;
+            }
+            x13613 = x27457;
+            x27388 = x13613;
+          }
+          
+          number_t x27296 = exp(((qs->arr[x13266])->arr[x13454]));
+          number_t x27416 = ((x27388)._1) + ((x27296) * (x27424));
+          number_t x27384 = ((x27388)._1) + ((x27296) * (x27424));
+          x13453 = {((x13453)._1) + ((x27416) * (x27384)), ((x13453)._2) + ((((x27388)._2) * (x27384)) + ((x27416) * ((x27388)._2)))};
+          x27392 = x13453;
+        }
+        
+        number_t x14362 = exp(((((alphas->arr[x13266])) + ((x27426)._1)) - ((0.5) * ((x27392)._1))) - ((x27378)._1));
+        number_t x27458;
+        if ((i) = (x13266)) {
+          x27458 = ((x13265)._2) + (((((1) + ((x27426)._2)) - ((0.5) * ((x27392)._2))) - ((x27378)._2)) * (x14362));
+        } else {
+          x27458 = ((x13265)._2) + (((((x27426)._2) - ((0.5) * ((x27392)._2))) - ((x27378)._2)) * (x14362));
+        }
+        x13265 = {((x13265)._1) + (x14362), x27458};
+        x13892 = x13265;
+      }
+      
+      x13153 = {((x13153)._1) + ((log((x13892)._1)) + ((x27378)._1)), ((x13153)._2) + ((((x13892)._2) / ((x13892)._1)) + ((x27378)._2))};
+      x27459 = x13153;
+    }
+    
+    tuple_number_t_index_t x27460 = {0, 0};
+    for (int x13138 = 0; x13138 < (alphas)->length; x13138++) {
+      tuple_number_t_index_t x13137 = x27460;
+      array_number_t x27448 = (qs->arr[x13138]);
+      array_number_t x27414 = (ls->arr[x13138]);
+      tuple_number_t_index_t x27446 = {0, 0};
+      for (int x13236 = 0; x13236 < (x27448)->length; x13236++) {
+        tuple_number_t_index_t x13235 = x27446;
+        number_t x13270 = exp((x27448->arr[x13236]));
+        x13235 = {((x13235)._1) + ((x13270) * (x13270)), (x13235)._2};
+        x27446 = x13235;
+      }
+      
+      tuple_number_t_index_t x27412 = {0, 0};
+      for (int x13232 = 0; x13232 < (x27414)->length; x13232++) {
+        tuple_number_t_index_t x13231 = x27412;
+        x13231 = {((x13231)._1) + (((x27414->arr[x13232])) * ((x27414->arr[x13232]))), (x13231)._2};
+        x27412 = x13231;
+      }
+      
+      x13137 = {((x13137)._1) + (((x27446)._1) + ((x27412)._1)), ((x13137)._2) + (((x27446)._2) + ((x27412)._2))};
+      x27460 = x13137;
+    }
+    
+    x27461->arr[i] = (((x27459)._2) - (((double)((x)->length)) * ((((x14864)._2) / ((x14864)._1)) + ((x14820)._2)))) + ((0.5) * ((x27460)._2));
+    
+  }
+  return x27461;
+}
+
+number_t gmm_objective3_d(array_array_number_t x, array_number_t alphas, array_array_number_t means, array_array_number_t qs, array_array_number_t ls, number_t wishart_gamma, number_t wishart_m, array_number_t alphasd, array_array_number_t meansd, array_array_number_t qsd, array_array_number_t lsd) {
+  tuple_number_t_number_t x9786 = {-1000, 0};
+  for (int x7912 = 0; x7912 < (alphas)->length; x7912++) {
+    tuple_number_t_number_t x7911 = x9786;
+    tuple_number_t_number_t x30713;
+    if (((x7911)._1) > ((alphas->arr[x7912]))) {
+      x30713 = x7911;
+    } else {
+      x30713 = {(alphas->arr[x7912]), (alphasd->arr[x7912])};
+    }
+    x7911 = x30713;
+    x9786 = x7911;
+  }
+  
+  tuple_number_t_number_t x10248 = {0, 0};
+  for (int x7986 = 0; x7986 < (alphas)->length; x7986++) {
+    tuple_number_t_number_t x7985 = x10248;
+    number_t x9456 = exp(((alphas->arr[x7986])) - ((x9786)._1));
+    x7985 = {((x7985)._1) + (x9456), ((x7985)._2) + ((((alphasd->arr[x7986])) - ((x9786)._2)) * (x9456))};
+    x10248 = x7985;
+  }
+  
+  tuple_number_t_number_t x30719 = {0, 0};
+  for (int x7968 = 0; x7968 < (x)->length; x7968++) {
+    tuple_number_t_number_t x7967 = x30719;
+    array_number_t x30706 = (x->arr[x7968]);
+    array_number_t x30600 = (x->arr[x7968]);
+    tuple_number_t_number_t x30650 = {-1000, 0};
+    for (int x8042 = 0; x8042 < (alphas)->length; x8042++) {
+      tuple_number_t_number_t x8041 = x30650;
+      array_number_t x30648 = (ls->arr[x8042]);
+      tuple_number_t_number_t x30702 = {0, 0};
+      for (int x8172 = 0; x8172 < (x30600)->length; x8172++) {
+        tuple_number_t_number_t x8171 = x30702;
+        number_t x30696 = ((x30600->arr[x8172])) - (((means->arr[x8042])->arr[x8172]));
+        number_t x30642 = exp(((qs->arr[x8042])->arr[x8172]));
+        number_t x30694 = (((((qsd->arr[x8042])->arr[x8172])) * (x30642)) * (x30696)) + ((x30642) * ((0) - (((meansd->arr[x8042])->arr[x8172]))));
+        index_t x30388 = (((x8172) - (1)) * (((x8172) - (1)) + (1))) / (2);
+        tuple_number_t_number_t x30446 = {0, 0};
+        for (int x8312 = 0; x8312 < (x30648)->length; x8312++) {
+          tuple_number_t_number_t x8311 = x30446;
+          index_t x30636 = (x8312) - (x30388);
+          number_t x30690 = ((x30600->arr[(x8312) - (x30388)])) - (((means->arr[x8042])->arr[x30636]));
+          number_t x30590 = (x30648->arr[x8312]);
+          tuple_index_t_index_t x30714;
+          if (((x8312) - (x30388)) >= (0)) {
+            x30714 = {((x8312) - (x30388)) < (x8172), 0};
+          } else {
+            x30714 = {0, 0};
+          }
+          tuple_number_t_number_t x30715;
+          if ((x30714)._1) {
+            x30715 = {((x8311)._1) + ((x30590) * (x30690)), ((x8311)._2) + (((((lsd->arr[x8042])->arr[x8312])) * (x30690)) + ((x30590) * ((0) - (((meansd->arr[x8042])->arr[x30636])))))};
+          } else {
+            x30715 = x8311;
+          }
+          x8311 = x30715;
+          x30446 = x8311;
+        }
+        
+        number_t x30536 = (x30446)._2;
+        number_t x30486 = (x30446)._1;
+        number_t x30340 = (x30642) * (x30696);
+        number_t x30630 = (x30486) + (x30340);
+        number_t x30580 = (x30486) + (x30340);
+        x8171 = {((x8171)._1) + ((x30580) * (x30630)), ((x8171)._2) + ((((x30536) + (x30694)) * (x30630)) + ((x30580) * ((x30536) + (x30694))))};
+        x30702 = x8171;
+      }
+      
+      array_number_t x30492 = (qs->arr[x8042]);
+      tuple_number_t_number_t x30542 = {0, 0};
+      for (int x8176 = 0; x8176 < (x30492)->length; x8176++) {
+        tuple_number_t_number_t x8175 = x30542;
+        x8175 = {((x8175)._1) + ((x30492->arr[x8176])), ((x8175)._2) + (((qsd->arr[x8042])->arr[x8176]))};
+        x30542 = x8175;
+      }
+      
+      number_t x30598 = ((alphas->arr[x8042])) + ((x30542)._1);
+      number_t x30430 = (0.5) * ((x30702)._1);
+      tuple_number_t_number_t x30716;
+      if (((x8041)._1) > ((x30598) - (x30430))) {
+        x30716 = x8041;
+      } else {
+        x30716 = {(x30598) - (x30430), (((alphasd->arr[x8042])) + ((x30542)._2)) - ((0.5) * ((x30702)._2))};
+      }
+      x8041 = x30716;
+      x30650 = x8041;
+    }
+    
+    tuple_number_t_number_t x10326 = {0, 0};
+    for (int x8080 = 0; x8080 < (alphas)->length; x8080++) {
+      tuple_number_t_number_t x8079 = x10326;
+      array_number_t x30678 = (qs->arr[x8080]);
+      array_number_t x30626 = (ls->arr[x8080]);
+      tuple_number_t_number_t x30676 = {0, 0};
+      for (int x8272 = 0; x8272 < (x30678)->length; x8272++) {
+        tuple_number_t_number_t x8271 = x30676;
+        x8271 = {((x8271)._1) + ((x30678->arr[x8272])), ((x8271)._2) + (((qsd->arr[x8080])->arr[x8272]))};
+        x30676 = x8271;
+      }
+      
+      tuple_number_t_number_t x30624 = {0, 0};
+      for (int x8268 = 0; x8268 < (x30706)->length; x8268++) {
+        tuple_number_t_number_t x8267 = x30624;
+        number_t x30674 = ((x30706->arr[x8268])) - (((means->arr[x8080])->arr[x8268]));
+        number_t x30622 = exp(((qs->arr[x8080])->arr[x8268]));
+        number_t x30672 = (((((qsd->arr[x8080])->arr[x8268])) * (x30622)) * (x30674)) + ((x30622) * ((0) - (((meansd->arr[x8080])->arr[x8268]))));
+        index_t x30370 = (((x8268) - (1)) * (((x8268) - (1)) + (1))) / (2);
+        tuple_number_t_number_t x30420 = {0, 0};
+        for (int x8428 = 0; x8428 < (x30626)->length; x8428++) {
+          tuple_number_t_number_t x8427 = x30420;
+          index_t x30616 = (x8428) - (x30370);
+          number_t x30668 = ((x30706->arr[(x8428) - (x30370)])) - (((means->arr[x8080])->arr[x30616]));
+          number_t x30566 = (x30626->arr[x8428]);
+          tuple_index_t_index_t x30717;
+          if (((x8428) - (x30370)) >= (0)) {
+            x30717 = {((x8428) - (x30370)) < (x8268), 0};
+          } else {
+            x30717 = {0, 0};
+          }
+          tuple_number_t_number_t x30718;
+          if ((x30717)._1) {
+            x30718 = {((x8427)._1) + ((x30566) * (x30668)), ((x8427)._2) + (((((lsd->arr[x8080])->arr[x8428])) * (x30668)) + ((x30566) * ((0) - (((meansd->arr[x8080])->arr[x30616])))))};
+          } else {
+            x30718 = x8427;
+          }
+          x8427 = x30718;
+          x30420 = x8427;
+        }
+        
+        number_t x30514 = (x30420)._2;
+        number_t x30466 = (x30420)._1;
+        number_t x30320 = (x30622) * (x30674);
+        number_t x30610 = (x30466) + (x30320);
+        number_t x30556 = (x30466) + (x30320);
+        x8267 = {((x8267)._1) + ((x30556) * (x30610)), ((x8267)._2) + ((((x30514) + (x30672)) * (x30610)) + ((x30556) * ((x30514) + (x30672))))};
+        x30624 = x8267;
+      }
+      
+      number_t x10636 = exp(((((alphas->arr[x8080])) + ((x30676)._1)) - ((0.5) * ((x30624)._1))) - ((x30650)._1));
+      x8079 = {((x8079)._1) + (x10636), ((x8079)._2) + ((((((alphasd->arr[x8080])) + ((x30676)._2)) - ((0.5) * ((x30624)._2))) - ((x30650)._2)) * (x10636))};
+      x10326 = x8079;
+    }
+    
+    x7967 = {((x7967)._1) + ((log((x10326)._1)) + ((x30650)._1)), ((x7967)._2) + ((((x10326)._2) / ((x10326)._1)) + ((x30650)._2))};
+    x30719 = x7967;
+  }
+  
+  tuple_number_t_number_t x30720 = {0, 0};
+  for (int x7952 = 0; x7952 < (alphas)->length; x7952++) {
+    tuple_number_t_number_t x7951 = x30720;
+    array_number_t x30712 = (qs->arr[x7952]);
+    array_number_t x30606 = (ls->arr[x7952]);
+    tuple_number_t_number_t x30656 = {0, 0};
+    for (int x8046 = 0; x8046 < (x30606)->length; x8046++) {
+      tuple_number_t_number_t x8045 = x30656;
+      number_t x30708 = (x30606->arr[x8046]);
+      number_t x30652 = (x30606->arr[x8046]);
+      x8045 = {((x8045)._1) + ((x30708) * (x30652)), ((x8045)._2) + (((((lsd->arr[x7952])->arr[x8046])) * (x30652)) + ((x30708) * (((lsd->arr[x7952])->arr[x8046]))))};
+      x30656 = x8045;
+    }
+    
+    tuple_number_t_number_t x30552 = {0, 0};
+    for (int x8050 = 0; x8050 < (x30712)->length; x8050++) {
+      tuple_number_t_number_t x8049 = x30552;
+      number_t x9418 = exp((x30712->arr[x8050]));
+      x8049 = {((x8049)._1) + ((x9418) * (x9418)), ((x8049)._2) + ((((((qsd->arr[x7952])->arr[x8050])) * (x9418)) * (x9418)) + ((x9418) * ((((qsd->arr[x7952])->arr[x8050])) * (x9418))))};
+      x30552 = x8049;
+    }
+    
+    x7951 = {((x7951)._1) + (((x30552)._1) + ((x30656)._1)), ((x7951)._2) + (((x30552)._2) + ((x30656)._2))};
+    x30720 = x7951;
+  }
+  
+  return (((x30719)._2) - (((double)((x)->length)) * ((((x10248)._2) / ((x10248)._1)) + ((x9786)._2)))) + ((0.5) * ((x30720)._2));
+}
+
 number_t gmm_objective3(array_array_number_t x, array_number_t alphas, array_array_number_t means, array_array_number_t qs, array_array_number_t ls, number_t wishart_gamma, number_t wishart_m) {
-  card_t macroDef175 = x->length;
-  card_t n = macroDef175;
-  card_t macroDef176 = alphas->length;
-  card_t K = macroDef176;
-  number_t macroDef189 = 0;
-  for(int idx = 0; idx < n; idx++){
-    number_t acc0 = macroDef189;
-    index_t i = idx;
-    number_t macroDef182 = -1000;
-  for(int idx0 = 0; idx0 < K; idx0++){
-    number_t acc2 = macroDef182;
-    index_t k = idx0;
-    array_number_t v = qs->arr[k];
-    number_t macroDef177 = 0;
-  for(int cur_idx = 0; cur_idx < v->length; cur_idx++){
-    number_t cur = v->arr[cur_idx];
+  index_t x16718 = (x)->length;
+  index_t x21030 = (alphas)->length;
+  number_t x21020 = -1000;
+  for (int idx = 0; idx < (alphas)->length; idx++) {
+    number_t acc = x21020;
+    number_t cur = (alphas->arr[idx]);
+    number_t x21031;
+    if ((acc) > (cur)) {
+      x21031 = acc;
+    } else {
+      x21031 = cur;
+    }
+    acc = x21031;
+    x21020 = acc;
+  }
+  
+  number_t x21044 = 0;
+  for (int idx = 0; idx < x16718; idx++) {
+    number_t acc = x21044;
+    array_number_t x21026 = (x->arr[idx]);
+    array_number_t x21016 = (x->arr[idx]);
+    number_t x21004 = -1000;
+    for (int idx0 = 0; idx0 < x21030; idx0++) {
+      number_t acc0 = x21004;
+      array_number_t x21024 = (ls->arr[idx0]);
+      array_number_t x21012 = (qs->arr[idx0]);
+      number_t x21032 = 0;
+      for (int idx00 = 0; idx00 < (x21012)->length; idx00++) {
+        number_t acc00 = x21032;
+        acc00 = (acc00) + ((x21012->arr[idx00]));
+        x21032 = acc00;
+      }
+      
+      number_t x21036 = 0;
+      for (int idx00 = 0; idx00 < (x21026)->length; idx00++) {
+        number_t acc00 = x21036;
+        index_t x16548 = (idx00) - (1);
+        number_t x21035 = 0;
+        for (int idx000 = 0; idx000 < (x21024)->length; idx000++) {
+          number_t acc000 = x21035;
+          index_t j = (idx000) - (((x16548) * ((x16548) + (1))) / (2));
+          index_t x21033;
+          if ((j) >= (0)) {
+            x21033 = (j) < (idx00);
+          } else {
+            x21033 = 0;
+          }
+          number_t x21034;
+          if (x21033) {
+            x21034 = (acc000) + (((x21024->arr[idx000])) * (((x21026->arr[j])) - (((means->arr[idx0])->arr[j]))));
+          } else {
+            x21034 = acc000;
+          }
+          acc000 = x21034;
+          x21035 = acc000;
+        }
+        
+        number_t x16752 = (x21035) + ((exp(((qs->arr[idx0])->arr[idx00]))) * (((x21026->arr[idx00])) - (((means->arr[idx0])->arr[idx00]))));
+        acc00 = (acc00) + ((x16752) * (x16752));
+        x21036 = acc00;
+      }
+      
+      number_t cur = (((alphas->arr[idx0])) + (x21032)) - ((0.5) * (x21036));
+      number_t x21037;
+      if ((acc0) > (cur)) {
+        x21037 = acc0;
+      } else {
+        x21037 = cur;
+      }
+      acc0 = x21037;
+      x21004 = acc0;
+    }
     
-    macroDef177 = (macroDef177) + (cur);;
-  }
-    array_number_t q = qs->arr[k];
-    array_number_t l = ls->arr[k];
-    array_number_t x0 = x->arr[i];
-    array_number_t y = means->arr[k];
-    card_t macroDef180 = x0->length;
-    number_t macroDef181 = 0;
-  for(int idx1 = 0; idx1 <= (macroDef180) - (1); idx1++){
-    number_t acc4 = macroDef181;
-    index_t i0 = idx1;
-    index_t n0 = (i0) - (1);
-    index_t tis = ((n0) * ((n0) + (1))) / (2);
-    card_t s = 0;
-    card_t macroDef178 = l->length;
-    card_t e = macroDef178;
-    number_t macroDef179 = 0;
-  for(int idx2 = 0; idx2 <= (((e) - (s)) + (1)) - (1); idx2++){
-    number_t acc6 = macroDef179;
-    index_t i1 = idx2;
-    number_t cur = (double)(((s)) + (i1));
-    index_t idx3 = (int)(cur);
-    index_t j = (idx3) - (tis);
-    bool_t isInRange = 0;
-  if((j) >= (0)) {
+    number_t x21043 = 0;
+    for (int idx0 = 0; idx0 < x21030; idx0++) {
+      number_t acc0 = x21043;
+      array_number_t x21022 = (qs->arr[idx0]);
+      array_number_t x21010 = (ls->arr[idx0]);
+      number_t x21038 = 0;
+      for (int idx00 = 0; idx00 < (x21022)->length; idx00++) {
+        number_t acc00 = x21038;
+        acc00 = (acc00) + ((x21022->arr[idx00]));
+        x21038 = acc00;
+      }
+      
+      number_t x21042 = 0;
+      for (int idx00 = 0; idx00 < (x21016)->length; idx00++) {
+        number_t acc00 = x21042;
+        index_t x16548 = (idx00) - (1);
+        number_t x21041 = 0;
+        for (int idx000 = 0; idx000 < (x21010)->length; idx000++) {
+          number_t acc000 = x21041;
+          index_t j = (idx000) - (((x16548) * ((x16548) + (1))) / (2));
+          index_t x21039;
+          if ((j) >= (0)) {
+            x21039 = (j) < (idx00);
+          } else {
+            x21039 = 0;
+          }
+          number_t x21040;
+          if (x21039) {
+            x21040 = (acc000) + (((x21010->arr[idx000])) * (((x21016->arr[j])) - (((means->arr[idx0])->arr[j]))));
+          } else {
+            x21040 = acc000;
+          }
+          acc000 = x21040;
+          x21041 = acc000;
+        }
+        
+        number_t x16720 = (x21041) + ((exp(((qs->arr[idx0])->arr[idx00]))) * (((x21016->arr[idx00])) - (((means->arr[idx0])->arr[idx00]))));
+        acc00 = (acc00) + ((x16720) * (x16720));
+        x21042 = acc00;
+      }
+      
+      acc0 = (acc0) + (exp(((((alphas->arr[idx0])) + (x21038)) - ((0.5) * (x21042))) - (x21004)));
+      x21043 = acc0;
+    }
     
-    isInRange = (j) < (i0);;
-  } else {
+    acc = (acc) + ((log(x21043)) + (x21004));
+    x21044 = acc;
+  }
+  
+  number_t x21045 = 0;
+  for (int idx = 0; idx < (alphas)->length; idx++) {
+    number_t acc = x21045;
+    acc = (acc) + (exp(((alphas->arr[idx])) - (x21020)));
+    x21045 = acc;
+  }
+  
+  number_t x21048 = 0;
+  for (int idx = 0; idx < x21030; idx++) {
+    number_t acc = x21048;
+    array_number_t x21028 = (qs->arr[idx]);
+    array_number_t x21018 = (ls->arr[idx]);
+    number_t x21046 = 0;
+    for (int idx0 = 0; idx0 < (x21028)->length; idx0++) {
+      number_t acc0 = x21046;
+      number_t x16768 = exp((x21028->arr[idx0]));
+      acc0 = (acc0) + ((x16768) * (x16768));
+      x21046 = acc0;
+    }
     
-    isInRange = false;;
-    break;
-  }
-    number_t ite198 = 0;
-  if(isInRange) {
-    number_t x1 = x0->arr[j];
-    number_t y0 = y->arr[j];
-    ite198 = (acc6) + ((l->arr[idx3]) * ((x1) - (y0)));;
-  } else {
+    number_t x21047 = 0;
+    for (int idx0 = 0; idx0 < (x21018)->length; idx0++) {
+      number_t acc0 = x21047;
+      number_t x16770 = (x21018->arr[idx0]);
+      acc0 = (acc0) + ((x16770) * (x16770));
+      x21047 = acc0;
+    }
     
-    ite198 = acc6;;
+    acc = (acc) + ((x21046) + (x21047));
+    x21048 = acc;
   }
-    macroDef179 = ite198;;
-  }
-    number_t sum = macroDef179;
-    number_t x1 = x0->arr[i0];
-    number_t y0 = y->arr[i0];
-    number_t x10 = (sum) + ((exp(q->arr[i0])) * ((x1) - (y0)));
-    number_t cur = (x10) * (x10);
-    macroDef181 = (acc4) + (cur);;
-  }
-    number_t cur = ((alphas->arr[k]) + (macroDef177)) - ((0.5) * (macroDef181));
-    number_t ite199 = 0;
-  if((acc2) > (cur)) {
-    
-    ite199 = acc2;;
-  } else {
-    
-    ite199 = cur;;
-  }
-    macroDef182 = ite199;;
-  }
-    number_t mx148 = macroDef182;
-    number_t macroDef188 = 0;
-  for(int idx0 = 0; idx0 < K; idx0++){
-    number_t acc2 = macroDef188;
-    index_t i0 = idx0;
-    array_number_t v149 = qs->arr[i0];
-    number_t macroDef183 = 0;
-  for(int cur_idx = 0; cur_idx < v149->length; cur_idx++){
-    number_t cur = v149->arr[cur_idx];
-    
-    macroDef183 = (macroDef183) + (cur);;
-  }
-    array_number_t q150 = qs->arr[i0];
-    array_number_t l151 = ls->arr[i0];
-    array_number_t x152 = x->arr[i];
-    array_number_t y153 = means->arr[i0];
-    card_t macroDef186 = x152->length;
-    number_t macroDef187 = 0;
-  for(int idx1 = 0; idx1 <= (macroDef186) - (1); idx1++){
-    number_t acc4 = macroDef187;
-    index_t i1 = idx1;
-    index_t n154 = (i1) - (1);
-    index_t tis155 = ((n154) * ((n154) + (1))) / (2);
-    card_t s156 = 0;
-    card_t macroDef184 = l151->length;
-    card_t e157 = macroDef184;
-    number_t macroDef185 = 0;
-  for(int idx2 = 0; idx2 <= (((e157) - (s156)) + (1)) - (1); idx2++){
-    number_t acc6 = macroDef185;
-    index_t i2 = idx2;
-    number_t cur = (double)(((s156)) + (i2));
-    index_t idx158 = (int)(cur);
-    index_t j159 = (idx158) - (tis155);
-    bool_t isInRange160 = 0;
-  if((j159) >= (0)) {
-    
-    isInRange160 = (j159) < (i1);;
-  } else {
-    
-    isInRange160 = false;;
-    break;
-  }
-    number_t ite200 = 0;
-  if(isInRange160) {
-    number_t x161 = x152->arr[j159];
-    number_t y162 = y153->arr[j159];
-    ite200 = (acc6) + ((l151->arr[idx158]) * ((x161) - (y162)));;
-  } else {
-    
-    ite200 = acc6;;
-  }
-    macroDef185 = ite200;;
-  }
-    number_t sum163 = macroDef185;
-    number_t x164 = x152->arr[i1];
-    number_t y165 = y153->arr[i1];
-    number_t x1166 = (sum163) + ((exp(q150->arr[i1])) * ((x164) - (y165)));
-    number_t cur = (x1166) * (x1166);
-    macroDef187 = (acc4) + (cur);;
-  }
-    number_t x168 = ((alphas->arr[i0]) + (macroDef183)) - ((0.5) * (macroDef187));
-    number_t cur = exp((x168) - (mx148));
-    macroDef188 = (acc2) + (cur);;
-  }
-    number_t semx170172 = macroDef188;
-    number_t cur = (log(semx170172)) + (mx148);
-    macroDef189 = (acc0) + (cur);;
-  }
-  number_t macroDef190 = -1000;
-  for(int cur_idx = 0; cur_idx < alphas->length; cur_idx++){
-    number_t cur = alphas->arr[cur_idx];
-    number_t ite201 = 0;
-  if((macroDef190) > (cur)) {
-    
-    ite201 = macroDef190;;
-  } else {
-    
-    ite201 = cur;;
-  }
-    macroDef190 = ite201;;
-  }
-  number_t mx = macroDef190;
-  card_t macroDef191 = alphas->length;
-  number_t macroDef192 = 0;
-  for(int idx = 0; idx <= (macroDef191) - (1); idx++){
-    number_t acc0 = macroDef192;
-    index_t i = idx;
-    number_t x0 = alphas->arr[i];
-    number_t cur = exp((x0) - (mx));
-    macroDef192 = (acc0) + (cur);;
-  }
-  number_t semx174 = macroDef192;
-  number_t macroDef197 = 0;
-  for(int idx = 0; idx < K; idx++){
-    number_t acc0 = macroDef197;
-    index_t k = idx;
-    array_number_t v = qs->arr[k];
-    card_t macroDef193 = v->length;
-    number_t macroDef194 = 0;
-  for(int idx0 = 0; idx0 <= (macroDef193) - (1); idx0++){
-    number_t acc2 = macroDef194;
-    index_t i = idx0;
-    number_t value = v->arr[i];
-    number_t x1 = exp(value);
-    number_t cur = (x1) * (x1);
-    macroDef194 = (acc2) + (cur);;
-  }
-    array_number_t x0 = ls->arr[k];
-    card_t macroDef195 = x0->length;
-    number_t macroDef196 = 0;
-  for(int idx0 = 0; idx0 <= (macroDef195) - (1); idx0++){
-    number_t acc2 = macroDef196;
-    index_t i = idx0;
-    number_t x1 = x0->arr[i];
-    number_t cur = (x1) * (x1);
-    macroDef196 = (acc2) + (cur);;
-  }
-    number_t cur = (macroDef194) + (macroDef196);
-    macroDef197 = (acc0) + (cur);;
-  }
-  return ((macroDef189) - (((double)((n))) * ((log(semx174)) + (mx)))) + ((0.5) * (macroDef197));
+  
+  return ((x21044) - (((double)(x16718)) * ((log(x21045)) + (x21020)))) + ((0.5) * (x21048));
 }
 #else
 
@@ -547,6 +873,7 @@ void test_gmm()
 
   // Declare and fill xs
   // Vec<VectorD> xs{ n, Vector{ d } };
+  array_number_t xsd = vector_fill(n * d, 0);
   array_number_t xs = vector_fill(n * d, 0);
   for (int i = 0; i < n; ++i)
     for (int j = 0; j < d; ++j)
@@ -600,11 +927,12 @@ void test_gmm()
 
     // TODO icf instead of qs and ls
 #if defined TAPENADE
-    gmm_objective2(d, K, n, alphas->arr, means->arr, icf->arr, xs->arr, wishart_gamma, wishart_m, &res);
-    // gmm_objective_d(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xs->arr, wishart_gamma, wishart_m, &tmp, &res);
+    // gmm_objective2(d, K, n, alphas->arr, means->arr, icf->arr, xs->arr, wishart_gamma, wishart_m, &res);
+    gmm_objective_d(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xsd->arr, wishart_gamma, wishart_m, &tmp, &res);
 #else
-    res = gmm_objective3(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
+    // res = gmm_objective3(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
     // res = gmm_objective_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
+    res = gmm_objective3_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, alphas, means, qs, ls);
 #endif
     total += res;
   }

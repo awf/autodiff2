@@ -82,10 +82,6 @@ void gmm_objective_d(int d, int k, int n, double *alphas, double *alphasd,
     int ii1;
     // CONSTANT = -n*d*0.5*log(2 * PI);
     icf_sz = d*(d+1)/2;
-    main_termd = (double *)malloc(k*sizeof(double));
-    for (ii1 = 0; ii1 < k; ++ii1)
-        main_termd[ii1] = 0.0;
-    main_term = (double *)malloc(k*sizeof(double));
     sum_qsd = (double *)malloc(k*sizeof(double));
     for (ii1 = 0; ii1 < k; ++ii1)
         sum_qsd[ii1] = 0.0;
@@ -94,18 +90,34 @@ void gmm_objective_d(int d, int k, int n, double *alphas, double *alphasd,
     for (ii1 = 0; ii1 < d*k; ++ii1)
         Qdiagsd[ii1] = 0.0;
     Qdiags = (double *)malloc(d*k*sizeof(double));
-    xcenteredd = (double *)malloc(d*sizeof(double));
-    for (ii1 = 0; ii1 < d; ++ii1)
-        xcenteredd[ii1] = 0.0;
-    xcentered = (double *)malloc(d*sizeof(double));
-    Qxcenteredd = (double *)malloc(d*sizeof(double));
-    for (ii1 = 0; ii1 < d; ++ii1)
-        Qxcenteredd[ii1] = 0.0;
-    Qxcentered = (double *)malloc(d*sizeof(double));
     preprocess_qs_d(d, k, icf, icfd, sum_qs, sum_qsd, Qdiags, Qdiagsd);
+    main_termd = (double *)malloc(k*sizeof(double));
+        for (ii1 = 0; ii1 < k; ++ii1)
+            main_termd[ii1] = 0.0;
+        main_term = (double *)malloc(k*sizeof(double));
+        xcenteredd = (double *)malloc(d*sizeof(double));
+        for (ii1 = 0; ii1 < d; ++ii1)
+            xcenteredd[ii1] = 0.0;
+        xcentered = (double *)malloc(d*sizeof(double));
+        Qxcenteredd = (double *)malloc(d*sizeof(double));
+        for (ii1 = 0; ii1 < d; ++ii1)
+            Qxcenteredd[ii1] = 0.0;
+        Qxcentered = (double *)malloc(d*sizeof(double));
     slse = 0.;
     slsed = 0.0;
     for (ix = 0; ix < n; ++ix) {
+        // main_termd = (double *)malloc(k*sizeof(double));
+        // for (ii1 = 0; ii1 < k; ++ii1)
+        //     main_termd[ii1] = 0.0;
+        // main_term = (double *)malloc(k*sizeof(double));
+        // xcenteredd = (double *)malloc(d*sizeof(double));
+        // for (ii1 = 0; ii1 < d; ++ii1)
+        //     xcenteredd[ii1] = 0.0;
+        // xcentered = (double *)malloc(d*sizeof(double));
+        // Qxcenteredd = (double *)malloc(d*sizeof(double));
+        // for (ii1 = 0; ii1 < d; ++ii1)
+        //     Qxcenteredd[ii1] = 0.0;
+        // Qxcentered = (double *)malloc(d*sizeof(double));
         for (ik = 0; ik < k; ++ik) {
             subtract_d(d, &x[ix*d], &xd[ix*d], &means[ik*d], &meansd[ik*d], 
                        xcentered, xcenteredd);
@@ -119,6 +131,12 @@ void gmm_objective_d(int d, int k, int n, double *alphas, double *alphasd,
         result1d = logsumexp_d(k, main_term, main_termd, &result1);
         slsed = slsed + result1d;
         slse = slse + result1;
+        // free(main_termd);
+        // free(main_term);
+        // free(xcenteredd);
+        // free(xcentered);
+        // free(Qxcenteredd);
+        // free(Qxcentered);
     }
     free(main_termd);
     free(main_term);

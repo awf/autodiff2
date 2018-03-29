@@ -28,6 +28,14 @@ typedef struct tuple_number_t_number_t {
   number_t _1;
   number_t _2;
 } tuple_number_t_number_t;
+typedef struct tuple_number_t_index_t {
+  number_t _1;
+  index_t _2;
+} tuple_number_t_index_t;
+typedef struct tuple_index_t_index_t {
+  index_t _1;
+  index_t _2;
+} tuple_index_t_index_t;
 typedef struct tuple_card_t_card_t {
   card_t _1;
   card_t _2;

@@ -1,5 +1,5 @@
-#ifndef __FSHARP_CLIB_H__ 
-#define __FSHARP_CLIB_H__ 
+#ifndef __FSMOOTH_CORE_LIB_H__ 
+#define __FSMOOTH_CORE_LIB_H__ 
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,22 +23,15 @@ empty_env_t make_empty_env() {
 	return 0;
 }
 
-closure_t make_closure(lambda_t lam, env_t env) {
-	closure_t c;
-	c.lam = lam;
-	c.env = env;
-	return c;
-}
-
-void array_print(array_number_t arr) {
-	printf("[");
-	for (int i = 0; i < arr->length; i++) {
-		printf("%f", arr->arr[i]);
-		if (i != arr->length - 1)
-			printf(", ");
-	}
-	printf("]\n");
-}
+// void array_print(array_number_t arr) {
+// 	printf("[");
+// 	for (int i = 0; i < arr->length; i++) {
+// 		printf("%f", arr->arr[i]);
+// 		if (i != arr->length - 1)
+// 			printf(", ");
+// 	}
+// 	printf("]\n");
+// }
 
 // clock_t benchmarked_time = 0;
 // clock_t start_time = 0;
@@ -172,21 +165,6 @@ number_t gamma_ln(number_t x) {
 	return x;
 }
 
-void vector_alloc_cps(index_t size, closure_t closure) {
-	array_number_t res = (array_number_t)vector_alloc(size);
-	(closure.lam)(closure.env, res);
-	free(res);
-}
-
-
-array_number_t vector_build_given_storage(storage_t storage, closure_t closure) {
-	array_number_t res = (array_number_t)storage;
-	for (int i = 0; i < res->length; i++) {
-		res->arr[i] = closure.lam(closure.env, i).number_t_value;
-	}
-	return res;
-}
-
 // cardinality related methods
 
 matrix_shape_t nested_shape_card_t(card_t elem, card_t card) {
@@ -222,36 +200,6 @@ card_t width_matrix3d_shape_t(matrix3d_shape_t shape) {
 
 card_t width_tuple_card_t_card_t(tuple_card_t_card_t shape) {
   return 0;
-}
-
-// tuple related methods
-
-tuple_number_t_number_t pair(number_t _1, number_t _2) {
-	tuple_number_t_number_t res;
-	res._1 = _1;
-	res._2 = _2;
-	return res;
-}
-
-tuple_index_t_index_t pair_i_i(index_t _1, index_t _2) {
-	tuple_index_t_index_t res;
-	res._1 = _1;
-	res._2 = _2;
-	return res;
-}
-
-tuple_card_t_card_t pair_c_c(card_t _1, card_t _2) {
-	tuple_card_t_card_t res;
-	res._1 = _1;
-	res._2 = _2;
-	return res;
-}
-
-tuple_array_number_t_array_number_t pair_v_v(array_number_t _1, array_number_t _2) {
-	tuple_array_number_t_array_number_t res;
-	res._1 = _1;
-	res._2 = _2;
-	return res;
 }
 
 #endif
