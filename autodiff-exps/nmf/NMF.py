@@ -34,6 +34,7 @@ def nmf(distribution, m, n, k, sanity_check, runs):
     W = T.dmatrix('W')
     H = T.dmatrix('H')
     A = T.dmatrix('A')
+    M = T.dmatrix('M')
 
     
     if distribution == "gaussian":
@@ -51,7 +52,7 @@ def nmf(distribution, m, n, k, sanity_check, runs):
         raise Exception("Distribution %s not recognized" % distribution)
 
     
-    print "Generating matrices"
+    # print "Generating matrices"
     if distribution == "gaussian":
         a = np.maximum(0, np.random.randn(m, n)) # Non-negative!
     elif distribution == "exponential":
@@ -62,12 +63,12 @@ def nmf(distribution, m, n, k, sanity_check, runs):
     h = np.random.rand(k, n)
 
     
-    print "Timing Lago update of H and W"
+    # print "Timing Lago update of H and W"
     Hlago = h
     Wlago = w
     timesLago = []
     for i in range(runs):
-        print "\tIteration %d" % (i + 1)
+        # print "\tIteration %d" % (i + 1)
         pr = cProfile.Profile()
         pr.enable()
         # Hlago, Wlago = lagoRuleH(a, Wlago, Hlago), lagoRuleW(a, Wlago, Hlago)
@@ -75,11 +76,11 @@ def nmf(distribution, m, n, k, sanity_check, runs):
         # Hlago = topLevel(Hlago, Wlago, a)
         pr.create_stats()
         stats = pstats.Stats(pr)
-        print "\t\tExecution time spent is %s." % stats.total_tt
+        # print "\t\tExecution time spent is %s." % stats.total_tt
         timesLago.append(stats.total_tt)
 
         
-    print "Deriving Theano rules"
+    # print "Deriving Theano rules"
     Abar = theano.dot(W, H)
     if distribution == "gaussian":
         exprs = (1.0 / math.sqrt(2 * math.pi)) * T.exp(-(A - Abar)**2 / 2)
@@ -101,23 +102,24 @@ def nmf(distribution, m, n, k, sanity_check, runs):
     # theanoRuleH = theano.function([A, W, H], H + muH*diffH)
     theanoRuleH = theano.function([A, W, H], diffH)
     # theanoRuleW = theano.function([A, W, H], W + muW*diffW)
+    matrixSum = theano.function([M], T.sum(M))
 
     
     Htheano = h
     Wtheano = w
-    print "Timing Theano update of H and W"
+    # print "Timing Theano update of H and W"
     timesTheano = []
     total = 0.0
     for i in range(runs):
-        print "\tIteration %d" % (i + 1)
+        # print "\tIteration %d" % (i + 1)
         pr = cProfile.Profile()
         pr.enable()
         # Htheano, Wtheano = theanoRuleH(a, Wtheano, Htheano), theanoRuleW(a, Wtheano, Htheano)
         Htheano = theanoRuleH(a, Wtheano, Htheano)
-        total += T.sum(Htheano)
+        total += matrixSum(Htheano)
         pr.create_stats()
         stats = pstats.Stats(pr)
-        print "\t\tExecution time spent is %s." % stats.total_tt
+        # print "\t\tExecution time spent is %s." % stats.total_tt
         timesTheano.append(stats.total_tt)
 
 
@@ -130,7 +132,7 @@ def nmf(distribution, m, n, k, sanity_check, runs):
         print "\tDistance from Theano W to a random matrix: ", d(flatten(Wtheano), np.random.rand(m * k))
         print "\tDistance from Lago W to a random matrix: ", d(flatten(Wlago), np.random.rand(m * k))
 
-    return (timesLago, timesTheano)
+    return (total, timesLago, timesTheano)
         
 
 #Gaussian Distribution Prog
@@ -152,17 +154,18 @@ def main(args):
     runs = int(args[4]) if len(args) > 4 else 1
     sanity_check = (args[5] == "check") if len(args) > 5 else False
 
-    timesLago, timesTheano = nmf(distribution, m, n, k, sanity_check, runs)
+    total, timesLago, timesTheano = nmf(distribution, m, n, k, sanity_check, runs)
     now = datetime.datetime.now()
-    experiment_id = now.strftime("%m%d%H%M%S")
+    # experiment_id = now.strftime("%m%d%H%M%S")
 
-    filename = "results/%s/%s.csv" % (distribution, experiment_id)
-    print "Saving results to %s" % filename
-    f=open(filename, 'w+')
+    # filename = "results/%s/%s.csv" % (distribution, experiment_id)
+    # print "Saving results to %s" % filename
+    # f=open(filename, 'w+')
   
-    for (l, t) in zip(timesLago, timesTheano):
-        f.write("%s, %d, %d, %d, %f, %f\n" % (experiment_id, m, n, k, l, t))
-    f.close()
+    # for (l, t) in zip(timesLago, timesTheano):
+    #     f.write("%s, %d, %d, %d, %f, %f\n" % (experiment_id, m, n, k, l, t))
+    # f.close()
+    print "total =%f, time per call = %f s" % (total, reduce(lambda x, y: x + y, timesTheano) / len(timesTheano))
 
 if __name__ == "__main__":
     import sys

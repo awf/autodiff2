@@ -179,26 +179,25 @@ array_number_t nmf_uv(array_number_t u, array_number_t v, array_array_number_t A
   return x20434;
 }
 
-array_number_t nmf_uv_dps(storage_t s, array_number_t u, array_number_t v, array_array_number_t AA) {
-  array_number_t x18197 = (array_number_t)s;
-  for(int i = 0; i < x18197->length; i++){
-    number_t x18195 = 0;    
-    number_t x18196 = 0;
-    for (int x17976 = 0; x17976 < (AA)->length; x17976++) {
-      number_t x18096 = x18196;
-      number_t x18192 = (v->arr[x17976]);
-      number_t x18148 = x18192;
-      number_t x18194 = (x18192) * ((u->arr[i]));
-      number_t x18112 = (x18148) / ((x18148) * ((u->arr[i])));
-      x18096 = (x18096) + (((0) - ((((AA->arr[x17976])->arr[i])) * (x18192))) / ((x18194) * (x18194)));
-      x18096 = x18096 + x18112;
-      x18196 = x18096;
+// I'm manually optimizing this code.
+array_number_t nmf_uv_dps(storage_t s, int m, int n, array_number_t u, array_number_t v, array_array_number_t AA) {
+  array_number_t x20434 = (array_number_t)s;
+  for(int i = 0; i < n; i++){
+    number_t x20433 = 0;
+    number_t ui = u->arr[i];
+    for (int x19178 = 0; x19178 < m; x19178++) {
+      number_t x19286 = x20433;
+      number_t x20430 = (v->arr[x19178]);
+      number_t x20432 = (x20430) * ((ui));
+      number_t x20428 = x20430;
+      x19286 = (x19286) + ((1) / (((ui)))) + (((0) - ((((AA->arr[x19178])->arr[i]))) / ((ui) * (x20432))));
+      x20433 = x19286;
     }
     
-    x18197->arr[i] = (x18195) + (x18196);
+    x20434->arr[i] = x20433;
     
   }
-  return x18197;
+  return x20434;
 }
 
 void test_nmf(card_t M, card_t N, card_t K, card_t iters)
@@ -257,8 +256,8 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
         #endif
       #else
         total += vector_sum(nmf_uv(H->arr[0], v, A));
+        // total += vector_sum(nmf_uv_dps(s, N, M, H->arr[0], v, A));
       #endif
-      // total += vector_sum(nmf_uv_dps(s, H->arr[0], v, A));
     } else {
       total += matrix_sum(update3(H, W, A));
     }
