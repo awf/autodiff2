@@ -20,8 +20,6 @@ declare -a params=(
 	"100 200" "100 400" "100 800" "100 1600" "100 3200"
 	)
 
-echo "=== Run time Usage ==="
-
 for p in "${params[@]}"
 do
 	echo "$p"
