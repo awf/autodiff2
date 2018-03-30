@@ -70,17 +70,24 @@ int test_ba()
 
 #elif defined DO_GMM
 // #include "tapanade/gmm.h"
-extern "C"
-{
 #if defined TAPENADE
-#include "tapanade/gmm_all.h"
+  #include "tapanade/gmm_all.h"
+  #if defined REV_MODE
+  extern "C" {
+    #include "tapanade/submitted/2/gmm_b-all.h"
+  }
+  #endif
+  #if defined MULT_MODE
+  extern "C" {
+    #include "tapanade/submitted/2/gmm_dv-all.h"
+  }
+  #endif
 #else 
-extern "C"
-{
-#include "diffsmooth/gmm_compact.h"
-}
+  extern "C"
+  {
+    #include "diffsmooth/gmm_compact.h"
+  }
 #endif
-}
 
 #include "diffsmooth/types.h"
 const size_t GMM_K = 5;
@@ -121,6 +128,14 @@ void array_print(array_number_t arr) {
   printf("]\n");
 }
 
+number_t vector_sum(array_number_t m) {
+  number_t result = 0;
+  for(int i=0; i<m->length; i++) {
+    result += m->arr[i];
+  }
+  return result;
+}
+
 #if defined DIFFSMOOTH 
 
 #include "diffsmooth/fsmooth_core.h"
@@ -136,7 +151,7 @@ array_number_t gmm_objective3_d_alphas(array_array_number_t x, array_number_t al
         x27450 = x13097;
       } else {
         index_t x27449;
-        if ((i) = (x13098)) {
+        if ((i) == (x13098)) {
           x27449 = 1;
         } else {
           x27449 = 0;
@@ -152,7 +167,7 @@ array_number_t gmm_objective3_d_alphas(array_array_number_t x, array_number_t al
       tuple_number_t_number_t x13171 = x14864;
       number_t x14092 = exp(((alphas->arr[x13172])) - ((x14820)._1));
       number_t x27451;
-      if ((i) = (x13172)) {
+      if ((i) == (x13172)) {
         x27451 = ((x13171)._2) + (((1) - ((x14820)._2)) * (x14092));
       } else {
         x27451 = ((x13171)._2) + (((0) - ((x14820)._2)) * (x14092));
@@ -215,7 +230,7 @@ array_number_t gmm_objective3_d_alphas(array_array_number_t x, array_number_t al
           x27455 = x13227;
         } else {
           number_t x27454;
-          if ((i) = (x13228)) {
+          if ((i) == (x13228)) {
             x27454 = ((1) + ((x27442)._2)) - ((0.5) * ((x27376)._2));
           } else {
             x27454 = ((x27442)._2) - ((0.5) * ((x27376)._2));
@@ -272,7 +287,7 @@ array_number_t gmm_objective3_d_alphas(array_array_number_t x, array_number_t al
         
         number_t x14362 = exp(((((alphas->arr[x13266])) + ((x27426)._1)) - ((0.5) * ((x27392)._1))) - ((x27378)._1));
         number_t x27458;
-        if ((i) = (x13266)) {
+        if ((i) == (x13266)) {
           x27458 = ((x13265)._2) + (((((1) + ((x27426)._2)) - ((0.5) * ((x27392)._2))) - ((x27378)._2)) * (x14362));
         } else {
           x27458 = ((x13265)._2) + (((((x27426)._2) - ((0.5) * ((x27392)._2))) - ((x27378)._2)) * (x14362));
@@ -853,6 +868,11 @@ void test_gmm()
   array_number_t qs = vector_fill(K * d, 0);
   array_number_t ls = vector_fill(K * td, 0);
   array_number_t icf = vector_fill(K * td, 0);
+  array_number_t alphas_b = vector_fill(K, 0);
+  array_number_t means_b = vector_fill(K * d, 0);
+  array_number_t qs_b = vector_fill(K * d, 0);
+  array_number_t ls_b = vector_fill(K * td, 0);
+  array_number_t icf_b = vector_fill(K * td, 0);
   for (int k = 0; k < K; ++k) {
     alphas->arr[k] = dist(rng);
     for (int j = 0; j < d; ++j) {
@@ -903,6 +923,7 @@ void test_gmm()
   for (int i = 0; i < n; ++i)
     for (int j = 0; j < d; ++j)
       xs->arr[i]->arr[j] = dist(rng);
+  array_number_t alphasd = vector_fill(K, 0);
 #endif
 
   // TOP_LEVEL_usecases_gmm_Qtimesv_test(0);
@@ -910,7 +931,7 @@ void test_gmm()
   // boost::timer::auto_cpu_timer t;
   timer_t t = tic();
 
-  gmm_init(d, K, n);
+  // gmm_init(d, K, n);
 
   // Debug 150s 
     // Release 1s
@@ -928,11 +949,39 @@ void test_gmm()
     // TODO icf instead of qs and ls
 #if defined TAPENADE
     // gmm_objective2(d, K, n, alphas->arr, means->arr, icf->arr, xs->arr, wishart_gamma, wishart_m, &res);
-    gmm_objective_d(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xsd->arr, wishart_gamma, wishart_m, &tmp, &res);
+    
+    #if defined REV_MODE
+      // gmm_objective_b(d, K, n, alphas->arr, alphas_b->arr, means->arr, icf->arr, xs->arr, wishart_gamma, wishart_m, &tmp, &res);
+      double eb = 1;
+      gmm_objective_b(d, K, n, alphas->arr, alphas_b->arr, means->arr, means_b->arr, icf->arr, icf_b->arr, xs->arr, xsd->arr, wishart_gamma, wishart_m, &tmp, &eb);
+      res = vector_sum(alphas_b);
+    // #elif defined MULT_MODE
+    //   gmm_objective_dv(d, K, n, alphas->arr, alphas->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xsd->arr, wishart_gamma, wishart_m, &tmp, &res);
+    #else
+      for(int i = 0; i<K; i++) {
+        double res1;
+        alphas_b->arr[i] = 1;
+        gmm_objective_d(d, K, n, alphas->arr, alphas_b->arr, means->arr, means->arr, icf->arr, icf->arr, xs->arr, xsd->arr, wishart_gamma, wishart_m, &tmp, &res1);
+        alphas_b->arr[i] = 0;
+        res += res1;
+      }
+    #endif
 #else
     // res = gmm_objective3(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
     // res = gmm_objective_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
-    res = gmm_objective3_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, alphas, means, qs, ls);
+    // res = gmm_objective3_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, alphas, means, qs, ls);
+    #if defined MULT_MODE
+      res = vector_sum(gmm_objective3_d_alphas(xs, alphas, means, qs, ls, wishart_gamma, wishart_m));
+      // TODO seems to be buggy!
+    #else
+      for(int i = 0; i<K; i++) {
+        double res1;
+        alphasd->arr[i] = 1;
+        res1 = gmm_objective3_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, alphasd, means, qs, ls);
+        alphasd->arr[i] = 0;
+        res += res1;
+      }
+    #endif
 #endif
     total += res;
   }
