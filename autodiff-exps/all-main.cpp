@@ -248,7 +248,7 @@ void test_gmm(const string& fn_in, const string& fn_out,
   #endif
 
   // gmm_init(d, k, n);
-  printf("read!\n");
+  // printf("read!\n");
 
   int icf_sz = d*(d + 1) / 2;
   int Jsz = (k*(d + 1)*(d + 2)) / 2;
@@ -272,7 +272,7 @@ void test_gmm(const string& fn_in, const string& fn_out,
   }
   end = high_resolution_clock::now();
   tf = duration_cast<duration<double>>(end - start).count() / nruns_f;
-  cout << "err: " << e1 << endl;
+  // cout << "err: " << e1 << endl;
 
 
 
@@ -294,7 +294,8 @@ void test_gmm(const string& fn_in, const string& fn_out,
   }
   end = high_resolution_clock::now();
   tb = duration_cast<duration<double>>(end - start).count() / nruns_J;
-  cout << "err: " << e2 << endl;
+  // cout << "err: " << e2 << endl;
+  cout << "time per call = " << tb << " s" << endl;
 
   /////////////////// results //////////////////////////
   #if defined TAPENADE
@@ -337,9 +338,24 @@ void computeReprojError_d(
   double *J)
 {
   double proj[2];
-  double proj_d[2];
-  project_d(cam, cam , X, X, proj, proj_d);
-
+  double cam_d[BA_NCAMPARAMS] = {0};
+  double X_d[3] = {0};
+  for(int i =0; i<BA_NCAMPARAMS + 3; i++) {
+    if(i < BA_NCAMPARAMS) {
+      cam_d[i] = 1;
+    } else {
+      X_d[i - BA_NCAMPARAMS] = 1;
+    }
+    double proj_d[2];
+    project_d(cam, cam_d, X, X_d, proj, proj_d);
+    J[i * 2] = proj_d[0];
+    J[i * 2 + 1] = proj_d[1];
+    if(i < BA_NCAMPARAMS) {
+      cam_d[i] = 0;
+    } else {
+      X_d[i - BA_NCAMPARAMS] = 0;
+    }
+  }
   int Jw_idx = 2 * (BA_NCAMPARAMS + 3);
   J[Jw_idx + 0] = (proj[0] - feat_x);
   J[Jw_idx + 1] = (proj[1] - feat_y);
@@ -477,6 +493,8 @@ void test_ba(const string& fn_in, const string& fn_out,
   end = high_resolution_clock::now();
   tJ = duration_cast<duration<double>>(end - start).count() / nruns_J;
 
+  cout << "time per call = " << tJ << " s" << endl;
+
   #ifdef TAPENADE
   string name = "Tapenade";
   #elif defined DIFFSMOOTH 
@@ -505,7 +523,7 @@ int main(int argc, char *argv[])
   int nruns_f = std::stoi(string(argv[4]));
   int nruns_J = std::stoi(string(argv[5]));
 
-  printf("params %s %s %s %s %s\n", argv[1], argv[2], argv[3], argv[4], argv[5]);
+  // printf("params %s %s %s %s %s\n", argv[1], argv[2], argv[3], argv[4], argv[5]);
   
   // read only 1 point and replicate it?
   bool replicate_point = (argc >= 7 && string(argv[6]).compare("-rep") == 0);
