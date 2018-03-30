@@ -3,6 +3,10 @@
 #include "../diffsmooth/fsharp.h"
 #include "../diffsmooth/timer.h"
 
+#if defined TAPENADE
+#include "../tapanade/submitted/3/nmf_d-all.h"
+#endif
+
 
 double dist(int seed) {
   return ((double)rand()/(double)RAND_MAX);
@@ -202,11 +206,14 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
   array_array_number_t W = matrix_fill(M, K, 0.0);
   array_array_number_t H = matrix_fill(K, N, 0.0);
   array_number_t v = vector_fill(M, 0.0);
+  array_number_t ud = vector_fill(N, 0.0);
+  double** A_arr = malloc(M * sizeof(double*));
 
   for (card_t m = 0; m < M; ++m) {
     for (card_t n = 0; n < N; ++n) {
       A->arr[m]->arr[n] = dist(rng);
     }
+    A_arr[m] = A->arr[m]->arr;
     for (card_t k = 0; k < K; ++k) {
       W->arr[m]->arr[k] = dist(rng);
     }
@@ -229,11 +236,23 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
     v->arr[0] = W->arr[0]->arr[0];
     // total +=  matrix_sum(update1(H, W, A)) + matrix_sum(update2(H, W, A));
     // total += matrix_sum(update3(H, W, A));
-    if(K == 1)
-      total += vector_sum(nmf_uv(H->arr[0], v, A));
+    if(K == 1) {
+      #if defined TAPENADE
+        double sum = 0;
+        double tmp;
+        for(int i = 0; i<N; i++) {
+          ud->arr[i] = 1;
+          sum += nmfMain_d(N, M, H->arr[0]->arr, ud->arr, v->arr, A_arr, &tmp);
+          ud->arr[i] = 0;
+        }
+        total += sum;
+      #else
+        total += vector_sum(nmf_uv(H->arr[0], v, A));
+      #endif
       // total += vector_sum(nmf_uv_dps(s, H->arr[0], v, A));
-    else
+    } else {
       total += matrix_sum(update3(H, W, A));
+    }
   }
 
   double elapsed = toc2(t);
