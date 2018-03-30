@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <string.h>
 #include "../diffsmooth/fsharp.h"
 #include "../diffsmooth/timer.h"
 
@@ -236,6 +236,7 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
     H->arr[0]->arr[0] += 1.0 / (2.0 + H->arr[0]->arr[0]);
     W->arr[0]->arr[0] += 1.0 / (2.0 + W->arr[0]->arr[0]);
     v->arr[0] = W->arr[0]->arr[0];
+    memset(ud->arr, 0, sizeof(double) * N);
     // total +=  matrix_sum(update1(H, W, A)) + matrix_sum(update2(H, W, A));
     // total += matrix_sum(update3(H, W, A));
     if(K == 1) {
@@ -255,7 +256,8 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
           total += sum;
         #endif
       #else
-        total += vector_sum(nmf_uv(H->arr[0], v, A));
+        array_number_t tmp = nmf_uv(H->arr[0], v, A);
+        total += vector_sum(tmp);
         // total += vector_sum(nmf_uv_dps(s, N, M, H->arr[0], v, A));
       #endif
     } else {
