@@ -5,9 +5,17 @@
 
 #if defined TAPENADE
   #if defined REV_MODE
-    #include "../tapanade/submitted/3/nmf_b-all.h"
+    #if defined UNFUSED
+      #include "../tapanade/submitted/4/nmf_unfused_b-all.h"
+    #else
+      #include "../tapanade/submitted/3/nmf_b-all.h"
+    #endif
   #else
-    #include "../tapanade/submitted/3/nmf_d-all.h"
+    #if defined UNFUSED
+      #include "../tapanade/submitted/4/nmf_unfused_d-all.h"
+    #else
+      #include "../tapanade/submitted/3/nmf_d-all.h"
+    #endif
   #endif
 #endif
 
@@ -48,7 +56,7 @@ number_t vector_sum(array_number_t m) {
   return result;
 }
 
-number_t matrix_sum(array_array_number_t m) {
+number_t matrixSum(array_array_number_t m) {
   number_t result = 0;
   for(int i=0; i<m->length; i++) {
     for(int j=0; j<m->arr[0]->length; j++) {
@@ -237,8 +245,8 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
     W->arr[0]->arr[0] += 1.0 / (2.0 + W->arr[0]->arr[0]);
     v->arr[0] = W->arr[0]->arr[0];
     memset(ud->arr, 0, sizeof(double) * N);
-    // total +=  matrix_sum(update1(H, W, A)) + matrix_sum(update2(H, W, A));
-    // total += matrix_sum(update3(H, W, A));
+    // total +=  matrixSum(update1(H, W, A)) + matrixSum(update2(H, W, A));
+    // total += matrixSum(update3(H, W, A));
     if(K == 1) {
       #if defined TAPENADE
         #if defined REV_MODE
@@ -261,7 +269,7 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
         // total += vector_sum(nmf_uv_dps(s, N, M, H->arr[0], v, A));
       #endif
     } else {
-      total += matrix_sum(update3(H, W, A));
+      total += matrixSum(update3(H, W, A));
     }
   }
 
