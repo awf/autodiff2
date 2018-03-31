@@ -42,8 +42,12 @@
 extern "C"
 {
   #if defined TAPENADE
-    #include "tapanade/ba.h"
-    #include "tapanade/ba_d-all.h"
+    #include "tapanade/submitted/6/ba.h"
+    #if defined REV_MODE
+      #include "tapanade/submitted/6/ba_b-all.h"
+    #else
+      #include "tapanade/submitted/6/ba_d-all.h"
+    #endif
   #elif defined DIFFSMOOTH
     #include "diffsmooth/ba.h"
   #endif
@@ -533,7 +537,9 @@ void test_ba(const string& fn_in, const string& fn_out,
   //read instance
   read_ba_instance(fn_in + ".txt", n, m, p,
     cams, X, w, obs, feats);
+  #if defined DIFFSMOOTH
   ba_init();
+  #endif
 
   vector<double> reproj_err(2 * p);
   vector<double> w_err(p);
