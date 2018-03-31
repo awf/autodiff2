@@ -1,6 +1,6 @@
 declare -a files=(
 	"./gmm_tap_for_all.exe" "./gmm_tap_for_hoist_all.exe" "./gmm_tap_rev_all.exe" 
-	"./gmm_tap_fused_for_all.exe"
+	"./gmm_tap_fused_for_all.exe" "./gmm_tap_fused_rev_all.exe"
 	"./gmm_diff_fused.exe" 
 	)
 

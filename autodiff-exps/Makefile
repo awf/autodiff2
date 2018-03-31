@@ -29,6 +29,7 @@ gmm_all :
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM -DHOIST $(LIBS) tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_for_hoist_all.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAP_FUSED -DDO_GMM $(LIBS) tapanade/submitted/5/gmm_fused.h_d-all.c $(FILES_ALL) -o gmm_tap_fused_for_all.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM -DREV_MODE $(LIBS) $(FLIB) tapanade/gmm_b-all.c tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_rev_all.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAP_FUSED -DDO_GMM -DREV_MODE $(LIBS) $(FLIB) tapanade/submitted/5/gmm_fused.h_b-all.c $(FILES_ALL) -o gmm_tap_fused_rev_all.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DDO_GMM $(LIBS) $(FILES_ALL) -o gmm_diff_fused.exe;
 
 test :

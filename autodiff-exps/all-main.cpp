@@ -67,6 +67,20 @@ index_t TOP_LEVEL_usecases_gmm_tri(index_t n) {
   return ((n) * ((n) + (1))) / (2);
 }
 
+void matrix_refill(array_array_number_t mat, number_t value) {
+  for(int r = 0; r < mat->length; r++){
+    for(int c = 0; c < mat->arr[r]->length; c++){
+      mat->arr[r]->arr[c] = value;
+    }
+  }
+}
+
+void vector_refill(array_number_t vec, number_t value) {
+  for(int r = 0; r < vec->length; r++){
+    vec->arr[r] = value;
+  }
+}
+
 inline void compute_gmm_Jb(int d, int k, int n,
   array_number_t alphas_data,
   array_array_number_t means_data,
@@ -83,6 +97,36 @@ inline void compute_gmm_Jb(int d, int k, int n,
 {
   int Jsz = (k*(d + 1)*(d + 2)) / 2;
   int td = TOP_LEVEL_usecases_gmm_tri(d);
+
+#if defined REV_MODE
+  vector_refill(alphasd_data, 0);
+  matrix_refill(meansd_data, 0);
+  matrix_refill(qsd_data, 0);
+  matrix_refill(lsd_data, 0);
+  matrix_refill(xsd_data, 0);
+  double eb = 1.;
+
+  gmm_objective_b(xs_data, xsd_data, alphas_data, alphasd_data, means_data, meansd_data, qs_data, qsd_data, ls_data, lsd_data, wishart.gamma, wishart.m, eb);
+  for(int i = 0; i<Jsz; i++) {
+    if(i < k) {
+      Jb[i] = alphasd_data->arr[i];
+    } else if (i >= k && i < k + k * d) {
+      int j = i - k;
+      Jb[i] = meansd_data->arr[j / d]->arr[j % d];
+    } else  //if (i >= k + k * d && i < k + k * d + k * td + d) 
+      {
+      int j = i - k - k * d;
+      int j1 = j % td;
+      int j2 = j / td;
+      if (j1 < d) {
+        Jb[i] = qsd_data->arr[j2]->arr[j1];
+      } else {
+        Jb[i] = lsd_data->arr[j2]->arr[j1 - d];  
+      }
+      //qsd_data->arr[j / td]->arr[j % td] = 1;
+    } 
+  }
+#else
 
   // double eb = 1.;
   // memset(Jb, 0, Jsz*sizeof(double));
@@ -141,6 +185,7 @@ inline void compute_gmm_Jb(int d, int k, int n,
       }
     } 
   }
+#endif
 }
   #else
 void compute_gmm_Jb(int d, int k, int n,
