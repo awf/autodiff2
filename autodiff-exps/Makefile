@@ -19,7 +19,8 @@ compile :
 	# $(CPP) $(OPTFLAG) $(CPPFLAGS) -DDO_BA $(LIBS) $(FILES_TAP) -o ba_tap.exe;
 	# $(CPP) $(OPTFLAG) $(CPPFLAGS) -DDO_MICRO -DDOT $(LIBS) $(FILES_TAP) -o micro_dot_tap.exe;
 	# $(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM $(LIBS) adBuffer.o adStack.o tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_all.exe;
-	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM $(LIBS) tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_all.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM $(LIBS) tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_for_all.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM -DHOIST $(LIBS) tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_for_hoist_all.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM -DREV_MODE $(LIBS) $(FLIB) tapanade/gmm_b-all.c tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_rev_all.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DDO_GMM $(LIBS) $(FILES_ALL) -o gmm_diff_fused.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_BA $(LIBS) $(FILES_ALL) -o ba_tap_all.exe;

@@ -1,5 +1,5 @@
 declare -a files=(
-	"./gmm_tap_all.exe" "./gmm_tap_rev_all.exe" "./gmm_diff_fused.exe" 
+	"./gmm_tap_for_all.exe" "./gmm_tap_for_hoist_all.exe" "./gmm_tap_rev_all.exe" "./gmm_diff_fused.exe" 
 	)
 
 declare -a params=(
