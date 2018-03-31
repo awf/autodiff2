@@ -82,10 +82,15 @@ int test_ba()
     #include "tapanade/submitted/2/gmm_dv-all.h"
   }
   #endif
-#else 
+#elif defined DIFFSMOOTH
   extern "C"
   {
     #include "diffsmooth/gmm_compact.h"
+  }
+#elif defined TAP_FUSED
+  extern "C"
+  {
+    #include "tapanade/submitted/5/gmm_fused.h_d-all.h"
   }
 #endif
 
@@ -664,7 +669,7 @@ number_t gmm_objective3(array_array_number_t x, array_number_t alphas, array_arr
   
   return ((x21044) - (((double)(x16718)) * ((log(x21045)) + (x21020)))) + ((0.5) * (x21048));
 }
-#else
+#elif defined TAPENADE
 
 double arr_max(int n, double* x)
 {
@@ -920,6 +925,7 @@ void test_gmm()
   // Declare and fill xs
   // Vec<VectorD> xs{ n, Vector{ d } };
   array_array_number_t xs = matrix_fill(n, d, 0);
+  array_array_number_t xsd = matrix_fill(n, d, 0);
   for (int i = 0; i < n; ++i)
     for (int j = 0; j < d; ++j)
       xs->arr[i]->arr[j] = dist(rng);
@@ -977,7 +983,12 @@ void test_gmm()
       for(int i = 0; i<K; i++) {
         double res1;
         alphasd->arr[i] = 1;
-        res1 = gmm_objective3_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, alphasd, means, qs, ls);
+        #if defined TAP_FUSED
+          double tmp;
+          res1 = gmm_objective_d(xs, xsd, alphas, alphasd, means, means, qs, qs, ls, ls, wishart_gamma, wishart_m, &tmp);
+        #else
+          res1 = gmm_objective3_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, alphasd, means, qs, ls);
+        #endif
         alphasd->arr[i] = 0;
         res += res1;
       }
