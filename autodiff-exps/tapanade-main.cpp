@@ -90,9 +90,13 @@ int test_ba()
 #elif defined TAP_FUSED
   extern "C"
   {
+  #if defined REV_MODE
+    #include "tapanade/submitted/5/gmm_fused.h_b-all.h"
+  #else
     #include "tapanade/submitted/5/gmm_fused.h_d-all.h"
+  #endif
   }
-#endif
+#endif 
 
 #include "diffsmooth/types.h"
 const size_t GMM_K = 5;
@@ -930,6 +934,9 @@ void test_gmm()
     for (int j = 0; j < d; ++j)
       xs->arr[i]->arr[j] = dist(rng);
   array_number_t alphasd = vector_fill(K, 0);
+  array_array_number_t meansd = matrix_fill(K, d, 0);
+  array_array_number_t qsd = matrix_fill(K, d, 0);
+  array_array_number_t lsd = matrix_fill(K, td, 0);
 #endif
 
   // TOP_LEVEL_usecases_gmm_Qtimesv_test(0);
@@ -979,12 +986,15 @@ void test_gmm()
     #if defined MULT_MODE
       res = vector_sum(gmm_objective3_d_alphas(xs, alphas, means, qs, ls, wishart_gamma, wishart_m));
       // TODO seems to be buggy!
+    #elif defined TAP_FUSED && REV_MODE
+      double eb = 1;
+      gmm_objective_b(xs, xsd, alphas, alphasd, means, meansd, qs, qsd, ls, lsd, wishart_gamma, wishart_m, eb);
+      res = vector_sum(alphasd);
     #else
       for(int i = 0; i<K; i++) {
         double res1;
         alphasd->arr[i] = 1;
-        #if defined TAP_FUSED
-          double tmp;
+        #if defined TAP_FUSED // FORWARD MODE
           res1 = gmm_objective_d(xs, xsd, alphas, alphasd, means, means, qs, qs, ls, ls, wishart_gamma, wishart_m, &tmp);
         #else
           res1 = gmm_objective3_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, alphasd, means, qs, ls);
