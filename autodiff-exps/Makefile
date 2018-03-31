@@ -11,7 +11,7 @@ FILES_ADEPT=../adept-1.1/adept/adept.cpp adept-main.cpp
 FILES_TAP=tapanade-main.cpp
 FILES_ALL=all-main.cpp
 
-all : c test compile
+all : c test gmm_all compile
 
 compile :
 	# $(CPP) $(OPTFLAG) $(CPPFLAGS) -DDO_BA $(LIBS) $(FILES_ADEPT) -o ba_adept.exe;
@@ -19,14 +19,17 @@ compile :
 	# $(CPP) $(OPTFLAG) $(CPPFLAGS) -DDO_BA $(LIBS) $(FILES_TAP) -o ba_tap.exe;
 	# $(CPP) $(OPTFLAG) $(CPPFLAGS) -DDO_MICRO -DDOT $(LIBS) $(FILES_TAP) -o micro_dot_tap.exe;
 	# $(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM $(LIBS) adBuffer.o adStack.o tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_all.exe;
-	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM $(LIBS) tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_for_all.exe;
-	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM -DHOIST $(LIBS) tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_for_hoist_all.exe;
-	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM -DREV_MODE $(LIBS) $(FLIB) tapanade/gmm_b-all.c tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_rev_all.exe;
-	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DDO_GMM $(LIBS) $(FILES_ALL) -o gmm_diff_fused.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_BA $(LIBS) $(FILES_ALL) -o ba_tap_all.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DDO_BA $(LIBS) -lgc ba_diff.o $(FILES_ALL) -o ba_diff.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DDO_BA $(LIBS)  -lgc ba_diff_fused.o $(FILES_ALL) -o ba_diff_fused.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DDPS -DDO_BA $(LIBS) ba_diff_fused_dps.o $(FILES_ALL) -o ba_diff_fused_dps.exe;
+
+gmm_all :
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM $(LIBS) tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_for_all.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM -DHOIST $(LIBS) tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_for_hoist_all.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAP_FUSED -DDO_GMM $(LIBS) tapanade/submitted/5/gmm_fused.h_d-all.c $(FILES_ALL) -o gmm_tap_fused_for_all.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM -DREV_MODE $(LIBS) $(FLIB) tapanade/gmm_b-all.c tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_rev_all.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DDO_GMM $(LIBS) $(FILES_ALL) -o gmm_diff_fused.exe;
 
 test :
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM $(LIBS) tapanade/gmm_all.c $(FILES_TAP) -o gmm_tap_for_test.exe;
