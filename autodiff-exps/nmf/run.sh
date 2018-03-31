@@ -10,7 +10,8 @@
 # python ./NMF.py exponential 12000 6000  8 5
 
 declare -a files=(
-	"./nmf_diff.exe" "./nmf_tap_rev.exe" "./nmf_tap_for.exe" 
+	"./nmf_diff.exe" "./nmf_diff_dps.exe"
+	"./nmf_tap_rev.exe" "./nmf_tap_for.exe" 
 	"./nmf_tap_rev_unf.exe" "./nmf_tap_for_unf.exe"
 	"python ./NMF.py exponential"
 	)
@@ -26,6 +27,6 @@ do
 	for f in "${files[@]}"
 	do
 		echo "$f"
-		eval "$f $p 1 5"
+		eval "$f $p 1 10"
 	done
 done

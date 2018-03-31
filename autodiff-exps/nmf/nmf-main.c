@@ -186,19 +186,87 @@ array_number_t nmf_uv(array_number_t u, array_number_t v, array_array_number_t A
   }
   return x20434;
 }
+/* */
+//   index_t x20775 = (u)->length;
+//   index_t x20834 = (v)->length;
+//   array_number_t x20796 = (array_number_t)storage_alloc(sizeof(int) * 2);x20796->length=x20775;x20796->arr = (number_t*)storage_alloc(sizeof(number_t) * x20775);
+//   for(int i = 0; i < x20796->length; i++){
+//     number_t x20816 = (u->arr[i]);
+//     number_t x20795 = 0;
+//     for (int x19520 = 0; x19520 < x20834; x19520++) {
+//       number_t x19628 = x20795;
+//       number_t x25334 = (v->arr[x19520]);
+//       array_number_t x25310 = (AA->arr[x19520]);
+//       number_t x25322 = (x25310->arr[i]);
+//       number_t x25340 = (x25334) * (x20816);
+//       number_t x25330 = (x25322) * (x25334);
+//       number_t x25328 = (0) - (x25330);
+//       number_t x25336 = (x25340) * (x25340);
+//       number_t x25296 = (x25334) / (x25340);
+//       number_t x25278 = (x25328) / (x25336);
+//       number_t x20785 = (x25296) + (x25278);
+//       number_t x20786 = (x19628) + (x20785);
+//       x19628 = x20786;
+//       x20795 = x19628;
+//     }
+    
+//     x20796->arr[i] = x20795;
+    
+//   }
+//   return x20796;
+// }
+/* */
+//   array_number_t x23596 = (array_number_t)storage_alloc(sizeof(int) * 2);x23596->length=(u)->length;x23596->arr = (number_t*)storage_alloc(sizeof(number_t) * (u)->length);
+//   for(int i = 0; i < x23596->length; i++){
+//     number_t x23592 = (u->arr[i]);
+//     number_t x23595 = 0;
+//     for (int x23364 = 0; x23364 < (v)->length; x23364++) {
+//       number_t x23454 = x23595;
+//       number_t x23574 = (v->arr[x23364]);
+//       number_t x23594 = (x23574) * (x23592);
+//       x23454 = (x23454) + (((x23574) / ((x23574) * (x23592))) + (((0) - ((((AA->arr[x23364])->arr[i])) * (x23574))) / ((x23594) * (x23594))));
+//       x23595 = x23454;
+//     }
+    
+//     x23596->arr[i] = x23595;
+    
+//   }
+//   return x23596;
+// }
 
-// I'm manually optimizing this code.
+
 array_number_t nmf_uv_dps(storage_t s, int m, int n, array_number_t u, array_number_t v, array_array_number_t AA) {
+/* I'm manually optimizing this code. */
+//   array_number_t x20434 = (array_number_t)s;
+//   for(int i = 0; i < n; i++){
+//     number_t x20433 = 0;
+//     number_t ui = u->arr[i];
+//     // number_t one_ui =  1 / ui;
+//     for (int x19178 = 0; x19178 < m; x19178++) {
+//       number_t x19286 = x20433;
+//       number_t x20430 = (v->arr[x19178]);
+//       number_t x20432 = (x20430) * ((ui));
+//       number_t x20428 = x20430;
+//       // x19286 = (x19286) + one_ui - ((((((AA->arr[x19178])->arr[i]) * one_ui)) / x20432));
+//       x19286 = (x19286) + (1 / ui) - ((((((AA->arr[x19178])->arr[i]))) / (ui * x20432)));
+//       x20433 = x19286;
+//     }
+    
+//     x20434->arr[i] = x20433;
+    
+//   }
+//   return x20434;
+// }
+/* */
   array_number_t x20434 = (array_number_t)s;
-  for(int i = 0; i < n; i++){
+  for(int i = 0; i < x20434->length; i++){
     number_t x20433 = 0;
-    number_t ui = u->arr[i];
-    for (int x19178 = 0; x19178 < m; x19178++) {
+    for (int x19178 = 0; x19178 < (v)->length; x19178++) {
       number_t x19286 = x20433;
       number_t x20430 = (v->arr[x19178]);
-      number_t x20432 = (x20430) * ((ui));
-      number_t x20428 = x20430;
-      x19286 = (x19286) + ((1) / (((ui)))) + (((0) - ((((AA->arr[x19178])->arr[i]))) / ((ui) * (x20432))));
+      number_t x20432 = (x20430) * ((u->arr[i]));
+      number_t x20428 = (v->arr[x19178]);
+      x19286 = (x19286) + (((x20428) / ((x20428) * ((u->arr[i])))) + (((0) - ((((AA->arr[x19178])->arr[i])) * (x20430))) / ((x20432) * (x20432))));
       x20433 = x19286;
     }
     
@@ -264,9 +332,12 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
           total += sum;
         #endif
       #else
-        array_number_t tmp = nmf_uv(H->arr[0], v, A);
-        total += vector_sum(tmp);
-        // total += vector_sum(nmf_uv_dps(s, N, M, H->arr[0], v, A));
+        #if defined DPS
+          total += vector_sum(nmf_uv_dps(s, N, M, H->arr[0], v, A));
+        #else
+          array_number_t tmp = nmf_uv(H->arr[0], v, A);
+          total += vector_sum(tmp);
+        #endif
       #endif
     } else {
       total += matrixSum(update3(H, W, A));

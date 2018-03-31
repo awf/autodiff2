@@ -3,6 +3,7 @@ FLIB=-L /usr/local/lib/gcc/7/ -lgfortran $(REV_FOLDER)/adBuffer.c $(REV_FOLDER)/
 
 all : 
 	clang -O3 nmf-main.c -DBUMP -o nmf_diff.exe
+	clang -O3 nmf-main.c -DBUMP -DDPS -o nmf_diff_dps.exe
 	clang -O3 nmf-main.c -DBUMP -DTAPENADE ../tapanade/submitted/3/default_d-all.c -o nmf_tap_for.exe
 	clang -O3 nmf-main.c -DBUMP -DTAPENADE -DREV_MODE $(FLIB) ../tapanade/submitted/3/default_b-all.c -o nmf_tap_rev.exe
 	clang -O3 nmf-main.c -DBUMP -DTAPENADE ../tapanade/submitted/4/default_d-all.c -o nmf_tap_for_unf.exe
