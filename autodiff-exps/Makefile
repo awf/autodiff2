@@ -24,6 +24,7 @@ compile : gmm_all ba_all
 
 ba_all : c
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_BA $(LIBS) $(TAP_SUB_FOLDER)/6/ba_d-all.c $(FILES_ALL) -o ba_tap_for_all.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_BA -DREV_MODE $(LIBS) $(FLIB) $(TAP_SUB_FOLDER)/6/ba_b-all.c $(FILES_ALL) -o ba_tap_rev_all.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DDO_BA $(LIBS) -lgc ba_diff.o $(FILES_ALL) -o ba_diff.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DDO_BA $(LIBS)  -lgc ba_diff_fused.o $(FILES_ALL) -o ba_diff_fused.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DDPS -DDO_BA $(LIBS) ba_diff_fused_dps.o $(FILES_ALL) -o ba_diff_fused_dps.exe;

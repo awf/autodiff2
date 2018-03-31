@@ -1,10 +1,18 @@
 declare -a files=(
-	"./ba_tap_for_all.exe" 
+	"./ba_tap_for_all.exe" "./ba_tap_rev_all.exe" 
 	"./ba_diff.exe" "./ba_diff_fused.exe" "./ba_diff_fused_dps.exe"
 	)
 
-for f in "${files[@]}"
+declare -a params=(
+	"ba1" "ba2" "ba3" "ba4"
+	)
+
+for p in "${params[@]}"
 do
-	echo "$f"
-	eval "$f ../ba_instances/ ../results_ad/ ba3 1 5"
+	echo "$p"
+	for f in "${files[@]}"
+	do
+		echo "$f"
+		eval "$f ../ba_instances/ ../results_ad/ $p 1 5"
+	done
 done

@@ -399,6 +399,32 @@ void computeZachWeightError_d(double w, double *err, double *J)
   *J = -2 * w;
 }
 
+#if defined TAPENADE && REV_MODE
+void computeReprojError_b(double *cam, double *camb, double *X, double *Xb, 
+        double *w, double *wb, double feat_x, double *feat_xb, double feat_y, 
+        double *feat_yb, double *err, double *errb) {
+    double proj[2];
+    double projb[2];
+    int ii1;
+    pushreal8array(proj, 2);
+    project(cam, X, proj);
+    // This term is here so that tapenade correctly 
+    // recognizes inputs to be the inputs
+    for (ii1 = 0; ii1 < 2; ++ii1)
+        projb[ii1] = 0.0;
+    *wb = *wb + (proj[1]-feat_y)*errb[1];
+    projb[1] = projb[1] + (*w)*errb[1];
+    *feat_yb = *feat_yb - (*w)*errb[1];
+    errb[1] = 0.0;
+    *wb = *wb + (proj[0]-feat_x)*errb[0];
+    projb[0] = projb[0] + (*w)*errb[0];
+    *feat_xb = *feat_xb - (*w)*errb[0];
+    errb[0] = 0.0;
+    popreal8array(proj, 2);
+    project_b(cam, camb, X, Xb, proj, projb);
+}
+#endif
+
 void computeReprojError_d(
   double* cam,
   double* X, 
@@ -408,6 +434,29 @@ void computeReprojError_d(
   double *err, 
   double *J)
 {
+#if defined REV_MODE
+  for (int i = 0; i < 2; i++)
+  {
+    double proj[2];
+    double camb[BA_NCAMPARAMS] = {0};
+    double Xb[3] = {0};
+    double wb;
+    double projb[2] = {0};
+    projb[i] = 1;
+    double feat_xb, feat_yb;
+    double tmp;
+    computeReprojError_b(cam, camb, X, Xb, &w, &wb, feat_x, &feat_xb, feat_y, &feat_yb, &tmp, projb);
+    for (int j = 0; j < BA_NCAMPARAMS; j++)
+      J[j * 2 + i] = camb[j];
+
+    int off = BA_NCAMPARAMS * 2;
+    for (int j = 0; j < 3; j++)
+      J[j * 2 + i + off] = Xb[j];
+
+    off += 3 * 2;
+    J[i + off] = wb;
+  }
+#else
   double proj[2];
   double cam_d[BA_NCAMPARAMS] = {0};
   double X_d[3] = {0};
@@ -436,6 +485,7 @@ void computeReprojError_d(
   {
     J[i] *= w;
   }
+#endif
 }
 
 
@@ -568,8 +618,12 @@ void test_ba(const string& fn_in, const string& fn_out,
 
   cout << "time per call = " << tJ << " s" << endl;
 
-  #ifdef TAPENADE
-  string name = "Tapenade";
+  #if defined TAPENADE
+    #if defined REV_MODE
+    string name("Tapenade_rev");
+    #else
+    string name("Tapenade_for");
+    #endif
   #elif defined DIFFSMOOTH 
     #if defined DPS && defined FUSED
     string name = "DiffSmooth_fused_dps";
@@ -582,7 +636,7 @@ void test_ba(const string& fn_in, const string& fn_out,
     #endif
   #endif
 
-  //write_J_sparse(fn_out + "_J_" + name + ".txt", J);
+  // write_J_sparse(fn_out + "_J_" + name + ".txt", J);
   write_times(fn_out + "_times_" + name + ".txt", tf, tJ);
 }
 

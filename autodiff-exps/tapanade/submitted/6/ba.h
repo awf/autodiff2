@@ -18,7 +18,7 @@
 #define BA_X0_IDX 7
 #define BA_RAD_IDX 9
 
-double sqsum(int n, double *x)
+inline double sqsum(int n, double *x)
 {
   int i;
   double res;
@@ -28,14 +28,14 @@ double sqsum(int n, double *x)
   return res;
 }
 
-void cross(double *a, double *b, double *out)
+inline void cross(double *a, double *b, double *out)
 {
   out[0] = a[1] * b[2] - a[2] * b[1];
   out[1] = a[2] * b[0] - a[0] * b[2];
   out[2] = a[0] * b[1] - a[1] * b[0];
 }
 
-void rodrigues_rotate_point(double *rot, double *pt, double *rotatedPt)
+inline void rodrigues_rotate_point(double *rot, double *pt, double *rotatedPt)
 {
   int i;
   double sqtheta, theta, costheta, sintheta, theta_inverse,
@@ -68,7 +68,7 @@ void rodrigues_rotate_point(double *rot, double *pt, double *rotatedPt)
   }
 }
 
-void radial_distort(double *rad_params, double *proj)
+inline void radial_distort(double *rad_params, double *proj)
 {
   double rsq, L;
   rsq = sqsum(2, proj);
@@ -77,7 +77,7 @@ void radial_distort(double *rad_params, double *proj)
   proj[1] = proj[1] * L;
 }
 
-void project(double *cam, double *X, double *proj)
+inline void project(double *cam, double *X, double *proj)
 {
   int i;
   double *C;
