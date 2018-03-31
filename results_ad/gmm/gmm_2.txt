@@ -1,0 +1,24 @@
+gmm_d2_K5
+./gmm_tap_fused_rev_all.exe
+time per call = 0.0282207 s
+gmm_d2_K10
+./gmm_tap_fused_rev_all.exe
+time per call = 0.0554718 s
+gmm_d2_K25
+./gmm_tap_fused_rev_all.exe
+time per call = 0.133489 s
+gmm_d2_K50
+./gmm_tap_fused_rev_all.exe
+time per call = 0.266527 s
+gmm_d10_K5
+./gmm_tap_fused_rev_all.exe
+time per call = 1.03858 s
+gmm_d10_K10
+./gmm_tap_fused_rev_all.exe
+time per call = 2.08277 s
+gmm_d10_K25
+./gmm_tap_fused_rev_all.exe
+time per call = 5.20134 s
+gmm_d10_K50
+./gmm_tap_fused_rev_all.exe
+time per call = 10.3467 s
