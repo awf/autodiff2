@@ -1,0 +1,44 @@
+ba1
+./ba_tap_for_all.exe
+time per call = 0.0523763 s
+./ba_tap_rev_all.exe
+time per call = 0.0220415 s
+./ba_diff.exe
+time per call = 1.49295 s
+./ba_diff_fused.exe
+time per call = 0.224925 s
+./ba_diff_fused_dps.exe
+time per call = 0.0836299 s
+ba2
+./ba_tap_for_all.exe
+time per call = 0.0606861 s
+./ba_tap_rev_all.exe
+time per call = 0.0247289 s
+./ba_diff.exe
+time per call = 1.6627 s
+./ba_diff_fused.exe
+time per call = 0.254342 s
+./ba_diff_fused_dps.exe
+time per call = 0.0960505 s
+ba3
+./ba_tap_for_all.exe
+time per call = 0.302465 s
+./ba_tap_rev_all.exe
+time per call = 0.136455 s
+./ba_diff.exe
+time per call = 8.64331 s
+./ba_diff_fused.exe
+time per call = 1.27383 s
+./ba_diff_fused_dps.exe
+time per call = 0.463529 s
+ba4
+./ba_tap_for_all.exe
+time per call = 0.343313 s
+./ba_tap_rev_all.exe
+time per call = 0.145357 s
+./ba_diff.exe
+time per call = 9.29902 s
+./ba_diff_fused.exe
+time per call = 1.42367 s
+./ba_diff_fused_dps.exe
+time per call = 0.525617 s
