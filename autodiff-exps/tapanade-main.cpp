@@ -96,6 +96,16 @@ int test_ba()
     #include "tapanade/submitted/5/gmm_fused.h_d-all.h"
   #endif
   }
+#elif defined TAP_UNFUSED
+  extern "C"
+  {
+    #include "tapanade/submitted/7/gmm_unfused.h"
+  #if defined REV_MODE
+    #include "tapanade/submitted/7/gmm_unfused_b-all.h"
+  #else
+    #include "tapanade/submitted/7/gmm_unfused_d-all.h"
+  #endif
+  }
 #endif 
 
 #include "diffsmooth/types.h"
@@ -986,15 +996,17 @@ void test_gmm()
     #if defined MULT_MODE
       res = vector_sum(gmm_objective3_d_alphas(xs, alphas, means, qs, ls, wishart_gamma, wishart_m));
       // TODO seems to be buggy!
-    #elif defined TAP_FUSED && REV_MODE
+    #elif (defined TAP_FUSED || defined TAP_UNFUSED) && (defined REV_MODE)
       double eb = 1;
       gmm_objective_b(xs, xsd, alphas, alphasd, means, meansd, qs, qsd, ls, lsd, wishart_gamma, wishart_m, eb);
       res = vector_sum(alphasd);
+    // #elif defined TAP_UNFUSED
+    //   res = gmm_objective(xs, alphas, means, qs, ls, wishart_gamma, wishart_m);
     #else
       for(int i = 0; i<K; i++) {
         double res1;
         alphasd->arr[i] = 1;
-        #if defined TAP_FUSED // FORWARD MODE
+        #if defined TAP_FUSED || TAP_UNFUSED // FORWARD MODE
           res1 = gmm_objective_d(xs, xsd, alphas, alphasd, means, means, qs, qs, ls, ls, wishart_gamma, wishart_m, &tmp);
         #else
           res1 = gmm_objective3_d(xs, alphas, means, qs, ls, wishart_gamma, wishart_m, alphasd, means, qs, ls);
