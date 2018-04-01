@@ -37,6 +37,16 @@
       #include "tapanade/submitted/5/gmm_fused.h_d-all.h"
     #endif
     }
+  #elif defined TAP_UNFUSED
+    extern "C"
+    {
+      #include "tapanade/submitted/7/gmm_unfused.h"
+    #if defined REV_MODE
+      #include "tapanade/submitted/7/gmm_unfused_b-all.h"
+    #else
+      #include "tapanade/submitted/7/gmm_unfused_d-all.h"
+    #endif
+    }
   #endif
 #elif defined DO_BA
 extern "C"
@@ -63,7 +73,7 @@ using std::vector;
 using namespace std::chrono;
 
 #if defined DO_GMM
-  #if defined DIFFSMOOTH || TAP_FUSED
+  #if defined DIFFSMOOTH || TAP_FUSED || TAP_UNFUSED
 
 
 index_t TOP_LEVEL_usecases_gmm_tri(index_t n) {
@@ -165,7 +175,7 @@ inline void compute_gmm_Jb(int d, int k, int n,
     //   int j = i - k - k * d - d;
     //   lsd_data->arr[j / td]->arr[j % td] = 1;
     // }
-    #if defined TAP_FUSED
+    #if defined TAP_FUSED || TAP_UNFUSED
     double tmp;
     Jb[i] = gmm_objective_d(xs_data, xsd_data, alphas_data, alphasd_data, means_data, meansd_data, 
       qs_data, qsd_data, ls_data, lsd_data, wishart.gamma, wishart.m, &tmp);
@@ -230,7 +240,7 @@ void compute_gmm_Jb(int d, int k, int n,
 #endif
 
 #if defined DO_GMM
-#if defined DIFFSMOOTH || TAP_FUSED
+#if defined DIFFSMOOTH || TAP_FUSED || TAP_UNFUSED
 array_array_number_t TOP_LEVEL_linalg_matrixFill(card_t rows, card_t cols, number_t value) {
   array_array_number_t macroDef79 = (array_array_number_t)malloc(sizeof(int) * 2);
   macroDef79->length=rows;
@@ -273,7 +283,7 @@ void test_gmm(const string& fn_in, const string& fn_out,
   means_arr = means.data();
   icf_arr = icf.data();
   x_arr = x.data();
-  #if defined DIFFSMOOTH || TAP_FUSED
+  #if defined DIFFSMOOTH || TAP_FUSED || TAP_UNFUSED
   int K = k;
   array_number_t alphas_data;
   array_array_number_t means_data;
@@ -328,7 +338,7 @@ void test_gmm(const string& fn_in, const string& fn_out,
   start = high_resolution_clock::now();
   for (int i = 0; i < nruns_f; i++)
   {
-    #if defined DIFFSMOOTH || TAP_FUSED
+    #if defined DIFFSMOOTH || TAP_FUSED || TAP_UNFUSED
     e1 = gmm_objective(xs_data, alphas_data, means_data, qs_data, ls_data, wishart.gamma, wishart.m);
     #else
     gmm_objective(d, k, n, alphas_arr, means_arr,
@@ -346,7 +356,7 @@ void test_gmm(const string& fn_in, const string& fn_out,
   {
     // compute_gmm_Jb(d, k, n, alphas.data(),
     //   means.data(), icf.data(), x.data(), wishart, e2, J.data());
-    #if defined DIFFSMOOTH || TAP_FUSED
+    #if defined DIFFSMOOTH || TAP_FUSED || TAP_UNFUSED
     // tmp = gmm_objective_d3(xs_data, alphas_data, means_data, qs_data, ls_data, wishart.gamma, wishart.m,
     //   xsd_data, alphasd_data, meansd_data, qsd_data, lsd_data, wishart.gamma, wishart.m);
       compute_gmm_Jb(d, k, n, alphas_data, means_data, qs_data, ls_data, xs_data,
@@ -374,6 +384,12 @@ void test_gmm(const string& fn_in, const string& fn_out,
     string name("Tapenade_fused_rev");
     #else
     string name("Tapenade_fused_for");
+    #endif
+  #elif defined TAP_UNFUSED
+    #if defined REV_MODE
+    string name("Tapenade_unfused_rev");
+    #else
+    string name("Tapenade_unfused_for");
     #endif
   #elif defined DIFFSMOOTH 
     #if defined DPS && defined FUSED
