@@ -1,0 +1,261 @@
+gmm_d2_K5
+./gmm_tap_for_all.exe
+time per call = 0.281726 s
+./gmm_tap_for_hoist_all.exe
+time per call = 0.0522463 s
+./gmm_tap_rev_all.exe
+time per call = 0.00629571 s
+./gmm_tap_fused_for_all.exe
+time per call = 0.176635 s
+./gmm_tap_fused_rev_all.exe
+time per call = 0.0288777 s
+./gmm_tap_unfused_for_all.exe
+time per call = 2.10442 s
+./gmm_diff_fused.exe
+time per call = 0.166942 s
+gmm_d2_K10
+./gmm_tap_for_all.exe
+time per call = 0.64061 s
+./gmm_tap_for_hoist_all.exe
+time per call = 0.185503 s
+./gmm_tap_rev_all.exe
+time per call = 0.0126256 s
+./gmm_tap_fused_for_all.exe
+time per call = 0.672246 s
+./gmm_tap_fused_rev_all.exe
+time per call = 0.0552387 s
+./gmm_tap_unfused_for_all.exe
+time per call = 6.99224 s
+./gmm_diff_fused.exe
+time per call = 0.661119 s
+gmm_d2_K25
+./gmm_tap_for_all.exe
+time per call = 2.2584 s
+./gmm_tap_for_hoist_all.exe
+time per call = 1.13205 s
+./gmm_tap_rev_all.exe
+time per call = 0.038501 s
+./gmm_tap_fused_for_all.exe
+time per call = 4.11638 s
+./gmm_tap_fused_rev_all.exe
+time per call = 0.144867 s
+./gmm_tap_unfused_for_all.exe
+time per call = 42.4717 s
+./gmm_diff_fused.exe
+time per call = 4.07209 s
+gmm_d2_K50
+./gmm_tap_for_all.exe
+time per call = 6.56209 s
+./gmm_tap_for_hoist_all.exe
+time per call = 4.31476 s
+./gmm_tap_rev_all.exe
+time per call = 0.0610891 s
+./gmm_tap_fused_for_all.exe
+time per call = 16.1688 s
+./gmm_tap_fused_rev_all.exe
+time per call = 0.261734 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+time per call = 16.4935 s
+gmm_d2_K100
+./gmm_tap_for_all.exe
+time per call = 22.302 s
+./gmm_tap_for_hoist_all.exe
+time per call = 17.4535 s
+./gmm_tap_rev_all.exe
+time per call = 0.125979 s
+./gmm_tap_fused_for_all.exe
+time per call = 66.2469 s
+./gmm_tap_fused_rev_all.exe
+time per call = 0.562787 s
+./gmm_tap_unfused_for_all.exe
+gmm_d10_K5
+./gmm_tap_for_all.exe
+time per call = 4.82212 s
+./gmm_tap_for_hoist_all.exe
+time per call = 2.10041 s
+./gmm_tap_rev_all.exe
+time per call = 0.0430218 s
+./gmm_tap_fused_for_all.exe
+time per call = 25.8915 s
+./gmm_tap_fused_rev_all.exe
+time per call = 1.02339 s
+./gmm_tap_unfused_for_all.exe
+time per call = 32.697 s
+./gmm_diff_fused.exe
+time per call = 27.9396 s
+gmm_d10_K10
+./gmm_tap_for_all.exe
+time per call = 13.2941 s
+./gmm_tap_for_hoist_all.exe
+time per call = 8.10169 s
+./gmm_tap_rev_all.exe
+time per call = 0.0829811 s
+./gmm_tap_fused_for_all.exe
+time per call = 108.666 s
+./gmm_tap_fused_rev_all.exe
+time per call = 2.0575 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+time per call = 105.216 s
+gmm_d10_K25
+./gmm_tap_for_all.exe
+time per call = 63.5937 s
+./gmm_tap_for_hoist_all.exe
+time per call = 50.384 s
+./gmm_tap_rev_all.exe
+time per call = 0.201104 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+time per call = 5.11198 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d10_K50
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 0.404605 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+time per call = 10.1884 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d10_K100
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 0.813186 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+time per call = 20.3918 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d10_K200
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 1.6145 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+time per call = 40.8957 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d20_K5
+./gmm_tap_for_all.exe
+time per call = 28.2906 s
+./gmm_tap_for_hoist_all.exe
+time per call = 18.1733 s
+./gmm_tap_rev_all.exe
+time per call = 0.128623 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+time per call = 7.27251 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d20_K10
+./gmm_tap_for_all.exe
+time per call = 91.4472 s
+./gmm_tap_for_hoist_all.exe
+time per call = 72.4423 s
+./gmm_tap_rev_all.exe
+time per call = 0.2593 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+time per call = 14.5201 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d20_K25
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 0.651857 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+time per call = 36.5308 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d20_K50
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 1.29149 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+time per call = 72.7062 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d20_K100
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 2.59511 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d20_K200
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 5.20978 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d32_K5
+./gmm_tap_for_all.exe
+time per call = 116.018 s
+./gmm_tap_for_hoist_all.exe
+time per call = 94.0763 s
+./gmm_tap_rev_all.exe
+time per call = 0.309538 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+time per call = 28.7001 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d32_K10
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 0.625319 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+time per call = 57.5901 s
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d32_K25
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 1.54474 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d32_K50
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 3.09267 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d32_K100
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 6.25672 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+./gmm_tap_unfused_for_all.exe
+./gmm_diff_fused.exe
+gmm_d32_K200
+./gmm_tap_for_all.exe
+./gmm_tap_for_hoist_all.exe
+./gmm_tap_rev_all.exe
+time per call = 12.4512 s
+./gmm_tap_fused_for_all.exe
+./gmm_tap_fused_rev_all.exe
+./gmm_tap_unfused_for_all.exe
