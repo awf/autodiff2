@@ -80,3 +80,18 @@ void vec_scal_mult_b(int n, double *x, double y, double *yb, double *
     free(res);
     // free(resb);
 }
+/*
+  Differentiation of vec_dot in reverse (adjoint) mode:
+   gradient     of useful results: *x vec_dot
+   with respect to varying inputs: *x
+   RW status of diff variables: *x:incr vec_dot:in-killed
+   Plus diff mem management of: x:in
+*/
+void vec_dot_b(int n, double *x, double *xb, double *y, double vec_dotb) {
+    double res = 0;
+    double resb = 0.0;
+    double vec_dot;
+    resb = vec_dotb;
+    for (int i = n-1; i > -1; --i)
+        xb[i] = xb[i] + y[i]*resb;
+}

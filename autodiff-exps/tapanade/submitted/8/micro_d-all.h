@@ -63,3 +63,21 @@ double * vec_scal_mult_d(int n, double *x, double y, double yd, double **
     *vec_scal_mult = res;
     return resd;
 }
+/*
+  Differentiation of vec_dot in forward (tangent) mode:
+   variations   of useful results: vec_dot
+   with respect to varying inputs: *x
+   RW status of diff variables: *x:in vec_dot:out
+   Plus diff mem management of: x:in
+*/
+double vec_dot_d(int n, double *x, double *xd, double *y, double *vec_dot) {
+    double res = 0;
+    double resd;
+    resd = 0.0;
+    for (int i = 0; i < n; ++i) {
+        resd = resd + y[i]*xd[i];
+        res += x[i]*y[i];
+    }
+    *vec_dot = res;
+    return resd;
+}

@@ -95,6 +95,24 @@ array_number_t vectorMultScalar_dps(storage_t st, array_number_t v, number_t s) 
   return x21495;
 }
 
+array_number_t vectorDot(array_number_t v1, array_number_t v2) {
+  array_number_t x21819 = (array_number_t)storage_alloc(sizeof(int) * 2);x21819->length=(v1)->length;x21819->arr = (number_t*)storage_alloc(sizeof(number_t) * (v1)->length);
+  for(int i = 0; i < x21819->length; i++){
+    x21819->arr[i] = (v2->arr[i]);
+    
+  }
+  return x21819;
+}
+
+array_number_t vectorDot_dps(storage_t st, array_number_t v1, array_number_t v2) {
+  array_number_t x21819 = (array_number_t)st;
+  for(int i = 0; i < x21819->length; i++){
+    x21819->arr[i] = (v2->arr[i]);
+    
+  }
+  return x21819;
+}
+
 double dist(int seed) {
   return ((double)rand()/(double)RAND_MAX);
 }
@@ -151,6 +169,7 @@ void test_micro(card_t DIM, card_t iters)
   array_number_t vec_result = vector_fill(DIM, 0.0);
   array_array_number_t mat_result = matrix_fill(DIM, DIM, 0.0);
   array_number_t vec_tmp = vector_fill(DIM, 0.0);
+  array_number_t vec_tmp2 = vector_fill(DIM, 0.0);
 
   for (card_t k = 0; k < DIM; ++k) {
     vec1->arr[k] = dist(rng);
@@ -205,6 +224,24 @@ void test_micro(card_t DIM, card_t iters)
     // vec_result = vectorMultScalar(vec1, vec2->arr[1]);
   #endif
     total += matrixSum(mat_result);
+#elif defined DOT
+  #if defined TAPENADE && defined REV_MODE
+    vec_dot_b(DIM, vec1->arr, vec_result->arr, vec2->arr, 1);
+  #elif defined TAPENADE
+    double** tmp = &vec_tmp2->arr;
+    for(int i=0; i<DIM; i++) {
+      double tmp = 0;
+      vec_tmp->arr[i] = 1;
+      vec_dot_d(DIM, vec1->arr, vec_tmp->arr, vec2->arr, tmp);
+      vec_result->arr[i] = tmp;
+      vec_tmp->arr[i] = 0;
+    }
+  #elif defined DPS
+    vectorDot_dps(vec_result, vec1, vec2);
+  #else
+    vec_result = vectorDot(vec1, vec2);
+  #endif
+    total += vector_sum(vec_result);
 #endif
   }
 

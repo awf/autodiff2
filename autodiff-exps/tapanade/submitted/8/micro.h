@@ -21,3 +21,11 @@ double* vec_scal_mult(int n, double* x, double y) {
   }
   return res;
 }
+
+double vec_dot(int n, double* x, double* y) {
+  double res = 0;
+  for(int i = 0; i< n; i++) {
+    res += x[i] * y[i];
+  }
+  return res;
+}
