@@ -1,6 +1,10 @@
 import scala.io.Source
 
 object ExtractCSV {
+  val GMM_BENCH = "GMM"
+  val MICRO_BENCH = "MICRO"
+  // val bench = GMM_BENCH
+  val bench = MICRO_BENCH
   val TIME = "time per call = "
   var currentType: String = _
   var currentMet: String = _
@@ -13,10 +17,12 @@ object ExtractCSV {
     val k = s.substring(ki + K.length).toInt
     d -> k
   }
-  def orderType(s: String): Int = {
+  def orderType(s: String): Int = if (bench == GMM_BENCH) {
     val (d, k) = parseGMMType(s)
     val icf_sz = d*(d + 1) / 2
     k + d*k + icf_sz*k
+  } else {
+    s.toInt
   }
   def nameType(s: String): Int = {
     orderType(s)
