@@ -3,13 +3,12 @@
 */
 /*
   Differentiation of vec_add in reverse (adjoint) mode:
-   gradient     of useful results: alloc(*res) *x *y
-   with respect to varying inputs: alloc(*res) *x *y
-   RW status of diff variables: alloc(*res):in-out *x:incr *y:incr
-   Plus diff mem management of: x:in y:in
+   gradient     of useful results: alloc(*res) *x
+   with respect to varying inputs: alloc(*res) *x
+   RW status of diff variables: alloc(*res):in-out *x:incr
+   Plus diff mem management of: x:in
 */
-void vec_add_b(int n, double *x, double *xb, double *y, double *yb, double *
-        vec_addb) {
+void vec_add_b(int n, double *x, double *xb, double *y, double *vec_addb) {
     double *res;
     double *resb;
     int ii1;
@@ -18,15 +17,15 @@ void vec_add_b(int n, double *x, double *xb, double *y, double *yb, double *
     for (ii1 = 0; ii1 < n; ++ii1)
         resb[ii1] = 0.0;
     res = (double *)malloc(n*sizeof(double));
+    double* tmp = resb;
     resb = vec_addb;
-    vec_addb = (void *)0;
+    vec_addb = tmp;
     for (int i = n-1; i > -1; --i) {
         xb[i] = xb[i] + resb[i];
-        yb[i] = yb[i] + resb[i];
         resb[i] = 0.0;
     }
     free(res);
-    free(resb);
+    free(vec_addb);
 }
 /*
   Differentiation of vec_elem_mult in reverse (adjoint) mode:

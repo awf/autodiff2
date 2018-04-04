@@ -59,6 +59,24 @@ array_array_number_t vectorAdd(array_number_t v1, array_number_t v2) {
   return x21413;
 }
 
+array_array_number_t vectorAdd_dps(storage_t s, array_number_t v1, array_number_t v2) {
+  array_array_number_t x21413 = (array_array_number_t)s;
+  for(int i = 0; i < x21413->length; i++){
+    array_number_t x21412 = (array_number_t)x21413->arr[i];
+    for(int i0 = 0; i0 < x21412->length; i0++){
+      number_t x21411;
+      if ((i) == (i0)) {
+        x21411 = 1;
+      } else {
+        x21411 = 0;
+      }
+      x21412->arr[i0] = x21411;
+      
+    }
+  }
+  return x21413;
+}
+
 array_number_t vectorMultScalar(array_number_t v, number_t s) {
   array_number_t x21495 = (array_number_t)storage_alloc(sizeof(int) * 2);x21495->length=(v)->length;x21495->arr = (number_t*)storage_alloc(sizeof(number_t) * (v)->length);
   for(int i = 0; i < x21495->length; i++){
@@ -121,7 +139,8 @@ void test_micro(card_t DIM, card_t iters)
   srand(rng);
   array_number_t vec1 = vector_fill(DIM, 0.0);
   array_number_t vec2 = vector_fill(DIM, 0.0);
-  array_number_t vec3 = vector_fill(DIM, 0.0);
+  array_number_t vec_result = vector_fill(DIM, 0.0);
+  array_array_number_t mat_result = matrix_fill(DIM, DIM, 0.0);
   array_number_t vec_tmp = vector_fill(DIM, 0.0);
 
   for (card_t k = 0; k < DIM; ++k) {
@@ -136,22 +155,45 @@ void test_micro(card_t DIM, card_t iters)
   for (card_t count = 0; count < iters; ++count) {
     vec1->arr[0] += 1.0 / (2.0 + vec1->arr[0]);
     vec2->arr[1] += 1.0 / (2.0 + vec2->arr[1]);
-#ifdef MULTS
+#if defined MULTS
   #if defined TAPENADE && defined REV_MODE
     for(int i=0; i<DIM; i++) {
       double tmp = 0;
       vec_tmp->arr[i] = 1;
       vec_scal_mult_b(DIM, vec1->arr, vec2->arr[1], &tmp, vec_tmp->arr);
-      vec3->arr[i] = tmp;
+      vec_result->arr[i] = tmp;
       vec_tmp->arr[i] = 0;
     }
   #elif defined TAPENADE
     double** tmp = &vec_tmp->arr;
-    vec3->arr = vec_scal_mult_d(DIM, vec1->arr, vec2->arr[1], 1, tmp);
+    vec_result->arr = vec_scal_mult_d(DIM, vec1->arr, vec2->arr[1], 1, tmp);
   #else
-    vec3 = vectorMultScalar(vec1, vec2->arr[1]);
+    vec_result = vectorMultScalar(vec1, vec2->arr[1]);
   #endif
-    total += vector_sum(vec3);
+    total += vector_sum(vec_result);
+#elif defined ADD
+  #if defined TAPENADE && defined REV_MODE
+    double** tmp = &vec_result->arr;
+    for(int i=0; i<DIM; i++) {
+      memset(mat_result->arr[i]->arr, 0, DIM * sizeof(double));
+      vec_tmp->arr[i] = 1;
+      vec_add_b(DIM, vec1->arr, mat_result->arr[i]->arr, vec2->arr, vec_tmp->arr);
+      vec_tmp->arr[i] = 0;
+    }
+  #elif defined TAPENADE
+    double** tmp = &vec_result->arr;
+    for(int i=0; i<DIM; i++) {
+      vec_tmp->arr[i] = 1;
+      mat_result->arr[i]->arr = vec_add_d(DIM, vec1->arr, vec_tmp->arr, vec2->arr, tmp);
+      vec_tmp->arr[i] = 0;
+    }
+  #elif defined DPS
+    vectorAdd_dps(mat_result, vec1, vec2);
+  #else
+    mat_result = vectorAdd(vec1, vec2);
+    // vec_result = vectorMultScalar(vec1, vec2->arr[1]);
+  #endif
+    total += matrixSum(mat_result);
 #endif
   }
 

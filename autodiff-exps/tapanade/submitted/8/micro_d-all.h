@@ -4,21 +4,18 @@
 /*
   Differentiation of vec_add in forward (tangent) mode:
    variations   of useful results: alloc(*res)
-   with respect to varying inputs: alloc(*res) *x *y
-   RW status of diff variables: alloc(*res):in-out *x:in *y:in
-   Plus diff mem management of: x:in y:in
+   with respect to varying inputs: *x
+   RW status of diff variables: alloc(*res):out *x:in
+   Plus diff mem management of: x:in
 */
-double * vec_add_d(int n, double *x, double *xd, double *y, double *yd, double
-        **vec_add) {
+double * vec_add_d(int n, double *x, double *xd, double *y, double **vec_add) 
+{
     double *res;
     double *resd;
-    int ii1;
     resd = (double *)malloc(n*sizeof(double));
-    for (ii1 = 0; ii1 < n; ++ii1)
-        resd[ii1] = 0.0;
     res = (double *)malloc(n*sizeof(double));
     for (int i = 0; i < n; ++i) {
-        resd[i] = xd[i] + yd[i];
+        resd[i] = xd[i];
         res[i] = x[i] + y[i];
     }
     *vec_add = res;
