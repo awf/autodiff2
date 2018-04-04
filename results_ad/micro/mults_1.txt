@@ -1,0 +1,56 @@
+800
+./mults_diff.exe
+total =16290.809706, time per call = 0.004300 ms
+./mults_tap_for.exe
+total =16290.809706, time per call = 0.007200 ms
+./mults_tap_rev.exe
+total =16290.809706, time per call = 0.661000 ms
+1600
+./mults_diff.exe
+total =33119.990941, time per call = 0.008000 ms
+./mults_tap_for.exe
+total =33119.990941, time per call = 0.012100 ms
+./mults_tap_rev.exe
+total =33119.990941, time per call = 2.500200 ms
+3200
+./mults_diff.exe
+total =65290.183772, time per call = 0.011500 ms
+./mults_tap_for.exe
+total =65290.183772, time per call = 0.024900 ms
+./mults_tap_rev.exe
+total =65290.183772, time per call = 9.783800 ms
+6400
+./mults_diff.exe
+total =130329.393352, time per call = 0.026600 ms
+./mults_tap_for.exe
+total =130329.393352, time per call = 0.047100 ms
+./mults_tap_rev.exe
+total =130329.393352, time per call = 37.948099 ms
+12800
+./mults_diff.exe
+total =258462.433532, time per call = 0.051800 ms
+./mults_tap_for.exe
+total =258462.433532, time per call = 0.089500 ms
+./mults_tap_rev.exe
+total =258462.433532, time per call = 152.742297 ms
+25600
+./mults_diff.exe
+total =518158.679689, time per call = 0.116400 ms
+./mults_tap_for.exe
+total =518158.679689, time per call = 0.189800 ms
+./mults_tap_rev.exe
+total =518158.679689, time per call = 640.135498 ms
+51200
+./mults_diff.exe
+total =1031206.954357, time per call = 0.219700 ms
+./mults_tap_for.exe
+total =1031206.954357, time per call = 0.386600 ms
+./mults_tap_rev.exe
+total =1031206.954357, time per call = 2449.629687 ms
+102400
+./mults_diff.exe
+total =2065336.692506, time per call = 0.432600 ms
+./mults_tap_for.exe
+total =2065336.692506, time per call = 0.762500 ms
+./mults_tap_rev.exe
+total =2065336.692506, time per call = 9656.749219 ms

@@ -3,21 +3,21 @@
 #include "../diffsmooth/fsharp.h"
 #include "../diffsmooth/timer.h"
 
-// #if defined TAPENADE
-//   #if defined REV_MODE
-//     #if defined UNFUSED
-//       #include "../tapanade/submitted/4/nmf_unfused_b-all.h"
-//     #else
-//       #include "../tapanade/submitted/3/nmf_b-all.h"
-//     #endif
-//   #else
-//     #if defined UNFUSED
-//       #include "../tapanade/submitted/4/nmf_unfused_d-all.h"
-//     #else
-//       #include "../tapanade/submitted/3/nmf_d-all.h"
-//     #endif
-//   #endif
-// #endif
+#if defined TAPENADE
+  #if defined REV_MODE
+    // #if defined UNFUSED
+    //   #include "../tapanade/submitted/4/nmf_unfused_b-all.h"
+    // #else
+      #include "../tapanade/submitted/8/micro_b-all.h"
+    // #endif
+  #else
+    // #if defined UNFUSED
+    //   #include "../tapanade/submitted/4/nmf_unfused_d-all.h"
+    // #else
+      #include "../tapanade/submitted/8/micro_d-all.h"
+    // #endif
+  #endif
+#endif
 
 array_array_number_t vectorElemProd(array_number_t v1, array_number_t v2) {
   array_array_number_t x21447 = (array_array_number_t)storage_alloc(sizeof(int) * 2);x21447->length=(v1)->length;x21447->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * (v1)->length);
@@ -39,12 +39,12 @@ array_array_number_t vectorElemProd(array_number_t v1, array_number_t v2) {
   return x21447;
 }
 
-array_array_index_t vectorAdd(array_number_t v1, array_number_t v2) {
-  array_array_index_t x21413 = (array_array_index_t)storage_alloc(sizeof(int) * 2);x21413->length=(v1)->length;x21413->arr = (array_index_t*)storage_alloc(sizeof(array_index_t) * (v1)->length);
+array_array_number_t vectorAdd(array_number_t v1, array_number_t v2) {
+  array_array_number_t x21413 = (array_array_number_t)storage_alloc(sizeof(int) * 2);x21413->length=(v1)->length;x21413->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * (v1)->length);
   for(int i = 0; i < x21413->length; i++){
-    array_index_t x21412 = (array_index_t)storage_alloc(sizeof(int) * 2);x21412->length=(v1)->length;x21412->arr = (index_t*)storage_alloc(sizeof(index_t) * (v1)->length);
+    array_number_t x21412 = (array_number_t)storage_alloc(sizeof(int) * 2);x21412->length=(v1)->length;x21412->arr = (number_t*)storage_alloc(sizeof(number_t) * (v1)->length);
     for(int i0 = 0; i0 < x21412->length; i0++){
-      index_t x21411;
+      number_t x21411;
       if ((i) == (i0)) {
         x21411 = 1;
       } else {
@@ -115,90 +115,57 @@ number_t matrixSum(array_array_number_t m) {
   return result;
 }
 
-
-void test_nmf(card_t M, card_t N, card_t K, card_t iters)
+void test_micro(card_t DIM, card_t iters)
 {
   int rng = 42;
   srand(rng);
-  array_array_number_t A = matrix_fill(M, N, 0.0);
-  array_array_number_t W = matrix_fill(M, K, 0.0);
-  array_array_number_t H = matrix_fill(K, N, 0.0);
-  array_number_t v = vector_fill(M, 0.0);
-  array_number_t ud = vector_fill(N, 0.0);
-  double** A_arr = malloc(M * sizeof(double*));
+  array_number_t vec1 = vector_fill(DIM, 0.0);
+  array_number_t vec2 = vector_fill(DIM, 0.0);
+  array_number_t vec3 = vector_fill(DIM, 0.0);
+  array_number_t vec_tmp = vector_fill(DIM, 0.0);
 
-  for (card_t m = 0; m < M; ++m) {
-    for (card_t n = 0; n < N; ++n) {
-      A->arr[m]->arr[n] = dist(rng);
-    }
-    A_arr[m] = A->arr[m]->arr;
-    for (card_t k = 0; k < K; ++k) {
-      W->arr[m]->arr[k] = dist(rng);
-    }
-    v->arr[m] = W->arr[m]->arr[0];
-  }
-  for (card_t k = 0; k < K; ++k) {
-    for (card_t n = 0; n < N; ++n) {
-      H->arr[k]->arr[n] = dist(rng);
-    }
+  for (card_t k = 0; k < DIM; ++k) {
+    vec1->arr[k] = dist(rng);
+    vec2->arr[k] = dist(rng);
   }
 
   timer_t t = tic();
 
   double total = 0;
 
-  array_number_t s = (array_number_t)storage_alloc(sizeof(int) * 2);s->length=N;s->arr = (number_t*)storage_alloc(sizeof(number_t) * N);
   for (card_t count = 0; count < iters; ++count) {
-    H->arr[0]->arr[0] += 1.0 / (2.0 + H->arr[0]->arr[0]);
-    W->arr[0]->arr[0] += 1.0 / (2.0 + W->arr[0]->arr[0]);
-    v->arr[0] = W->arr[0]->arr[0];
-    memset(ud->arr, 0, sizeof(double) * N);
-    // total +=  matrixSum(update1(H, W, A)) + matrixSum(update2(H, W, A));
-    // total += matrixSum(update3(H, W, A));
-    if(K == 1) {
-      #if defined TAPENADE
-        #if defined REV_MODE
-          double eb = 1;
-          nmfMain_b(N, M, H->arr[0]->arr, ud->arr, v->arr, A_arr, eb);
-          total += vector_sum(ud);
-        #else
-          double sum = 0;
-          double tmp;
-          for(int i = 0; i<N; i++) {
-            ud->arr[i] = 1;
-            sum += nmfMain_d(N, M, H->arr[0]->arr, ud->arr, v->arr, A_arr, &tmp);
-            ud->arr[i] = 0;
-          }
-          total += sum;
-        #endif
-      #else
-        #if defined DPS
-          total += vector_sum(nmf_uv_dps(s, N, M, H->arr[0], v, A));
-        #else
-          array_number_t tmp = nmf_uv(H->arr[0], v, A);
-          total += vector_sum(tmp);
-        #endif
-      #endif
-    } else {
-      total += matrixSum(update3(H, W, A));
+    vec1->arr[0] += 1.0 / (2.0 + vec1->arr[0]);
+    vec2->arr[1] += 1.0 / (2.0 + vec2->arr[1]);
+#ifdef MULTS
+  #if defined TAPENADE && defined REV_MODE
+    for(int i=0; i<DIM; i++) {
+      double tmp = 0;
+      vec_tmp->arr[i] = 1;
+      vec_scal_mult_b(DIM, vec1->arr, vec2->arr[1], &tmp, vec_tmp->arr);
+      vec3->arr[i] = tmp;
+      vec_tmp->arr[i] = 0;
     }
+  #elif defined TAPENADE
+    double** tmp = &vec_tmp->arr;
+    vec3->arr = vec_scal_mult_d(DIM, vec1->arr, vec2->arr[1], 1, tmp);
+  #else
+    vec3 = vectorMultScalar(vec1, vec2->arr[1]);
+  #endif
+    total += vector_sum(vec3);
+#endif
   }
 
   double elapsed = toc2(t);
-  printf("total =%f, time per call = %f s\n", total, elapsed / (double)(iters) / 1000.0);
+  printf("total =%f, time per call = %f ms\n", total, elapsed / (double)(iters));
 }
 
 int main(int argc, char *argv[])
 {
-  if(argc != 5) {
-    printf("You should use the following format for running this program: %s <M> <N> <K> <Number of Iterations>\n", argv[0]);
+  if(argc != 3) {
+    printf("You should use the following format for running this program: %s <DIM> <Number of Iterations>\n", argv[0]);
     exit(1);
   }
-  card_t M = atoi(argv[1]);
-  card_t N = atoi(argv[2]);
-  card_t K = atoi(argv[3]);
-  card_t iters = atoi(argv[4]);
-  test_nmf(M, N, K, iters);
+  card_t DIM = atoi(argv[1]);
+  card_t iters = atoi(argv[2]);
+  test_micro(DIM, iters);
 }
-
-
