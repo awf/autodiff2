@@ -3,6 +3,7 @@ FLIB=-L /usr/local/lib/gcc/7/ -lgfortran $(REV_FOLDER)/adBuffer.c $(REV_FOLDER)/
 
 all : 
 	clang -O3 micro-main.c -DBUMP -DMULTS -o mults_diff.exe
+	clang -O3 micro-main.c -DBUMP -DMULTS -DDPS -o mults_diff_dps.exe
 	clang -O3 micro-main.c -DBUMP -DMULTS -DTAPENADE -o mults_tap_for.exe
 	clang -O3 micro-main.c -DBUMP -DMULTS -DTAPENADE -DREV_MODE $(FLIB) -o mults_tap_rev.exe
 	clang -O3 micro-main.c -DBUMP -DADD -o add_diff.exe

@@ -86,6 +86,15 @@ array_number_t vectorMultScalar(array_number_t v, number_t s) {
   return x21495;
 }
 
+array_number_t vectorMultScalar_dps(storage_t st, array_number_t v, number_t s) {
+  array_number_t x21495 = (array_number_t)st;
+  for(int i = 0; i < x21495->length; i++){
+    x21495->arr[i] = ((v->arr[i])) * ((s) + (s));
+    
+  }
+  return x21495;
+}
+
 double dist(int seed) {
   return ((double)rand()/(double)RAND_MAX);
 }
@@ -167,6 +176,8 @@ void test_micro(card_t DIM, card_t iters)
   #elif defined TAPENADE
     double** tmp = &vec_tmp->arr;
     vec_result->arr = vec_scal_mult_d(DIM, vec1->arr, vec2->arr[1], 1, tmp);
+  #elif defined DPS
+    vectorMultScalar_dps(vec_result, vec1, vec2->arr[1]);
   #else
     vec_result = vectorMultScalar(vec1, vec2->arr[1]);
   #endif
