@@ -58,28 +58,26 @@ void vec_elem_mult_b(int n, double *x, double *xb, double *y, double *yb,
 
 /*
   Differentiation of vec_scal_mult in reverse (adjoint) mode:
-   gradient     of useful results: alloc(*res) *x y
-   with respect to varying inputs: alloc(*res) *x y
-   RW status of diff variables: alloc(*res):in-out *x:incr y:incr
-   Plus diff mem management of: x:in
+   gradient     of useful results: alloc(*res) y
+   with respect to varying inputs: alloc(*res) y
+   RW status of diff variables: alloc(*res):in-out y:incr
 */
-void vec_scal_mult_b(int n, double *x, double *xb, double y, double *yb, 
-        double *vec_scal_multb) {
+void vec_scal_mult_b(int n, double *x, double y, double *yb, double *
+        vec_scal_multb) {
     double *res;
     double *resb;
     int ii1;
     double *vec_scal_mult;
-    resb = (double *)malloc(n*sizeof(double));
-    for (ii1 = 0; ii1 < n; ++ii1)
-        resb[ii1] = 0.0;
+    // resb = (double *)malloc(n*sizeof(double));
+    // for (ii1 = 0; ii1 < n; ++ii1)
+    //     resb[ii1] = 0.0;
     res = (double *)malloc(n*sizeof(double));
     resb = vec_scal_multb;
-    vec_scal_multb = (void *)0;
+    // vec_scal_multb = (void *)0;
     for (int i = n-1; i > -1; --i) {
-        xb[i] = xb[i] + y*y*resb[i];
         *yb = *yb + x[i]*2*y*resb[i];
         resb[i] = 0.0;
     }
     free(res);
-    free(resb);
+    // free(resb);
 }
