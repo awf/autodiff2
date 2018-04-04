@@ -4,6 +4,23 @@ object ExtractCSV {
   val TIME = "time per call = "
   var currentType: String = _
   var currentMet: String = _
+  def parseGMMType(s: String): (Int, Int) = {
+    val D = "_d"
+    val K = "_K"
+    val ki = s.indexOf(K)
+    val di = s.indexOf(D)
+    val d = s.substring(di + D.length, ki).toInt
+    val k = s.substring(ki + K.length).toInt
+    d -> k
+  }
+  def orderType(s: String): Int = {
+    val (d, k) = parseGMMType(s)
+    val icf_sz = d*(d + 1) / 2
+    k + d*k + icf_sz*k
+  }
+  def nameType(s: String): Int = {
+    orderType(s)
+  }
   def main(args: Array[String]): Unit = {
     val FILE = args(0)
     val lines = Source.fromFile(FILE).getLines.toList
@@ -22,10 +39,10 @@ object ExtractCSV {
         currentType = i 
       }
     }
-    val dataSeq = data.toSeq.sortBy(_._1)
-    val cols = "" :: dataSeq(0)._2.map(_._1)
-    val rows = dataSeq.map(x => x._1 :: x._2.map(_._2))
-    println(cols.mkString(","))
+    val dataSeq = data.toSeq.sortBy(x => orderType(x._1))
+    val cols = dataSeq(0)._2.map(_._1)
+    val rows = dataSeq.map(x => nameType(x._1) :: cols.map(c => x._2.toMap.getOrElse(c, "")))
+    println("," + cols.mkString(","))
     println(rows.map(_.mkString(",")).mkString("\n"))
   }
 }
