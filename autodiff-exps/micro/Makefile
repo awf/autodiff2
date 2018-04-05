@@ -10,3 +10,7 @@ all :
 	clang -O3 micro-main.c -DBUMP -DADD -DDPS -o add_diff_dps.exe
 	clang -O3 micro-main.c -DBUMP -DADD -DTAPENADE -o add_tap_for.exe
 	clang -O3 micro-main.c -DBUMP -DADD -DTAPENADE -DREV_MODE $(FLIB) -o add_tap_rev.exe
+	clang -O3 micro-main.c -DBUMP -DDOT -o dot_diff.exe
+	clang -O3 micro-main.c -DBUMP -DDOT -DDPS -o dot_diff_dps.exe
+	clang -O3 micro-main.c -DBUMP -DDOT -DTAPENADE -o dot_tap_for.exe
+	clang -O3 micro-main.c -DBUMP -DDOT -DTAPENADE -DREV_MODE $(FLIB) -o dot_tap_rev.exe

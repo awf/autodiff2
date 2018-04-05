@@ -226,14 +226,13 @@ void test_micro(card_t DIM, card_t iters)
     total += matrixSum(mat_result);
 #elif defined DOT
   #if defined TAPENADE && defined REV_MODE
+    memset(vec_result->arr, 0, DIM * sizeof(double));
     vec_dot_b(DIM, vec1->arr, vec_result->arr, vec2->arr, 1);
   #elif defined TAPENADE
-    double** tmp = &vec_tmp2->arr;
     for(int i=0; i<DIM; i++) {
-      double tmp = 0;
+      double tmp_res;
       vec_tmp->arr[i] = 1;
-      vec_dot_d(DIM, vec1->arr, vec_tmp->arr, vec2->arr, tmp);
-      vec_result->arr[i] = tmp;
+      vec_result->arr[i] = vec_dot_d(DIM, vec1->arr, vec_tmp->arr, vec2->arr, &tmp_res);
       vec_tmp->arr[i] = 0;
     }
   #elif defined DPS
