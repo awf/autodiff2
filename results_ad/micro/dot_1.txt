@@ -1,0 +1,63 @@
+800
+./dot_tap_rev.exe
+total =3859.237108, time per call = 0.002400 ms
+./dot_tap_for.exe
+total =3859.237108, time per call = 0.540100 ms
+./dot_diff.exe
+total =3859.237108, time per call = 0.005100 ms
+./dot_diff_dps.exe
+total =3859.237108, time per call = 0.001300 ms
+1600
+./dot_tap_rev.exe
+total =7683.429589, time per call = 0.003900 ms
+./dot_tap_for.exe
+total =7683.429589, time per call = 2.402800 ms
+./dot_diff.exe
+total =7683.429589, time per call = 0.011800 ms
+./dot_diff_dps.exe
+total =7683.429589, time per call = 0.001900 ms
+3200
+./dot_tap_rev.exe
+total =15566.615533, time per call = 0.005800 ms
+./dot_tap_for.exe
+total =15566.615533, time per call = 9.155100 ms
+./dot_diff.exe
+total =15566.615533, time per call = 0.019400 ms
+./dot_diff_dps.exe
+total =15566.615533, time per call = 0.004400 ms
+6400
+./dot_tap_rev.exe
+total =31159.788535, time per call = 0.010600 ms
+./dot_tap_for.exe
+total =31159.788535, time per call = 34.789099 ms
+./dot_diff.exe
+total =31159.788535, time per call = 0.032500 ms
+./dot_diff_dps.exe
+total =31159.788535, time per call = 0.007700 ms
+12800
+./dot_tap_rev.exe
+total =63224.190429, time per call = 0.020400 ms
+./dot_tap_for.exe
+total =63224.190429, time per call = 136.698999 ms
+./dot_diff.exe
+total =63224.190429, time per call = 0.047100 ms
+./dot_diff_dps.exe
+total =63224.190429, time per call = 0.015300 ms
+25600
+./dot_tap_rev.exe
+total =126611.879632, time per call = 0.040700 ms
+./dot_tap_for.exe
+total =126611.879632, time per call = 565.500195 ms
+./dot_diff.exe
+total =126611.879632, time per call = 0.106200 ms
+./dot_diff_dps.exe
+total =126611.879632, time per call = 0.033400 ms
+51200
+./dot_tap_rev.exe
+total =254613.283440, time per call = 0.096900 ms
+./dot_tap_for.exe
+total =254613.283440, time per call = 2201.758008 ms
+./dot_diff.exe
+total =254613.283440, time per call = 0.339300 ms
+./dot_diff_dps.exe
+total =254613.283440, time per call = 0.067900 ms
