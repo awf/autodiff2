@@ -641,12 +641,14 @@ void test_ba(const string& fn_in, const string& fn_out,
     string name("Tapenade_for");
     #endif
   #elif defined DIFFSMOOTH 
-    #if defined DPS && defined FUSED
-    string name = "DiffSmooth_fused_dps";
+    #if defined FUSED && defined AOS
+    string name = "DiffSmooth_fused_aos";
+    #elif defined DPS && defined OLD_FUSED
+    string name = "DiffSmooth_old_fused_dps";
     #elif defined DPS
     string name = "DiffSmooth_dps";
-    #elif defined FUSED
-    string name = "DiffSmooth_fused";
+    #elif defined OLD_FUSED
+    string name = "DiffSmooth_old_fused";
     #else
     string name = "DiffSmooth";
     #endif

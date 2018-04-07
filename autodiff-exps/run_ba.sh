@@ -1,6 +1,7 @@
 declare -a files=(
 	"./ba_tap_for_all.exe" "./ba_tap_rev_all.exe" 
-	"./ba_diff.exe" "./ba_diff_fused.exe" "./ba_diff_fused_dps.exe"
+	"./ba_diff.exe" "./ba_diff_old_fused.exe" "./ba_diff_old_fused_dps.exe"
+	"./ba_diff_fused_aos.exe" "./ba_diff_fused_soa.exe"
 	)
 
 declare -a params=(

@@ -26,8 +26,10 @@ ba_all : c
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_BA $(LIBS) $(TAP_SUB_FOLDER)/6/ba_d-all.c $(FILES_ALL) -o ba_tap_for_all.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_BA -DREV_MODE $(LIBS) $(FLIB) $(TAP_SUB_FOLDER)/6/ba_b-all.c $(FILES_ALL) -o ba_tap_rev_all.exe;
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DDO_BA $(LIBS) -lgc ba_diff.o $(FILES_ALL) -o ba_diff.exe;
-	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DDO_BA $(LIBS)  -lgc ba_diff_fused.o $(FILES_ALL) -o ba_diff_fused.exe;
-	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DDPS -DDO_BA $(LIBS) ba_diff_fused_dps.o $(FILES_ALL) -o ba_diff_fused_dps.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DOLD_FUSED -DDO_BA $(LIBS)  -lgc ba_diff_old_fused.o $(FILES_ALL) -o ba_diff_old_fused.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DOLD_FUSED -DDPS -DDO_BA $(LIBS) ba_diff_old_fused_dps.o $(FILES_ALL) -o ba_diff_old_fused_dps.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DAOS -DDO_BA $(LIBS) -lgc ba_diff_fused_aos.o $(FILES_ALL) -o ba_diff_fused_aos.exe;
+	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DDIFFSMOOTH -DFUSED -DSOA -DDO_BA $(LIBS) -lgc ba_diff_fused_soa.o $(FILES_ALL) -o ba_diff_fused_soa.exe;
 
 gmm_all :
 	$(CPP) $(OPTFLAG) $(CPPFLAGS) -DTAPENADE -DDO_GMM $(LIBS) tapanade/gmm_all.c $(FILES_ALL) -o gmm_tap_for_all.exe;
@@ -50,9 +52,11 @@ test :
 
 c :
 	# $(CC) $(OPTFLAG) $(CFLAGS) tapanade/gmm_all.c -c -o gmm_tap.o;
-	$(CC) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DGC -DDO_BA diffsmooth/ba.c -c -o ba_diff.o;
-	$(CC) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DGC -DFUSED -DDO_BA diffsmooth/ba.c -c -o ba_diff_fused.o;
-	$(CC) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DBUMP -DFUSED -DDPS -DDO_BA diffsmooth/ba.c -c -o ba_diff_fused_dps.o;
+	$(CC) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DBUMP -DDO_BA diffsmooth/ba.c -c -o ba_diff.o;
+	$(CC) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DBUMP -DOLD_FUSED -DDO_BA diffsmooth/ba.c -c -o ba_diff_old_fused.o;
+	$(CC) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DBUMP -DFUSED -DAOS -DDO_BA diffsmooth/ba.c -c -o ba_diff_fused_aos.o;
+	$(CC) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DBUMP -DFUSED -DSOA -DDO_BA diffsmooth/ba.c -c -o ba_diff_fused_soa.o;
+	$(CC) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DBUMP -DOLD_FUSED -DDPS -DDO_BA diffsmooth/ba.c -c -o ba_diff_old_fused_dps.o;
 	# $(CC) $(OPTFLAG) $(CFLAGS) tapanade/gmm_b-all.c -c -o gmm_b-all.o;
 	# $(CC) $(OPTFLAG) $(CFLAGS) -DDIFFSMOOTH -DFUSED -DDO_GMM diffsmooth/gmm.c -c -o gmm_diff_fused.o;
 

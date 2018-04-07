@@ -44,6 +44,10 @@ typedef struct tuple_array_number_t_array_number_t {
   array_number_t _1;
   array_number_t _2;
 } tuple_array_number_t_array_number_t;
+typedef struct array_tuple_number_t_number_t_struct {
+	tuple_number_t_number_t* arr;
+	int length;
+}* array_tuple_number_t_number_t;
 
 typedef union value_t {
 	card_t card_t_value;

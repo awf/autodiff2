@@ -4,12 +4,19 @@
 #include "ba.h"
 
 #ifdef DPS
-  #ifdef FUSED
+  #ifdef OLD_FUSED
 	#include "usecases_ba_opt.h"
     #include "usecases_ba_opt_dps_d.h"
   #endif
+#elif defined FUSED
+  #include "usecases_ba_opt.h"
+  #if defined AOS
+    #include "ba_diff_fused_aos.h"
+  #elif defined SOA
+    #include "ba_diff_fused_soa.h"
+  #endif
 #else
-  #ifdef FUSED
+  #ifdef OLD_FUSED
 	#include "usecases_ba_opt.h"
     #include "usecases_ba_opt_d.h"
   #else
