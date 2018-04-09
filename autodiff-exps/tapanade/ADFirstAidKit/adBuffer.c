@@ -602,7 +602,7 @@ void showallstacks() {
   for (i=0 ; i<adr4ibuf ; ++i) printf(" %f",adr4buf[i]) ;
   printf("\n") ;
   printf("POINTER*8 BUFFER[%i]:",adp8ibuf) ;
-  for (i=0 ; i<adp8ibuf ; ++i) printf(" %x",adp8buf[i]) ;
+  // for (i=0 ; i<adp8ibuf ; ++i) printf(" %x",adp8buf[i]) ;
   printf("\n") ;
   showrecentcstack_() ;
 }

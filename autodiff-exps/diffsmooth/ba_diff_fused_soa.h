@@ -296,34 +296,34 @@ array_number_t TOP_LEVEL_usecases_ba_project_d(array_number_t cam, array_number_
   number_t x5588 = (x5601) * (x5617);
   number_t x5589 = (x5587) + (x5588);
   index_t j00 = 6;
+  number_t x5584 = (x5595) + (x5591);
+  number_t x5582 = (x5593) + (x5589);
   index_t x5548 = 2;
-  array_number_t x5584 = (array_number_t)storage_alloc(sizeof(int) * 2);x5584->length=x5548;x5584->arr = (number_t*)storage_alloc(sizeof(number_t) * x5548);
-  for(int i = 0; i < x5584->length; i++){
-    index_t x5582 = (i) + (7);
-    number_t x5580 = (x5670->arr[i]);
-    number_t x5577 = (x5667->arr[i]);
-    number_t x5574 = (cam->arr[x5582]);
-    number_t x5572 = (camd->arr[x5582]);
-    number_t x5570 = (x5580) * (x5574);
-    number_t x5566 = (x5577) * (x5574);
-    number_t x5567 = (x5580) * (x5572);
-    number_t x5568 = (x5566) + (x5567);
-    number_t x5564 = (x5595) + (x5591);
-    number_t x5562 = (x5593) + (x5589);
-    number_t x5560 = (x5570) * (x5564);
-    number_t x5556 = (x5568) * (x5564);
-    number_t x5557 = (x5570) * (x5562);
+  array_number_t x5580 = (array_number_t)storage_alloc(sizeof(int) * 2);x5580->length=x5548;x5580->arr = (number_t*)storage_alloc(sizeof(number_t) * x5548);
+  for(int i = 0; i < x5580->length; i++){
+    index_t x5578 = (i) + (7);
+    number_t x5576 = (x5670->arr[i]);
+    number_t x5573 = (x5667->arr[i]);
+    number_t x5570 = (cam->arr[x5578]);
+    number_t x5568 = (camd->arr[x5578]);
+    number_t x5566 = (x5576) * (x5570);
+    number_t x5562 = (x5573) * (x5570);
+    number_t x5563 = (x5576) * (x5568);
+    number_t x5564 = (x5562) + (x5563);
+    number_t x5560 = (x5566) * (x5584);
+    number_t x5556 = (x5564) * (x5584);
+    number_t x5557 = (x5566) * (x5582);
     number_t x5558 = (x5556) + (x5557);
-    number_t x5554 = (x5560) * (x5574);
+    number_t x5554 = (x5560) * (x5570);
     number_t x5359 = x5554;
-    number_t x5550 = (x5558) * (x5574);
-    number_t x5551 = (x5560) * (x5572);
+    number_t x5550 = (x5558) * (x5570);
+    number_t x5551 = (x5560) * (x5568);
     number_t x5552 = (x5550) + (x5551);
-    number_t x5549 = (x5572) + (x5552);
-    x5584->arr[i] = x5549;
+    number_t x5549 = (x5568) + (x5552);
+    x5580->arr[i] = x5549;
     
   }
-  return x5584;
+  return x5580;
 }
 
 #endif

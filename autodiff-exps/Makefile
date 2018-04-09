@@ -1,7 +1,7 @@
 CC=clang
 FC=gfortran -g
 CPP=clang++
-OPTFLAG=-O3
+OPTFLAG=-O3 -Wno-everything 
 CFLAGS=-std=c99
 CPPFLAGS=-std=c++14 -stdlib=libc++
 LIBS=-I /usr/local/include/eigen3 
