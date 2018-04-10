@@ -2,7 +2,8 @@ declare -a files=(
 	# "./mults_tap_rev.exe" "./mults_tap_for.exe" "./mults_diff.exe" "./mults_diff_dps.exe" 
 	# "./add_tap_rev.exe" "./add_tap_for.exe" "./add_diff.exe" "./add_diff_dps.exe" 
 	# "./dot_tap_rev.exe" "./dot_tap_for.exe" "./dot_diff.exe" "./dot_diff_dps.exe"
-	"./max_tap_rev.exe" "./max_tap_for.exe" "./max_diff.exe" "./max_diff_dps.exe"
+	# "./max_tap_rev.exe" "./max_tap_for.exe" "./max_diff.exe" "./max_diff_dps.exe"
+	"./lse_tap_rev.exe" "./lse_tap_for.exe" "./lse_diff.exe" "./lse_diff_dps.exe"
 	)
 
 declare -a params=(

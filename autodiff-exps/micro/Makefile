@@ -18,3 +18,7 @@ all :
 	clang -O3 micro-main.c -DBUMP -DVEC_MAX -DDPS -o max_diff_dps.exe
 	clang -O3 micro-main.c -DBUMP -DVEC_MAX -DTAPENADE -o max_tap_for.exe
 	clang -O3 micro-main.c -DBUMP -DVEC_MAX -DTAPENADE -DREV_MODE $(FLIB) -o max_tap_rev.exe
+	clang -O3 micro-main.c -DBUMP -DLSE -o lse_diff.exe
+	clang -O3 micro-main.c -DBUMP -DLSE -DDPS -o lse_diff_dps.exe
+	clang -O3 micro-main.c -DBUMP -DLSE -DTAPENADE -o lse_tap_for.exe
+	clang -O3 micro-main.c -DBUMP -DLSE -DTAPENADE -DREV_MODE $(FLIB) -o lse_tap_rev.exe
