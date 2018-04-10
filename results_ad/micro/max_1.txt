@@ -1,0 +1,63 @@
+800
+./max_tap_rev.exe
+total =10.000000, time per call = 0.004900 ms
+./max_tap_for.exe
+total =10.000000, time per call = 2.257900 ms
+./max_diff.exe
+total =10.000000, time per call = 0.007300 ms
+./max_diff_dps.exe
+total =10.000000, time per call = 0.004600 ms
+1600
+./max_tap_rev.exe
+total =10.000000, time per call = 0.008100 ms
+./max_tap_for.exe
+total =10.000000, time per call = 9.224300 ms
+./max_diff.exe
+total =10.000000, time per call = 0.015200 ms
+./max_diff_dps.exe
+total =10.000000, time per call = 0.007700 ms
+3200
+./max_tap_rev.exe
+total =10.000000, time per call = 0.015000 ms
+./max_tap_for.exe
+total =10.000000, time per call = 35.787299 ms
+./max_diff.exe
+total =10.000000, time per call = 0.034300 ms
+./max_diff_dps.exe
+total =10.000000, time per call = 0.016100 ms
+6400
+./max_tap_rev.exe
+total =10.000000, time per call = 0.030000 ms
+./max_tap_for.exe
+total =10.000000, time per call = 141.602502 ms
+./max_diff.exe
+total =10.000000, time per call = 0.046800 ms
+./max_diff_dps.exe
+total =10.000000, time per call = 0.031000 ms
+12800
+./max_tap_rev.exe
+total =10.000000, time per call = 0.065600 ms
+./max_tap_for.exe
+total =10.000000, time per call = 566.669092 ms
+./max_diff.exe
+total =10.000000, time per call = 0.092500 ms
+./max_diff_dps.exe
+total =10.000000, time per call = 0.060400 ms
+25600
+./max_tap_rev.exe
+total =10.000000, time per call = 0.115400 ms
+./max_tap_for.exe
+total =10.000000, time per call = 2263.696094 ms
+./max_diff.exe
+total =10.000000, time per call = 0.184100 ms
+./max_diff_dps.exe
+total =10.000000, time per call = 0.123500 ms
+51200
+./max_tap_rev.exe
+total =10.000000, time per call = 0.232100 ms
+./max_tap_for.exe
+total =10.000000, time per call = 9147.864063 ms
+./max_diff.exe
+total =10.000000, time per call = 0.524000 ms
+./max_diff_dps.exe
+total =10.000000, time per call = 0.250900 ms

@@ -173,142 +173,6 @@ array_number_t vectorMax_dps(storage_t st, array_number_t v) {
 
 
 array_number_t vectorLogsumexp(array_number_t v) {
-  index_t x25581 = (v)->length;
-  index_t x25586 = 0;
-  for (int x24663 = 0; x24663 < x25581; x24663++) {
-    index_t x24723 = x25586;
-    number_t x25582 = (v->arr[x24723]);
-    number_t x25583 = (v->arr[x24663]);
-    index_t x25584 = (x25582) > (x25583);
-    index_t x25585;
-    if (x25584) {
-      x25585 = x24723;
-    } else {
-      x25585 = x24663;
-    }
-    x24723 = x25585;
-    x25586 = x24723;
-  }
-  
-  number_t x25587 = (v->arr[x25586]);
-  number_t x25593 = 0;
-  for (int x24669 = 0; x24669 < x25581; x24669++) {
-    number_t x24702 = x25593;
-    number_t x25588 = (v->arr[x24669]);
-    number_t x25590 = (x25588) - (x25587);
-    number_t x25591 = exp(x25590);
-    number_t x25592 = (x24702) + (x25591);
-    x24702 = x25592;
-    x25593 = x24702;
-  }
-  
-  array_number_t x25606 = (array_number_t)storage_alloc(sizeof(int) * 2);x25606->length=x25581;x25606->arr = (number_t*)storage_alloc(sizeof(number_t) * x25581);
-  for(int i = 0; i < x25606->length; i++){
-    index_t x25594 = (i == x25586);
-    number_t x25601 = (v->arr[i]);
-    number_t x25602 = (x25601) - (x25587);
-    number_t x25603 = exp(x25602);
-    number_t x25605;
-    if (x25594) {
-      number_t x25598 = (-1) * (x25603);
-      number_t x25599 = (x25598) / (x25593);
-      number_t x25600 = (x25599) + (1);
-      printf("T, index: %d, value: %f -- %f\n", i, x25600, (x25603) / (x25593));
-      x25605 = x25600;
-    } else {
-      number_t x25604 = (x25603) / (x25593);
-      printf("F, index: %d, value: %f\n", i, x25604);
-      x25605 = x25604;
-    }
-    x25606->arr[i] = x25605;
-    
-  }
-  return x25606;
-}
-
-array_number_t vectorLogsumexp2(array_number_t v) {
-  index_t x24730 = (v)->length;
-  index_t x24731 = 0;
-  for (int x24665 = 0; x24665 < x24730; x24665++) {
-    index_t x24725 = x24731;
-    number_t x24726 = (v->arr[x24725]);
-    number_t x24727 = (v->arr[x24665]);
-    index_t x24728 = (x24726) > (x24727);
-    index_t x24729;
-    if (x24728) {
-      x24729 = x24725;
-    } else {
-      x24729 = x24665;
-    }
-    x24725 = x24729;
-    x24731 = x24725;
-  }
-  
-  index_t x24723 = x24731;
-  number_t x24759 = (v->arr[x24723]);
-  number_t x24774 = (v->arr[x24723]);
-  number_t x24779 = 0;
-  for (int x24671 = 0; x24671 < x24730; x24671++) {
-    number_t x24704 = x24779;
-    number_t x24773 = (v->arr[x24671]);
-    number_t x24775 = (x24773) - (x24774);
-    number_t x24776 = exp(x24775);
-    number_t x24777 = (x24704) + (x24776);
-    x24704 = x24777;
-    x24779 = x24704;
-  }
-  
-  array_number_t x24782 = (array_number_t)storage_alloc(sizeof(int) * 2);x24782->length=x24730;x24782->arr = (number_t*)storage_alloc(sizeof(number_t) * x24730);
-  for(int i = 0; i < x24782->length; i++){
-    index_t x24733 = (i) == (x24723);
-    number_t x24772 = 0;
-    for (int x24671 = 0; x24671 < x24730; x24671++) {
-      number_t x24705 = x24772;
-      number_t x24758 = (v->arr[x24671]);
-      number_t x24760 = (x24758) - (x24759);
-      number_t x24761 = exp(x24760);
-      number_t x24717 = x24761;
-      index_t x24762 = (i) == (x24671);
-      number_t x24770;
-      if (x24762) {
-        number_t x24765;
-        if (x24733) {
-          x24765 = x24705;
-        } else {
-          number_t x24764 = (x24705) + (x24717);
-          x24765 = x24764;
-        }
-        x24770 = x24765;
-      } else {
-        number_t x24769;
-        if (x24733) {
-          number_t x24767 = (-1) * (x24717);
-          number_t x24768 = (x24705) + (x24767);
-          x24769 = x24768;
-        } else {
-          x24769 = x24705;
-        }
-        x24770 = x24769;
-      }
-      x24705 = x24770;
-      x24772 = x24705;
-    }
-    
-    number_t x24780 = (x24772) / (x24779);
-    number_t x24781;
-    if (x24733) {
-      number_t x24757 = (x24780) + (1);
-      x24781 = x24757;
-    } else {
-      x24781 = x24780;
-    }
-    x24782->arr[i] = x24781;
-    
-  }
-  return x24782;
-}
-
-array_number_t vectorLogsumexp3(array_number_t v) {
   index_t x16761 = (v)->length;
   index_t x16766 = 0;
   for (int x15843 = 0; x15843 < x16761; x15843++) {
@@ -378,60 +242,144 @@ array_number_t vectorLogsumexp3(array_number_t v) {
   return x16790;
 }
 
-
-
 array_number_t vectorLogsumexp_dps(storage_t st, array_number_t v) {
-  index_t x25581 = (v)->length;
-  index_t x25586 = 0;
-  for (int x24663 = 0; x24663 < x25581; x24663++) {
-    index_t x24723 = x25586;
-    number_t x25582 = (v->arr[x24723]);
-    number_t x25583 = (v->arr[x24663]);
-    index_t x25584 = (x25582) > (x25583);
-    index_t x25585;
-    if (x25584) {
-      x25585 = x24723;
+  index_t x16761 = (v)->length;
+  index_t x16766 = 0;
+  for (int x15843 = 0; x15843 < x16761; x15843++) {
+    index_t x15903 = x16766;
+    number_t x16762 = (v->arr[x15903]);
+    number_t x16763 = (v->arr[x15843]);
+    index_t x16764 = (x16762) > (x16763);
+    index_t x16765;
+    if (x16764) {
+      x16765 = x15903;
     } else {
-      x25585 = x24663;
+      x16765 = x15843;
     }
-    x24723 = x25585;
-    x25586 = x24723;
+    x15903 = x16765;
+    x16766 = x15903;
   }
   
-  number_t x25587 = (v->arr[x25586]);
-  number_t x25593 = 0;
-  for (int x24669 = 0; x24669 < x25581; x24669++) {
-    number_t x24702 = x25593;
-    number_t x25588 = (v->arr[x24669]);
-    number_t x25590 = (x25588) - (x25587);
-    number_t x25591 = exp(x25590);
-    number_t x25592 = (x24702) + (x25591);
-    x24702 = x25592;
-    x25593 = x24702;
+  number_t x16767 = (v->arr[x16766]);
+  number_t x16773 = 0;
+  for (int x15849 = 0; x15849 < x16761; x15849++) {
+    number_t x15882 = x16773;
+    number_t x16768 = (v->arr[x15849]);
+    number_t x16770 = (x16768) - (x16767);
+    number_t x16771 = exp(x16770);
+    number_t x16772 = (x15882) + (x16771);
+    x15882 = x16772;
+    x16773 = x15882;
   }
   
-  array_number_t x25606 = (array_number_t)st;
-  for(int i = 0; i < x25606->length; i++){
-    index_t x25594 = (i) == (x25586);
-    number_t x25601 = (v->arr[i]);
-    number_t x25602 = (x25601) - (x25587);
-    number_t x25603 = exp(x25602);
-    number_t x25605;
-    if (x25594) {
-      number_t x25598 = (-1) * (x25603);
-      number_t x25599 = (x25598) / (x25593);
-      number_t x25600 = (x25599) + (1);
-      x25605 = x25600;
+  array_number_t x16790 = (array_number_t)st;
+  for(int i = 0; i < x16790->length; i++){
+    index_t x16774 = (i) == (x16766);
+    number_t x16789;
+    if (x16774) {
+      number_t x16782 = 0;
+      for (int x15849 = 0; x15849 < x16761; x15849++) {
+        number_t x15883 = x16782;
+        index_t x16775 = (i) == (x15849);
+        number_t x16781;
+        if (x16775) {
+          x16781 = x15883;
+        } else {
+          number_t x16776 = (v->arr[x15849]);
+          number_t x16777 = (x16776) - (x16767);
+          number_t x16778 = exp(x16777);
+          number_t x16779 = (-1) * (x16778);
+          number_t x16780 = (x15883) + (x16779);
+          x16781 = x16780;
+        }
+        x15883 = x16781;
+        x16782 = x15883;
+      }
+      
+      number_t x16783 = (x16782) / (x16773);
+      number_t x16784 = (x16783) + (1);
+      x16789 = x16784;
     } else {
-      number_t x25604 = (x25603) / (x25593);
-      x25605 = x25604;
+      number_t x16785 = (v->arr[i]);
+      number_t x16786 = (x16785) - (x16767);
+      number_t x16787 = exp(x16786);
+      number_t x16788 = (x16787) / (x16773);
+      x16789 = x16788;
     }
-    x25606->arr[i] = x25605;
+    x16790->arr[i] = x16789;
     
   }
-  return x25606;
+  return x16790;
 }
 
+void vectorLogsumexp_dps_native(storage_t st, int n, double* v) {
+  index_t x16761 = n;
+  index_t x16766 = 0;
+  for (int x15843 = 0; x15843 < x16761; x15843++) {
+    index_t x15903 = x16766;
+    number_t x16762 = (v[x15903]);
+    number_t x16763 = (v[x15843]);
+    index_t x16764 = (x16762) > (x16763);
+    index_t x16765;
+    if (x16764) {
+      x16765 = x15903;
+    } else {
+      x16765 = x15843;
+    }
+    x15903 = x16765;
+    x16766 = x15903;
+  }
+  
+  number_t x16767 = (v[x16766]);
+  number_t x16773 = 0;
+  for (int x15849 = 0; x15849 < x16761; x15849++) {
+    number_t x15882 = x16773;
+    number_t x16768 = (v[x15849]);
+    number_t x16770 = (x16768) - (x16767);
+    number_t x16771 = exp(x16770);
+    number_t x16772 = (x15882) + (x16771);
+    x15882 = x16772;
+    x16773 = x15882;
+  }
+  
+  double* x16790 = (double*)st;
+  for(int i = 0; i < n; i++){
+    index_t x16774 = (i) == (x16766);
+    number_t x16789;
+    if (x16774) {
+      number_t x16782 = 0;
+      for (int x15849 = 0; x15849 < x16761; x15849++) {
+        number_t x15883 = x16782;
+        index_t x16775 = (i) == (x15849);
+        number_t x16781;
+        if (x16775) {
+          x16781 = x15883;
+        } else {
+          number_t x16776 = (v[x15849]);
+          number_t x16777 = (x16776) - (x16767);
+          number_t x16778 = exp(x16777);
+          number_t x16779 = (-1) * (x16778);
+          number_t x16780 = (x15883) + (x16779);
+          x16781 = x16780;
+        }
+        x15883 = x16781;
+        x16782 = x15883;
+      }
+      
+      number_t x16783 = (x16782) / (x16773);
+      number_t x16784 = (x16783) + (1);
+      x16789 = x16784;
+    } else {
+      number_t x16785 = (v[i]);
+      number_t x16786 = (x16785) - (x16767);
+      number_t x16787 = exp(x16786);
+      number_t x16788 = (x16787) / (x16773);
+      x16789 = x16788;
+    }
+    x16790[i] = x16789;
+    
+  }
+}
 
 double dist(int seed) {
   return ((double)rand()/(double)RAND_MAX);
@@ -601,10 +549,10 @@ void test_micro(card_t DIM, card_t iters)
     }
   #elif defined DPS
     vectorLogsumexp_dps(vec_result, vec1);
+    // vectorLogsumexp_dps_native(vec_result->arr, vec1->length, vec1->arr);
   #else
-    vec_result = vectorLogsumexp3(vec1);
+    vec_result = vectorLogsumexp(vec1);
   #endif
-    vector_print(vec_result);
     total += vector_sum(vec_result);
 #endif
   }

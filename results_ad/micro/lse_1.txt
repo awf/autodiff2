@@ -1,0 +1,63 @@
+800
+./lse_tap_rev.exe
+total =10.000000, time per call = 0.021400 ms
+./lse_tap_for.exe
+total =10.000000, time per call = 8.499100 ms
+./lse_diff.exe
+total =10.000000, time per call = 0.031800 ms
+./lse_diff_dps.exe
+total =10.000000, time per call = 0.023400 ms
+1600
+./lse_tap_rev.exe
+total =10.000000, time per call = 0.041300 ms
+./lse_tap_for.exe
+total =10.000000, time per call = 33.540601 ms
+./lse_diff.exe
+total =10.000000, time per call = 0.054400 ms
+./lse_diff_dps.exe
+total =10.000000, time per call = 0.046600 ms
+3200
+./lse_tap_rev.exe
+total =10.000000, time per call = 0.081500 ms
+./lse_tap_for.exe
+total =10.000000, time per call = 133.809094 ms
+./lse_diff.exe
+total =10.000000, time per call = 0.119700 ms
+./lse_diff_dps.exe
+total =10.000000, time per call = 0.091100 ms
+6400
+./lse_tap_rev.exe
+total =10.000000, time per call = 0.156900 ms
+./lse_tap_for.exe
+total =10.000000, time per call = 548.800781 ms
+./lse_diff.exe
+total =10.000000, time per call = 0.262000 ms
+./lse_diff_dps.exe
+total =10.000000, time per call = 0.182300 ms
+12800
+./lse_tap_rev.exe
+total =10.000000, time per call = 0.310600 ms
+./lse_tap_for.exe
+total =10.000000, time per call = 2202.793555 ms
+./lse_diff.exe
+total =10.000000, time per call = 0.423100 ms
+./lse_diff_dps.exe
+total =10.000000, time per call = 0.463200 ms
+25600
+./lse_tap_rev.exe
+total =10.000000, time per call = 0.759000 ms
+./lse_tap_for.exe
+total =10.000000, time per call = 8949.322656 ms
+./lse_diff.exe
+total =10.000000, time per call = 0.919800 ms
+./lse_diff_dps.exe
+total =10.000000, time per call = 0.727800 ms
+51200
+./lse_tap_rev.exe
+total =10.000000, time per call = 1.288600 ms
+./lse_tap_for.exe
+total =10.000000, time per call = 35103.093750 ms
+./lse_diff.exe
+total =10.000000, time per call = 1.743500 ms
+./lse_diff_dps.exe
+total =10.000000, time per call = 1.501000 ms
