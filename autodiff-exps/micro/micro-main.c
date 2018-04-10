@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "../diffsmooth/fsharp.h"
 #include "../diffsmooth/timer.h"
 
@@ -112,6 +113,169 @@ array_number_t vectorDot_dps(storage_t st, array_number_t v1, array_number_t v2)
   }
   return x21819;
 }
+
+array_number_t vectorMax(array_number_t v) {
+  index_t x24497 = 0;
+  for (int x24485 = 0; x24485 < (v)->length; x24485++) {
+    index_t x24495 = x24497;
+    index_t x24496;
+    if (((v->arr[x24495])) > ((v->arr[x24485]))) {
+      x24496 = x24495;
+    } else {
+      x24496 = x24485;
+    }
+    x24495 = x24496;
+    x24497 = x24495;
+  }
+  
+  array_number_t x24499 = (array_number_t)storage_alloc(sizeof(int) * 2);x24499->length=(v)->length;x24499->arr = (number_t*)storage_alloc(sizeof(number_t) * (v)->length);
+  for(int i = 0; i < x24499->length; i++){
+    number_t x24498;
+    if ((i) == (x24497)) {
+      x24498 = 1;
+    } else {
+      x24498 = 0;
+    }
+    x24499->arr[i] = x24498;
+    
+  }
+  return x24499;
+}
+
+array_number_t vectorMax_dps(storage_t st, array_number_t v) {
+  index_t x24497 = 0;
+  for (int x24485 = 0; x24485 < (v)->length; x24485++) {
+    index_t x24495 = x24497;
+    index_t x24496;
+    if (((v->arr[x24495])) > ((v->arr[x24485]))) {
+      x24496 = x24495;
+    } else {
+      x24496 = x24485;
+    }
+    x24495 = x24496;
+    x24497 = x24495;
+  }
+  
+  array_number_t x24499 = (array_number_t)st;
+  for(int i = 0; i < x24499->length; i++){
+    number_t x24498;
+    if ((i) == (x24497)) {
+      x24498 = 1;
+    } else {
+      x24498 = 0;
+    }
+    x24499->arr[i] = x24498;
+    
+  }
+  return x24499;
+}
+
+
+
+array_number_t vectorLogsumexp(array_number_t v) {
+  index_t x25581 = (v)->length;
+  index_t x25586 = 0;
+  for (int x24663 = 0; x24663 < x25581; x24663++) {
+    index_t x24723 = x25586;
+    number_t x25582 = (v->arr[x24723]);
+    number_t x25583 = (v->arr[x24663]);
+    index_t x25584 = (x25582) > (x25583);
+    index_t x25585;
+    if (x25584) {
+      x25585 = x24723;
+    } else {
+      x25585 = x24663;
+    }
+    x24723 = x25585;
+    x25586 = x24723;
+  }
+  
+  number_t x25587 = (v->arr[x25586]);
+  number_t x25593 = 0;
+  for (int x24669 = 0; x24669 < x25581; x24669++) {
+    number_t x24702 = x25593;
+    number_t x25588 = (v->arr[x24669]);
+    number_t x25590 = (x25588) - (x25587);
+    number_t x25591 = exp(x25590);
+    number_t x25592 = (x24702) + (x25591);
+    x24702 = x25592;
+    x25593 = x24702;
+  }
+  
+  array_number_t x25606 = (array_number_t)storage_alloc(sizeof(int) * 2);x25606->length=x25581;x25606->arr = (number_t*)storage_alloc(sizeof(number_t) * x25581);
+  for(int i = 0; i < x25606->length; i++){
+    index_t x25594 = (i) == (x25586);
+    number_t x25601 = (v->arr[i]);
+    number_t x25602 = (x25601) - (x25587);
+    number_t x25603 = exp(x25602);
+    number_t x25605;
+    if (x25594) {
+      number_t x25598 = (-1) * (x25603);
+      number_t x25599 = (x25598) / (x25593);
+      number_t x25600 = (x25599) + (1);
+      x25605 = x25600;
+    } else {
+      number_t x25604 = (x25603) / (x25593);
+      x25605 = x25604;
+    }
+    x25606->arr[i] = x25605;
+    
+  }
+  return x25606;
+}
+
+array_number_t vectorLogsumexp_dps(storage_t st, array_number_t v) {
+  index_t x25581 = (v)->length;
+  index_t x25586 = 0;
+  for (int x24663 = 0; x24663 < x25581; x24663++) {
+    index_t x24723 = x25586;
+    number_t x25582 = (v->arr[x24723]);
+    number_t x25583 = (v->arr[x24663]);
+    index_t x25584 = (x25582) > (x25583);
+    index_t x25585;
+    if (x25584) {
+      x25585 = x24723;
+    } else {
+      x25585 = x24663;
+    }
+    x24723 = x25585;
+    x25586 = x24723;
+  }
+  
+  number_t x25587 = (v->arr[x25586]);
+  number_t x25593 = 0;
+  for (int x24669 = 0; x24669 < x25581; x24669++) {
+    number_t x24702 = x25593;
+    number_t x25588 = (v->arr[x24669]);
+    number_t x25590 = (x25588) - (x25587);
+    number_t x25591 = exp(x25590);
+    number_t x25592 = (x24702) + (x25591);
+    x24702 = x25592;
+    x25593 = x24702;
+  }
+  
+  array_number_t x25606 = (array_number_t)st;
+  for(int i = 0; i < x25606->length; i++){
+    index_t x25594 = (i) == (x25586);
+    number_t x25601 = (v->arr[i]);
+    number_t x25602 = (x25601) - (x25587);
+    number_t x25603 = exp(x25602);
+    number_t x25605;
+    if (x25594) {
+      number_t x25598 = (-1) * (x25603);
+      number_t x25599 = (x25598) / (x25593);
+      number_t x25600 = (x25599) + (1);
+      x25605 = x25600;
+    } else {
+      number_t x25604 = (x25603) / (x25593);
+      x25605 = x25604;
+    }
+    x25606->arr[i] = x25605;
+    
+  }
+  return x25606;
+}
+
 
 double dist(int seed) {
   return ((double)rand()/(double)RAND_MAX);
@@ -239,6 +403,23 @@ void test_micro(card_t DIM, card_t iters)
     vectorDot_dps(vec_result, vec1, vec2);
   #else
     vec_result = vectorDot(vec1, vec2);
+  #endif
+    total += vector_sum(vec_result);
+#elif defined VEC_MAX
+  #if defined TAPENADE && defined REV_MODE
+    memset(vec_result->arr, 0, DIM * sizeof(double));
+    vec_max_b(DIM, vec1->arr, vec_result->arr, 1);
+  #elif defined TAPENADE
+    for(int i=0; i<DIM; i++) {
+      double tmp_res;
+      vec_tmp->arr[i] = 1;
+      vec_result->arr[i] = vec_max_d(DIM, vec1->arr, vec_tmp->arr, &tmp_res);
+      vec_tmp->arr[i] = 0;
+    }
+  #elif defined DPS
+    vectorMax_dps(vec_result, vec1);
+  #else
+    vec_result = vectorMax(vec1);
   #endif
     total += vector_sum(vec_result);
 #endif
