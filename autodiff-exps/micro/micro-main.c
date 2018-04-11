@@ -4,19 +4,21 @@
 #include "../diffsmooth/fsharp.h"
 #include "../diffsmooth/timer.h"
 
-#if defined TAPENADE
-  #if defined REV_MODE
-    // #if defined UNFUSED
-    //   #include "../tapanade/submitted/4/nmf_unfused_b-all.h"
-    // #else
-      #include "../tapanade/submitted/8/micro_b-all.h"
-    // #endif
+#if defined BA_ROD
+  #if defined FUSED
+    #include "../diffsmooth/ba_rod_fused.h"
+  #elif defined MANUAL
+    #include "../diffsmooth/ba_rod_manual.h"
   #else
-    // #if defined UNFUSED
-    //   #include "../tapanade/submitted/4/nmf_unfused_d-all.h"
-    // #else
-      #include "../tapanade/submitted/8/micro_d-all.h"
-    // #endif
+    #include "../diffsmooth/ba_rod_unfused.h"
+  #endif
+#else
+  #if defined TAPENADE
+    #if defined REV_MODE
+        #include "../tapanade/submitted/8/micro_b-all.h"
+    #else
+        #include "../tapanade/submitted/8/micro_d-all.h"
+    #endif
   #endif
 #endif
 
@@ -562,6 +564,10 @@ void test_micro(card_t DIM, card_t iters)
     vec_result = vectorLogsumexp(vec1);
   #endif
     total += vector_sum(vec_result);
+#elif defined BA_ROD
+    mat_result = ba_rod(vec1, (DIM - 11 )/ 3);
+    matrix_print(mat_result);
+    total += matrixSum(mat_result);
 #endif
   }
 

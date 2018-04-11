@@ -1,7 +1,7 @@
 REV_FOLDER=../tapanade/ADFirstAidKit
 FLIB=-L /usr/local/lib/gcc/7/ -lgfortran $(REV_FOLDER)/adBuffer.c $(REV_FOLDER)/adStack.c
 
-all : 
+all : ba_rod
 	clang -O3 micro-main.c -DBUMP -DMULTS -o mults_diff.exe
 	clang -O3 micro-main.c -DBUMP -DMULTS -DDPS -o mults_diff_dps.exe
 	clang -O3 micro-main.c -DBUMP -DMULTS -DTAPENADE -o mults_tap_for.exe
@@ -24,3 +24,8 @@ all :
 	clang -O3 micro-main.c -DBUMP -DLSE -DTAPENADE -DREV_MODE $(FLIB) -o lse_tap_rev.exe
 	clang -O3 micro-main.c -DBUMP -DLSE -DTAPENADE -DFUSED -o lse_tap_fused_for.exe
 	clang -O3 micro-main.c -DBUMP -DLSE -DTAPENADE -DFUSED -DREV_MODE $(FLIB) -o lse_tap_fused_rev.exe
+
+ba_rod :
+	clang -O3 micro-main.c -DBUMP -DBA_ROD -o ba_rod_diff.exe
+	clang -O3 micro-main.c -DBUMP -DBA_ROD -DFUSED -o ba_rod_diff_fused.exe
+	clang -O3 micro-main.c -DBUMP -DBA_ROD -DMANUAL -o ba_rod_diff_manual.exe

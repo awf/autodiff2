@@ -5,7 +5,7 @@
 #include <math.h>
 
 
-array_array_array_number_t rod_jac(array_number_t xs, index_t n) {
+array_array_array_number_t ba_rod_jac(array_number_t xs, index_t n) {
   number_t x1353 = (xs->arr[0]);
   number_t x1355 = (x1353) * (x1353);
   number_t x1356 = (xs->arr[1]);
