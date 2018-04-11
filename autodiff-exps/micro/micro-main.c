@@ -386,13 +386,13 @@ double dist(int seed) {
 }
 
 array_array_number_t TOP_LEVEL_linalg_matrixFill(card_t rows, card_t cols, number_t value) {
-  array_array_number_t macroDef79 = (array_array_number_t)malloc(sizeof(int) * 2);
+  array_array_number_t macroDef79 = (array_array_number_t)storage_alloc(sizeof(int) * 2);
   macroDef79->length=rows;
-  macroDef79->arr = (array_number_t*)malloc(sizeof(array_number_t) * rows);
+  macroDef79->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * rows);
     for(int r = 0; r < macroDef79->length; r++){
-      array_number_t macroDef78 = (array_number_t)malloc(sizeof(int) * 2);
+      array_number_t macroDef78 = (array_number_t)storage_alloc(sizeof(int) * 2);
   macroDef78->length=cols;
-  macroDef78->arr = (number_t*)malloc(sizeof(number_t) * cols);
+  macroDef78->arr = (number_t*)storage_alloc(sizeof(number_t) * cols);
     for(int c = 0; c < macroDef78->length; c++){
       
       macroDef78->arr[c] = value;;
@@ -539,12 +539,20 @@ void test_micro(card_t DIM, card_t iters)
 #elif defined LSE
   #if defined TAPENADE && defined REV_MODE
     memset(vec_result->arr, 0, DIM * sizeof(double));
+    #if defined FUSED
     vec_logsumexp_b(DIM, vec1->arr, vec_result->arr, 1);
+    #else
+    vec_logsumexp_unfused_b(DIM, vec1->arr, vec_result->arr, 1);
+    #endif
   #elif defined TAPENADE
     for(int i=0; i<DIM; i++) {
       double tmp_res;
       vec_tmp->arr[i] = 1;
+      #if defined FUSED
       vec_result->arr[i] = vec_logsumexp_d(DIM, vec1->arr, vec_tmp->arr, &tmp_res);
+      #else
+      vec_result->arr[i] = vec_logsumexp_unfused_d(DIM, vec1->arr, vec_tmp->arr, &tmp_res);
+      #endif
       vec_tmp->arr[i] = 0;
     }
   #elif defined DPS

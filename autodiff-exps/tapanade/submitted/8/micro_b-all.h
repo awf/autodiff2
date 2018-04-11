@@ -155,3 +155,115 @@ void vec_logsumexp_b(int n, double *v, double *vb, double vec_logsumexpb) {
     }
     vec_max_b(n, v, vb, mxb);
 }
+/*
+  Differentiation of vec_exp in reverse (adjoint) mode:
+   gradient     of useful results: *res *v
+   with respect to varying inputs: *res *v
+   Plus diff mem management of: res:in v:in
+*/
+void vec_exp_b(int n, double *v, double *vb, double *res, double *resb) {
+    for (int idx = n-1; idx > -1; --idx) {
+        vb[idx] = vb[idx] + exp(v[idx])*resb[idx];
+        resb[idx] = 0.0;
+    }
+}
+
+/*
+  Differentiation of vec_fill in reverse (adjoint) mode:
+   gradient     of useful results: *res value
+   with respect to varying inputs: *res value
+   Plus diff mem management of: res:in
+*/
+void vec_fill_b(int n, double value, double *valueb, double *res, double *resb
+) {
+    for (int idx = n-1; idx > -1; --idx) {
+        *valueb = *valueb + resb[idx];
+        resb[idx] = 0.0;
+    }
+}
+
+/*
+  Differentiation of vec_sub in reverse (adjoint) mode:
+   gradient     of useful results: *res *v1 *v2
+   with respect to varying inputs: *res *v1 *v2
+   Plus diff mem management of: res:in v1:in v2:in
+*/
+void vec_sub_b(int n, double *v1, double *v1b, double *v2, double *v2b, double
+        *res, double *resb) {
+    for (int idx = n-1; idx > -1; --idx) {
+        v1b[idx] = v1b[idx] + resb[idx];
+        v2b[idx] = v2b[idx] - resb[idx];
+        resb[idx] = 0.0;
+    }
+}
+
+/*
+  Differentiation of vec_sum in reverse (adjoint) mode:
+   gradient     of useful results: *x vec_sum
+   with respect to varying inputs: *x
+   Plus diff mem management of: x:in
+*/
+void vec_sum_b(int n, double *x, double *xb, double vec_sumb) {
+    double res = 0;
+    double resb = 0.0;
+    double vec_sum;
+    resb = vec_sumb;
+    for (int i = n-1; i > -1; --i)
+        xb[i] = xb[i] + resb;
+}
+
+/*
+  Differentiation of vec_logsumexp_unfused in reverse (adjoint) mode:
+   gradient     of useful results: alloc(*subv) alloc(*expv) alloc(*mxv)
+                *v vec_logsumexp_unfused
+   with respect to varying inputs: alloc(*subv) alloc(*expv) alloc(*mxv)
+                *v
+   RW status of diff variables: alloc(*subv):in-out alloc(*expv):in-out
+                alloc(*mxv):in-out *v:incr vec_logsumexp_unfused:in-killed
+   Plus diff mem management of: v:in
+*/
+void vec_logsumexp_unfused_b(int n, double *v, double *vb, double 
+        vec_logsumexp_unfusedb) {
+    double mx;
+    double mxb;
+    int ii1;
+    double vec_logsumexp_unfused;
+    mx = vec_max(n, v);
+    double *mxv;
+    double *mxvb;
+    mxvb = (double *)malloc(n*sizeof(double));
+    for (ii1 = 0; ii1 < n; ++ii1)
+        mxvb[ii1] = 0.0;
+    mxv = (double *)malloc(n*sizeof(double));
+    vec_fill(n, mx, mxv);
+    double *subv;
+    double *subvb;
+    subvb = (double *)malloc(n*sizeof(double));
+    for (ii1 = 0; ii1 < n; ++ii1)
+        subvb[ii1] = 0.0;
+    subv = (double *)malloc(n*sizeof(double));
+    vec_sub(n, v, mxv, subv);
+    double *expv;
+    double *expvb;
+    expvb = (double *)malloc(n*sizeof(double));
+    for (ii1 = 0; ii1 < n; ++ii1)
+        expvb[ii1] = 0.0;
+    expv = (double *)malloc(n*sizeof(double));
+    vec_exp(n, subv, expv);
+    double sum;
+    double sumb;
+    sum = vec_sum(n, expv);
+    sumb = vec_logsumexp_unfusedb/sum;
+    mxb = vec_logsumexp_unfusedb;
+    vec_sum_b(n, expv, expvb, sumb);
+    vec_exp_b(n, subv, subvb, expv, expvb);
+    free(expv);
+    free(expvb);
+    vec_sub_b(n, v, vb, mxv, mxvb, subv, subvb);
+    free(subv);
+    free(subvb);
+    vec_fill_b(n, mx, &mxb, mxv, mxvb);
+    free(mxv);
+    free(mxvb);
+    vec_max_b(n, v, vb, mxb);
+}

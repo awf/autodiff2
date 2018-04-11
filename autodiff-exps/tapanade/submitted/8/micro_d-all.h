@@ -128,3 +128,111 @@ double vec_logsumexp_d(int n, double *v, double *vd, double *vec_logsumexp) {
     *vec_logsumexp = log(x25609) + mx;
     return x25609d/x25609 + mxd;
 }
+/*
+  Differentiation of vec_exp in forward (tangent) mode:
+   variations   of useful results: *res
+   with respect to varying inputs: *res *v
+   Plus diff mem management of: res:in v:in
+*/
+void vec_exp_d(int n, double *v, double *vd, double *res, double *resd) {
+    for (int idx = 0; idx < n; ++idx) {
+        resd[idx] = vd[idx]*exp(v[idx]);
+        res[idx] = exp(v[idx]);
+    }
+}
+
+/*
+  Differentiation of vec_fill in forward (tangent) mode:
+   variations   of useful results: *res
+   with respect to varying inputs: *res value
+   Plus diff mem management of: res:in
+*/
+void vec_fill_d(int n, double value, double valued, double *res, double *resd)
+{
+    for (int idx = 0; idx < n; ++idx) {
+        resd[idx] = valued;
+        res[idx] = value;
+    }
+}
+
+/*
+  Differentiation of vec_sub in forward (tangent) mode:
+   variations   of useful results: *res
+   with respect to varying inputs: *res *v1 *v2
+   Plus diff mem management of: res:in v1:in v2:in
+*/
+void vec_sub_d(int n, double *v1, double *v1d, double *v2, double *v2d, double
+        *res, double *resd) {
+    for (int idx = 0; idx < n; ++idx) {
+        resd[idx] = v1d[idx] - v2d[idx];
+        res[idx] = v1[idx] - v2[idx];
+    }
+}
+
+/*
+  Differentiation of vec_sum in forward (tangent) mode:
+   variations   of useful results: vec_sum
+   with respect to varying inputs: *x
+   Plus diff mem management of: x:in
+*/
+double vec_sum_d(int n, double *x, double *xd, double *vec_sum) {
+    double res = 0;
+    double resd;
+    resd = 0.0;
+    for (int i = 0; i < n; ++i) {
+        resd = resd + xd[i];
+        res += x[i];
+    }
+    *vec_sum = res;
+    return resd;
+}
+
+/*
+  Differentiation of vec_logsumexp_unfused in forward (tangent) mode:
+   variations   of useful results: alloc(*subv) alloc(*expv) alloc(*mxv)
+                vec_logsumexp_unfused
+   with respect to varying inputs: alloc(*subv) alloc(*expv) alloc(*mxv)
+                *v
+   RW status of diff variables: alloc(*subv):in-out alloc(*expv):in-out
+                alloc(*mxv):in-out *v:in vec_logsumexp_unfused:out
+   Plus diff mem management of: v:in
+*/
+double vec_logsumexp_unfused_d(int n, double *v, double *vd, double *
+        vec_logsumexp_unfused) {
+    double mx;
+    double mxd;
+    int ii1;
+    mxd = vec_max_d(n, v, vd, &mx);
+    double *mxv;
+    double *mxvd;
+    mxvd = (double *)malloc(n*sizeof(double));
+    for (ii1 = 0; ii1 < n; ++ii1)
+        mxvd[ii1] = 0.0;
+    mxv = (double *)malloc(n*sizeof(double));
+    vec_fill_d(n, mx, mxd, mxv, mxvd);
+    double *subv;
+    double *subvd;
+    subvd = (double *)malloc(n*sizeof(double));
+    for (ii1 = 0; ii1 < n; ++ii1)
+        subvd[ii1] = 0.0;
+    subv = (double *)malloc(n*sizeof(double));
+    vec_sub_d(n, v, vd, mxv, mxvd, subv, subvd);
+    free(mxvd);
+    free(mxv);
+    double *expv;
+    double *expvd;
+    expvd = (double *)malloc(n*sizeof(double));
+    for (ii1 = 0; ii1 < n; ++ii1)
+        expvd[ii1] = 0.0;
+    expv = (double *)malloc(n*sizeof(double));
+    vec_exp_d(n, subv, subvd, expv, expvd);
+    free(subvd);
+    free(subv);
+    double sum;
+    double sumd;
+    sumd = vec_sum_d(n, expv, expvd, &sum);
+    free(expvd);
+    free(expv);
+    *vec_logsumexp_unfused = log(sum) + mx;
+    return sumd/sum + mxd;
+}

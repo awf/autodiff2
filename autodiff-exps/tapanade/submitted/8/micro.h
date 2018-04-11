@@ -60,3 +60,48 @@ double vec_logsumexp(int n, double* v) {
   return (log(x25609)) + (mx);
 }
 
+void vec_exp(int n, double*v, double* res) {
+  for (int idx = 0; idx < n; idx++) {
+    res[idx] = exp(v[idx]);
+  }
+}
+
+void vec_fill(int n, double value, double*res) {
+  for (int idx = 0; idx < n; idx++) {
+    res[idx] = value;
+  }
+}
+
+void vec_sub(int n, double*v1, double*v2, double* res) {
+  for (int idx = 0; idx < n; idx++) {
+    res[idx] = v1[idx] - v2[idx];
+  }
+}
+
+double vec_sum(int n, double* x) {
+  double res = 0;
+  for(int i = 0; i< n; i++) {
+    res += x[i];
+  }
+  return res;
+}
+
+double vec_logsumexp_unfused(int n, double* v) {
+  double mx = vec_max(n, v);
+
+  double* mxv = (double*)malloc(n * sizeof(double));
+  vec_fill(n, mx, mxv);
+
+  double* subv = (double*)malloc(n * sizeof(double));
+  vec_sub(n, v, mxv, subv);
+  free(mxv);
+
+  double* expv = (double*)malloc(n * sizeof(double));
+  vec_exp(n, subv, expv);
+  free(subv);
+
+  double sum = vec_sum(n, expv);
+  free(expv);
+  
+  return (log(sum)) + (mx);
+}

@@ -22,3 +22,5 @@ all :
 	clang -O3 micro-main.c -DBUMP -DLSE -DDPS -o lse_diff_dps.exe
 	clang -O3 micro-main.c -DBUMP -DLSE -DTAPENADE -o lse_tap_for.exe
 	clang -O3 micro-main.c -DBUMP -DLSE -DTAPENADE -DREV_MODE $(FLIB) -o lse_tap_rev.exe
+	clang -O3 micro-main.c -DBUMP -DLSE -DTAPENADE -DFUSED -o lse_tap_fused_for.exe
+	clang -O3 micro-main.c -DBUMP -DLSE -DTAPENADE -DFUSED -DREV_MODE $(FLIB) -o lse_tap_fused_rev.exe
