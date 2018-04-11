@@ -132,3 +132,109 @@ void ba_rod_native_d(int d, double *xs, double *xsd, int n, double **res,
                         ]);
     }
 }
+
+/*
+  Differentiation of radial_distort in forward (tangent) mode:
+   variations   of useful results: *res
+   with respect to varying inputs: *res *rad_params *proj
+   Plus diff mem management of: res:in rad_params:in proj:in
+*/
+void radial_distort_d(double *rad_params, double *rad_paramsd, double *proj, 
+        double *projd, double *res, double *resd) {
+    double rsq, L;
+    double rsqd, Ld;
+    rsqd = sqsum_d(2, proj, projd, &rsq);
+    Ld = rad_paramsd[0]*rsq + rad_params[0]*rsqd + rad_paramsd[1]*(rsq*rsq) + 
+        rad_params[1]*(rsqd*rsq+rsq*rsqd);
+    L = 1 + rad_params[0]*rsq + rad_params[1]*rsq*rsq;
+    resd[0] = projd[0]*L + proj[0]*Ld;
+    res[0] = proj[0]*L;
+    resd[1] = projd[1]*L + proj[1]*Ld;
+    res[1] = proj[1]*L;
+}
+
+/*
+  Differentiation of project in forward (tangent) mode:
+   variations   of useful results: alloc(*proj3) alloc(*proj2)
+                alloc(*Xcam) alloc(*Xo) alloc(*cross_) alloc(*w)
+                *proj
+   with respect to varying inputs: alloc(*proj3) alloc(*proj2)
+                alloc(*Xcam) alloc(*Xo) alloc(*cross_) alloc(*w)
+                *cam *X *proj
+   Plus diff mem management of: cam:in X:in proj:in
+*/
+void project_d(double *cam, double *camd, double *X, double *Xd, double *proj,
+        double *projd) {
+    int i;
+    double *C;
+    double *Cd;
+    double *Xo;
+    double *Xod;
+    int ii1;
+    Xod = (double *)malloc(sizeof(double)*3);
+    for (ii1 = 0; ii1 < 3; ++ii1)
+        Xod[ii1] = 0.0;
+    Xo = (double *)malloc(sizeof(double)*3);
+    double *Xcam;
+    double *Xcamd;
+    Xcamd = (double *)malloc(sizeof(double)*3);
+    for (ii1 = 0; ii1 < 3; ++ii1)
+        Xcamd[ii1] = 0.0;
+    Xcam = (double *)malloc(sizeof(double)*3);
+    double *proj2;
+    double *proj2d;
+    proj2d = (double *)malloc(sizeof(double)*2);
+    for (ii1 = 0; ii1 < 2; ++ii1)
+        proj2d[ii1] = 0.0;
+    proj2 = (double *)malloc(sizeof(double)*2);
+    double *proj3;
+    double *proj3d;
+    proj3d = (double *)malloc(sizeof(double)*2);
+    for (ii1 = 0; ii1 < 2; ++ii1)
+        proj3d[ii1] = 0.0;
+    proj3 = (double *)malloc(sizeof(double)*2);
+    Cd = &camd[3];
+    C = &cam[3];
+    for (i = 0; i < 3; ++i) {
+        Xod[i] = Xd[i] - Cd[i];
+        Xo[i] = X[i] - C[i];
+    }
+    ba_rod_single_d(&cam[0], &camd[0], Xo, Xod, Xcam, Xcamd);
+    proj2d[0] = (Xcamd[0]*Xcam[2]-Xcam[0]*Xcamd[2])/(Xcam[2]*Xcam[2]);
+    proj2[0] = Xcam[0]/Xcam[2];
+    proj2d[1] = (Xcamd[1]*Xcam[2]-Xcam[1]*Xcamd[2])/(Xcam[2]*Xcam[2]);
+    proj2[1] = Xcam[1]/Xcam[2];
+    radial_distort_d(&cam[9], &camd[9], proj2, proj2d, proj3, proj3d);
+    for (i = 0; i < 2; ++i) {
+        projd[i] = proj3d[i]*cam[6] + proj3[i]*camd[6] + camd[7 + i];
+        proj[i] = proj3[i]*cam[6] + cam[7 + i];
+    }
+    free(Xod);
+    free(Xo);
+    free(Xcamd);
+    free(Xcam);
+    free(proj2d);
+    free(proj2);
+    free(proj3d);
+    free(proj3);
+}
+/*
+  Differentiation of ba_proj_native in forward (tangent) mode:
+   variations   of useful results: alloc(*proj3) alloc(*proj2)
+                alloc(*Xcam) alloc(*Xo) alloc(*cross_) alloc(*w)
+                **res
+   with respect to varying inputs: alloc(*proj3) alloc(*proj2)
+                alloc(*Xcam) alloc(*Xo) alloc(*cross_) alloc(*w)
+                **res *xs
+   RW status of diff variables: alloc(*proj3):in-out alloc(*proj2):in-out
+                alloc(*Xcam):in-out alloc(*Xo):in-out alloc(*cross_):in-out
+                alloc(*w):in-out **res:in-out *xs:in
+   Plus diff mem management of: res:in *res:in xs:in
+*/
+void ba_proj_native_d(int d, double *xs, double *xsd, int n, double **res, 
+        double **resd) {
+    for (int idx = 0; idx < n; ++idx) {
+        int offset = 11 + d*idx;
+        project_d(xs, xsd, &xs[offset], &xsd[offset], res[idx], resd[idx]);
+    }
+}

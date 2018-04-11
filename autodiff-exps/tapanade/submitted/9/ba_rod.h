@@ -3,6 +3,13 @@
 #include <stdio.h>
 #include <math.h>
 
+#define BA_NCAMPARAMS 11
+#define BA_ROT_IDX 0
+#define BA_C_IDX 3
+#define BA_F_IDX 6
+#define BA_X0_IDX 7
+#define BA_RAD_IDX 9
+
 double sqsum(int n, double *x)
 {
   int i;
@@ -58,5 +65,49 @@ void ba_rod_native(int d, double* xs, int n, double** res) {
   for(int idx = 0; idx < n; idx++){
     int offset = (11) + ((d) * (idx));
     ba_rod_single(xs, &xs[offset], res[idx]);
+  }
+}
+
+void radial_distort(double *rad_params, double *proj, double* res)
+{
+  double rsq, L;
+  rsq = sqsum(2, proj);
+  L = 1 + rad_params[0] * rsq + rad_params[1] * rsq * rsq;
+  res[0] = proj[0] * L;
+  res[1] = proj[1] * L;
+}
+
+void project(double *cam, double *X, double *proj)
+{
+  int i;
+  double *C;
+  double *Xo = (double*)malloc(sizeof(double) * 3);
+  double *Xcam = (double*)malloc(sizeof(double) * 3);
+  double *proj2 = (double*)malloc(sizeof(double) * 2);
+  double *proj3 = (double*)malloc(sizeof(double) * 2);
+  C = &cam[BA_C_IDX];
+
+  for (i = 0; i < 3; i++)
+    Xo[i] = X[i] - C[i];
+
+  ba_rod_single(&cam[BA_ROT_IDX], Xo, Xcam);
+
+  proj2[0] = Xcam[0] / Xcam[2];
+  proj2[1] = Xcam[1] / Xcam[2];
+
+  radial_distort(&cam[BA_RAD_IDX], proj2, proj3);
+
+  for (i = 0; i < 2; i++)
+    proj[i] = proj3[i] * cam[BA_F_IDX] + cam[BA_X0_IDX + i];
+  free(Xo);
+  free(Xcam);
+  free(proj2);
+  free(proj3);
+}
+
+void ba_proj_native(int d, double* xs, int n, double** res) {
+  for(int idx = 0; idx < n; idx++){
+    int offset = (11) + ((d) * (idx));
+    project(xs, &xs[offset], res[idx]);
   }
 }

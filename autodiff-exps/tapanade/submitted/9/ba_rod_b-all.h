@@ -163,3 +163,135 @@ void ba_rod_native_b(int d, double *xs, double *xsb, int n, double **res,
                         ]);
     }
 }
+
+/*
+  Differentiation of radial_distort in reverse (adjoint) mode:
+   gradient     of useful results: *res *rad_params *proj
+   with respect to varying inputs: *res *rad_params *proj
+   Plus diff mem management of: res:in rad_params:in proj:in
+*/
+void radial_distort_b(double *rad_params, double *rad_paramsb, double *proj, 
+        double *projb, double *res, double *resb) {
+    double rsq, L;
+    double rsqb, Lb;
+    rsq = sqsum(2, proj);
+    L = 1 + rad_params[0]*rsq + rad_params[1]*rsq*rsq;
+    projb[1] = projb[1] + L*resb[1];
+    Lb = proj[1]*resb[1];
+    resb[1] = 0.0;
+    projb[0] = projb[0] + L*resb[0];
+    Lb = Lb + proj[0]*resb[0];
+    resb[0] = 0.0;
+    rad_paramsb[0] = rad_paramsb[0] + rsq*Lb;
+    rsqb = (rad_params[1]*2*rsq+rad_params[0])*Lb;
+    rad_paramsb[1] = rad_paramsb[1] + rsq*rsq*Lb;
+    sqsum_b(2, proj, projb, rsqb);
+}
+
+/*
+  Differentiation of project in reverse (adjoint) mode:
+   gradient     of useful results: alloc(*proj3) alloc(*proj2)
+                alloc(*Xcam) alloc(*Xo) alloc(*cross_) alloc(*w)
+                *cam *X *proj
+   with respect to varying inputs: alloc(*proj3) alloc(*proj2)
+                alloc(*Xcam) alloc(*Xo) alloc(*cross_) alloc(*w)
+                *cam *X *proj
+   Plus diff mem management of: cam:in X:in proj:in
+*/
+void project_b(double *cam, double *camb, double *X, double *Xb, double *proj,
+        double *projb) {
+    int i;
+    double *C;
+    double *Cb;
+    double *Xo;
+    double *Xob;
+    int ii1;
+    double tempb;
+    double tempb0;
+    Xob = (double *)malloc(sizeof(double)*3);
+    for (ii1 = 0; ii1 < 3; ++ii1)
+        Xob[ii1] = 0.0;
+    Xo = (double *)malloc(sizeof(double)*3);
+    double *Xcam;
+    double *Xcamb;
+    Xcamb = (double *)malloc(sizeof(double)*3);
+    for (ii1 = 0; ii1 < 3; ++ii1)
+        Xcamb[ii1] = 0.0;
+    Xcam = (double *)malloc(sizeof(double)*3);
+    double *proj2;
+    double *proj2b;
+    proj2b = (double *)malloc(sizeof(double)*2);
+    for (ii1 = 0; ii1 < 2; ++ii1)
+        proj2b[ii1] = 0.0;
+    proj2 = (double *)malloc(sizeof(double)*2);
+    double *proj3;
+    double *proj3b;
+    proj3b = (double *)malloc(sizeof(double)*2);
+    for (ii1 = 0; ii1 < 2; ++ii1)
+        proj3b[ii1] = 0.0;
+    proj3 = (double *)malloc(sizeof(double)*2);
+    Cb = &camb[3];
+    C = &cam[3];
+    for (i = 0; i < 3; ++i)
+        Xo[i] = X[i] - C[i];
+    ba_rod_single(&cam[0], Xo, Xcam);
+    proj2[0] = Xcam[0]/Xcam[2];
+    proj2[1] = Xcam[1]/Xcam[2];
+    radial_distort(&cam[9], proj2, proj3);
+    for (i = 1; i > -1; --i) {
+        proj3b[i] = proj3b[i] + cam[6]*projb[i];
+        camb[6] = camb[6] + proj3[i]*projb[i];
+        camb[7 + i] = camb[7 + i] + projb[i];
+        projb[i] = 0.0;
+    }
+    radial_distort_b(&cam[9], &camb[9], proj2, proj2b, proj3, proj3b);
+    tempb = proj2b[1]/Xcam[2];
+    Xcamb[1] = Xcamb[1] + tempb;
+    Xcamb[2] = Xcamb[2] - Xcam[1]*tempb/Xcam[2];
+    proj2b[1] = 0.0;
+    tempb0 = proj2b[0]/Xcam[2];
+    Xcamb[0] = Xcamb[0] + tempb0;
+    Xcamb[2] = Xcamb[2] - Xcam[0]*tempb0/Xcam[2];
+    proj2b[0] = 0.0;
+    ba_rod_single_b(&cam[0], &camb[0], Xo, Xob, Xcam, Xcamb);
+    for (i = 2; i > -1; --i) {
+        Xb[i] = Xb[i] + Xob[i];
+        Cb[i] = Cb[i] - Xob[i];
+        Xob[i] = 0.0;
+    }
+    free(proj3);
+    free(proj3b);
+    free(proj2);
+    free(proj2b);
+    free(Xcam);
+    free(Xcamb);
+    free(Xo);
+    free(Xob);
+}
+
+/*
+  Differentiation of ba_proj_native in reverse (adjoint) mode:
+   gradient     of useful results: alloc(*proj3) alloc(*proj2)
+                alloc(*Xcam) alloc(*Xo) alloc(*cross_) alloc(*w)
+                **res *xs
+   with respect to varying inputs: alloc(*proj3) alloc(*proj2)
+                alloc(*Xcam) alloc(*Xo) alloc(*cross_) alloc(*w)
+                **res *xs
+   RW status of diff variables: alloc(*proj3):in-out alloc(*proj2):in-out
+                alloc(*Xcam):in-out alloc(*Xo):in-out alloc(*cross_):in-out
+                alloc(*w):in-out **res:in-out *xs:incr
+   Plus diff mem management of: res:in *res:in xs:in
+*/
+void ba_proj_native_b(int d, double *xs, double *xsb, int n, double **res, 
+        double **resb) {
+    for (int idx = 0; idx < n; ++idx) {
+        int offset = 11 + d*idx;
+        project(xs, &xs[offset], res[idx]);
+        pushinteger4(offset);
+    }
+    for (int idx = n-1; idx > -1; --idx) {
+        int offset = 11 + d*idx;
+        popinteger4(&offset);
+        project_b(xs, xsb, &xs[offset], &xsb[offset], res[idx], resb[idx]);
+    }
+}

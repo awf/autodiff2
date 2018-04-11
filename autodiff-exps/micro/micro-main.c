@@ -4,23 +4,18 @@
 #include "../diffsmooth/fsharp.h"
 #include "../diffsmooth/timer.h"
 
-#if defined BA_ROD
+#if defined BA_ROD || BA_PROJ
   #if defined TAPENADE
     #if defined REV_MODE
       #include "../tapanade/submitted/9/ba_rod_b-all.h"
     #else
       #include "../tapanade/submitted/9/ba_rod_d-all.h"
     #endif
+  #elif defined FUSED && defined DPS
+    #include "../diffsmooth/ba_rod_jac_aos_dps.h"
   #elif defined FUSED
     #include "../diffsmooth/ba_rod_jac_aos.h"
   #endif
-  // #if defined FUSED
-  //   #include "../diffsmooth/ba_rod_fused.h"
-  // #elif defined MANUAL
-  //   #include "../diffsmooth/ba_rod_manual.h"
-  // #else
-  //   #include "../diffsmooth/ba_rod_unfused.h"
-  // #endif
 #else
   #if defined TAPENADE
     #if defined REV_MODE
@@ -502,9 +497,14 @@ void test_micro(card_t DIM, card_t iters)
   array_array_number_t mat_result = matrix_fill(DIM, DIM, 0.0);
   array_number_t vec_tmp = vector_fill(DIM, 0.0);
   array_number_t vec_tmp2 = vector_fill(DIM, 0.0);
-#if defined BA_ROD
+#if defined BA_ROD || defined BA_PROJ
   card_t OUT_N = (DIM - 11)/ 3;
-  array_array_array_number_t mat3_result = matrix3_fill(DIM, OUT_N, 3, 0.0);
+  #if defined BA_ROD
+    card_t OUT_DIM = 3;
+  #else
+    card_t OUT_DIM = 2;
+  #endif
+  array_array_array_number_t mat3_result = matrix3_fill(DIM, OUT_N, OUT_DIM, 0.0);
   // double*** mat3_result_st = (double***)malloc(sizeof(double**) * DIM);
   // for(int i = 0; i<DIM; i++) {
   //   double** mat3_result_st_r = (double**)malloc(sizeof(double*) * OUT_N);
@@ -514,13 +514,13 @@ void test_micro(card_t DIM, card_t iters)
   //   }
   // }
   double*** mat3_result_st = matrix3_pointer(mat3_result);
-  array_array_number_t mat2_result = matrix_fill(DIM, 3, 0.0);
+  array_array_number_t mat2_result = matrix_fill(DIM, OUT_DIM, 0.0);
   // double** mat2_result_st = (double**)malloc(sizeof(double*) * DIM);
   // for(int i = 0; i<DIM; i++) {
   //   mat2_result_st[i] = mat2_result->arr[i]->arr;
   // }
   double** mat2_result_st = matrix_pointer(mat2_result);
-  array_array_number_t mat2_result_2 = matrix_fill(DIM, 3, 0.0);
+  array_array_number_t mat2_result_2 = matrix_fill(DIM, OUT_DIM, 0.0);
   double** mat2_result_2_st = matrix_pointer(mat2_result_2);
 #endif
 
@@ -637,13 +637,17 @@ void test_micro(card_t DIM, card_t iters)
     vec_result = vectorLogsumexp(vec1);
   #endif
     total += vector_sum(vec_result);
-#elif defined BA_ROD
+#elif defined BA_ROD || defined BA_PROJ
     #if defined TAPENADE && defined REV_MODE
     for(int j=0; j<OUT_N; j++) {
-      for(int k=0; k<3; k++) {
+      for(int k=0; k<OUT_DIM; k++) {
         memset(vec_result->arr, 0, DIM * sizeof(double));
         mat2_result_2_st[j][k] = 1;
-        ba_rod_native_b(3, vec1->arr, vec_result->arr, OUT_N, mat2_result_st, mat2_result_2_st);
+        #if defined BA_ROD
+          ba_rod_native_b(OUT_DIM, vec1->arr, vec_result->arr, OUT_N, mat2_result_st, mat2_result_2_st);
+        #else
+          ba_proj_native_b(OUT_DIM, vec1->arr, vec_result->arr, OUT_N, mat2_result_st, mat2_result_2_st);
+        #endif
         mat2_result_2_st[j][k] = 0;
         for(int i=0; i<DIM; i++) {
           mat3_result_st[i][j][k] = vec_result->arr[i];
@@ -654,11 +658,21 @@ void test_micro(card_t DIM, card_t iters)
     double** tmp = mat2_result_st;
     for(int i=0; i<DIM; i++) {
       vec_tmp->arr[i] = 1;
-      ba_rod_native_d(3, vec1->arr, vec_tmp->arr, OUT_N, tmp, mat3_result_st[i]);
+      #if defined BA_ROD
+        ba_rod_native_d(OUT_DIM, vec1->arr, vec_tmp->arr, OUT_N, tmp, mat3_result_st[i]);
+      #else
+        ba_proj_native_d(OUT_DIM, vec1->arr, vec_tmp->arr, OUT_N, tmp, mat3_result_st[i]);
+      #endif
       vec_tmp->arr[i] = 0;
     }
+    #elif defined DPS
+    ba_rod_jac_dps(mat3_result, vec1, OUT_N);
     #else
-    mat3_result = ba_rod_jac(vec1, OUT_N);
+      #if defined BA_ROD
+        mat3_result = ba_rod_jac(vec1, OUT_N);
+      #else
+        mat3_result = ba_proj_jac(vec1, OUT_N);
+      #endif
     #endif
     total += matrix3Sum(mat3_result);
 #endif
