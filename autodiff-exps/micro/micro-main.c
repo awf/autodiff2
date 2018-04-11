@@ -5,7 +5,9 @@
 #include "../diffsmooth/timer.h"
 
 #if defined BA_ROD
-  #if defined FUSED
+  #if defined TAPENADE
+    #include "../tapanade/submitted/9/ba_rod_d-all.h"
+  #elif defined FUSED
     #include "../diffsmooth/ba_rod_jac_aos.h"
   #endif
   // #if defined FUSED
@@ -479,6 +481,19 @@ void test_micro(card_t DIM, card_t iters)
 #if defined BA_ROD
   card_t OUT_N = (DIM - 11)/ 3;
   array_array_array_number_t mat3_result = matrix3_fill(DIM, OUT_N, 3, 0.0);
+  double*** mat3_result_st = (double***)malloc(sizeof(double**) * DIM);
+  for(int i = 0; i<DIM; i++) {
+    double** mat3_result_st_r = (double**)malloc(sizeof(double*) * OUT_N);
+    mat3_result_st[i] = mat3_result_st_r;
+    for(int j = 0; j<OUT_N; j++) {
+      mat3_result_st[i][j] = mat3_result->arr[i]->arr[j]->arr;
+    }
+  }
+  array_array_number_t mat2_result = matrix_fill(DIM, 3, 0.0);
+  double** mat2_result_st = (double**)malloc(sizeof(double*) * DIM);
+  for(int i = 0; i<DIM; i++) {
+    mat2_result_st[i] = mat2_result->arr[i]->arr;
+  }
 #endif
 
   for (card_t k = 0; k < DIM; ++k) {
@@ -597,6 +612,12 @@ void test_micro(card_t DIM, card_t iters)
 #elif defined BA_ROD
     #if defined TAPENADE && defined REV_MODE
     #elif defined TAPENADE
+    double** tmp = mat2_result_st;
+    for(int i=0; i<DIM; i++) {
+      vec_tmp->arr[i] = 1;
+      ba_rod_native_d(3, vec1->arr, vec_tmp->arr, OUT_N, tmp, mat3_result_st[i]);
+      vec_tmp->arr[i] = 0;
+    }
     #else
     mat3_result = ba_rod_jac(vec1, OUT_N);
     #endif
