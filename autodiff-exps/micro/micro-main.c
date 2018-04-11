@@ -3,6 +3,8 @@
 #include <math.h>
 #include "../diffsmooth/fsharp.h"
 #include "../diffsmooth/timer.h"
+// #include "../diffsmooth/ba_rod_fused.h"
+// #include "../tapanade/submitted/9/ba_rod.h"
 
 #if defined BA_ROD || BA_PROJ
   #if defined TAPENADE
@@ -522,6 +524,8 @@ void test_micro(card_t DIM, card_t iters)
   double** mat2_result_st = matrix_pointer(mat2_result);
   array_array_number_t mat2_result_2 = matrix_fill(DIM, OUT_DIM, 0.0);
   double** mat2_result_2_st = matrix_pointer(mat2_result_2);
+  array_array_number_t mat4_result = matrix_fill(OUT_N, OUT_DIM, 0.0);
+  double** mat4_result_st = matrix_pointer(mat4_result);
 #endif
 
   for (card_t k = 0; k < DIM; ++k) {
@@ -644,9 +648,9 @@ void test_micro(card_t DIM, card_t iters)
         memset(vec_result->arr, 0, DIM * sizeof(double));
         mat2_result_2_st[j][k] = 1;
         #if defined BA_ROD
-          ba_rod_native_b(OUT_DIM, vec1->arr, vec_result->arr, OUT_N, mat2_result_st, mat2_result_2_st);
+          ba_rod_native_b(3, vec1->arr, vec_result->arr, OUT_N, mat2_result_st, mat2_result_2_st);
         #else
-          ba_proj_native_b(OUT_DIM, vec1->arr, vec_result->arr, OUT_N, mat2_result_st, mat2_result_2_st);
+          ba_proj_native_b(3, vec1->arr, vec_result->arr, OUT_N, mat2_result_st, mat2_result_2_st);
         #endif
         mat2_result_2_st[j][k] = 0;
         for(int i=0; i<DIM; i++) {
@@ -659,12 +663,13 @@ void test_micro(card_t DIM, card_t iters)
     for(int i=0; i<DIM; i++) {
       vec_tmp->arr[i] = 1;
       #if defined BA_ROD
-        ba_rod_native_d(OUT_DIM, vec1->arr, vec_tmp->arr, OUT_N, tmp, mat3_result_st[i]);
+        ba_rod_native_d(3, vec1->arr, vec_tmp->arr, OUT_N, tmp, mat3_result_st[i]);
       #else
-        ba_proj_native_d(OUT_DIM, vec1->arr, vec_tmp->arr, OUT_N, tmp, mat3_result_st[i]);
+        ba_proj_native_d(3, vec1->arr, vec_tmp->arr, OUT_N, tmp, mat3_result_st[i]);
       #endif
       vec_tmp->arr[i] = 0;
     }
+    // ba_proj_native(3, vec1->arr, OUT_N, mat4_result_st);
     #elif defined DPS
     ba_rod_jac_dps(mat3_result, vec1, OUT_N);
     #else
@@ -673,8 +678,12 @@ void test_micro(card_t DIM, card_t iters)
       #else
         mat3_result = ba_proj_jac(vec1, OUT_N);
       #endif
+      // mat4_result = ba_proj(vec1, OUT_N);
     #endif
+    // matrix_print(mat3_result->arr[0]);
     total += matrix3Sum(mat3_result);
+    // matrix_print(mat4_result);
+    // total += matrixSum(mat4_result);
 #endif
   }
 
