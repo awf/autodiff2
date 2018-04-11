@@ -30,3 +30,4 @@ ba_rod :
 	clang -O3 micro-main.c -DBUMP -DBA_ROD -DFUSED -o ba_rod_diff_fused.exe
 	# clang -O3 micro-main.c -DBUMP -DBA_ROD -DMANUAL -o ba_rod_diff_manual.exe
 	clang -O3 micro-main.c -DBUMP -DBA_ROD -DTAPENADE -o ba_rod_tap_for.exe
+	clang -O3 micro-main.c -DBUMP -DBA_ROD -DTAPENADE -DREV_MODE $(FLIB) -o ba_rod_tap_rev.exe
