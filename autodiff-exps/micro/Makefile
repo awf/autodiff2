@@ -26,6 +26,6 @@ all : ba_rod
 	clang -O3 micro-main.c -DBUMP -DLSE -DTAPENADE -DFUSED -DREV_MODE $(FLIB) -o lse_tap_fused_rev.exe
 
 ba_rod :
-	clang -O3 micro-main.c -DBUMP -DBA_ROD -o ba_rod_diff.exe
+	# clang -O3 micro-main.c -DBUMP -DBA_ROD -o ba_rod_diff.exe
 	clang -O3 micro-main.c -DBUMP -DBA_ROD -DFUSED -o ba_rod_diff_fused.exe
-	clang -O3 micro-main.c -DBUMP -DBA_ROD -DMANUAL -o ba_rod_diff_manual.exe
+	# clang -O3 micro-main.c -DBUMP -DBA_ROD -DMANUAL -o ba_rod_diff_manual.exe

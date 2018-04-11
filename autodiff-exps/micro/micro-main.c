@@ -6,12 +6,15 @@
 
 #if defined BA_ROD
   #if defined FUSED
-    #include "../diffsmooth/ba_rod_fused.h"
-  #elif defined MANUAL
-    #include "../diffsmooth/ba_rod_manual.h"
-  #else
-    #include "../diffsmooth/ba_rod_unfused.h"
+    #include "../diffsmooth/ba_rod_jac_aos.h"
   #endif
+  // #if defined FUSED
+  //   #include "../diffsmooth/ba_rod_fused.h"
+  // #elif defined MANUAL
+  //   #include "../diffsmooth/ba_rod_manual.h"
+  // #else
+  //   #include "../diffsmooth/ba_rod_unfused.h"
+  // #endif
 #else
   #if defined TAPENADE
     #if defined REV_MODE
@@ -412,6 +415,17 @@ array_number_t vector_fill(card_t rows, number_t value) {
   return matrix_fill(1, rows, value)->arr[0];
 }
 
+array_array_array_number_t matrix3_fill(card_t rows, card_t cols, card_t cols3, number_t value) {
+  array_array_array_number_t res = (array_array_array_number_t)storage_alloc(sizeof(int) * 2);
+  res->length=rows;
+  res->arr = (array_array_number_t*)storage_alloc(sizeof(array_number_t) * rows);
+  for(int i = 0; i<rows; i++) {
+    res->arr[i] = matrix_fill(cols, cols3, value);
+  }
+  return res;
+}
+
+
 void vector_print(array_number_t arr) {
   printf("[");
   for (int i = 0; i < arr->length; i++) {
@@ -440,6 +454,18 @@ number_t matrixSum(array_array_number_t m) {
   return result;
 }
 
+number_t matrix3Sum(array_array_array_number_t m) {
+  number_t result = 0;
+  for(int i=0; i<m->length; i++) {
+    for(int j=0; j<m->arr[0]->length; j++) {
+      for(int k=0; k<m->arr[0]->arr[0]->length; k++) {
+        result += m->arr[i]->arr[j]->arr[k];
+      }
+    }
+  }
+  return result;
+}
+
 void test_micro(card_t DIM, card_t iters)
 {
   int rng = 42;
@@ -450,6 +476,10 @@ void test_micro(card_t DIM, card_t iters)
   array_array_number_t mat_result = matrix_fill(DIM, DIM, 0.0);
   array_number_t vec_tmp = vector_fill(DIM, 0.0);
   array_number_t vec_tmp2 = vector_fill(DIM, 0.0);
+#if defined BA_ROD
+  card_t OUT_N = (DIM - 11)/ 3;
+  array_array_array_number_t mat3_result = matrix3_fill(DIM, OUT_N, 3, 0.0);
+#endif
 
   for (card_t k = 0; k < DIM; ++k) {
     vec1->arr[k] = dist(rng);
@@ -565,9 +595,12 @@ void test_micro(card_t DIM, card_t iters)
   #endif
     total += vector_sum(vec_result);
 #elif defined BA_ROD
-    mat_result = ba_rod(vec1, (DIM - 11 )/ 3);
-    matrix_print(mat_result);
-    total += matrixSum(mat_result);
+    #if defined TAPENADE && defined REV_MODE
+    #elif defined TAPENADE
+    #else
+    mat3_result = ba_rod_jac(vec1, OUT_N);
+    #endif
+    total += matrix3Sum(mat3_result);
 #endif
   }
 
