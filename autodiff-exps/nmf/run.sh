@@ -10,10 +10,10 @@
 # python ./NMF.py exponential 12000 6000  8 5
 
 declare -a files=(
-	"./nmf_diff.exe" "./nmf_diff_dps.exe"
-	"./nmf_tap_rev.exe" "./nmf_tap_for.exe" 
 	"./nmf_tap_rev_unf.exe" "./nmf_tap_for_unf.exe"
+	"./nmf_tap_rev.exe" "./nmf_tap_for.exe" 
 	"python ./NMF.py exponential"
+	"./nmf_diff.exe" "./nmf_diff_dps.exe"
 	)
 
 declare -a params=(
