@@ -1,63 +1,77 @@
 86
 ./ba_rod_tap_rev.exe
-total =533.536327, time per call = 0.898700 ms
+total =533.536327, time per call = 0.860500 ms
 ./ba_rod_tap_for.exe
-total =533.536327, time per call = 0.522200 ms
+total =533.536327, time per call = 0.616700 ms
+./ba_rod_diff_fused_nomotion.exe
+total =533.536327, time per call = 0.253800 ms
 ./ba_rod_diff_fused.exe
-total =533.536327, time per call = 0.192100 ms
+total =533.536327, time per call = 0.190100 ms
 ./ba_rod_diff_fused_dps.exe
-total =533.536327, time per call = 0.105600 ms
+total =533.536327, time per call = 0.144400 ms
 161
 ./ba_rod_tap_rev.exe
-total =1057.869718, time per call = 2.979300 ms
+total =1057.869718, time per call = 3.542300 ms
 ./ba_rod_tap_for.exe
-total =1057.869718, time per call = 1.655100 ms
+total =1057.869718, time per call = 2.173600 ms
+./ba_rod_diff_fused_nomotion.exe
+total =1057.869718, time per call = 0.955900 ms
 ./ba_rod_diff_fused.exe
-total =1057.869718, time per call = 0.516700 ms
+total =1057.869718, time per call = 0.734300 ms
 ./ba_rod_diff_fused_dps.exe
-total =1057.869718, time per call = 0.602300 ms
+total =1057.869718, time per call = 0.459500 ms
 311
 ./ba_rod_tap_rev.exe
-total =2116.909781, time per call = 11.422900 ms
+total =2116.909781, time per call = 13.778300 ms
 ./ba_rod_tap_for.exe
-total =2116.909781, time per call = 7.049100 ms
+total =2116.909781, time per call = 7.950000 ms
+./ba_rod_diff_fused_nomotion.exe
+total =2116.909781, time per call = 4.058400 ms
 ./ba_rod_diff_fused.exe
-total =2116.909781, time per call = 2.229300 ms
+total =2116.909781, time per call = 2.468300 ms
 ./ba_rod_diff_fused_dps.exe
-total =2116.909781, time per call = 1.571200 ms
+total =2116.909781, time per call = 1.737300 ms
 611
 ./ba_rod_tap_rev.exe
-total =4214.451128, time per call = 48.133701 ms
+total =4214.451128, time per call = 60.300800 ms
 ./ba_rod_tap_for.exe
-total =4214.451128, time per call = 25.548599 ms
+total =4214.451128, time per call = 30.848599 ms
+./ba_rod_diff_fused_nomotion.exe
+total =4214.451128, time per call = 15.310699 ms
 ./ba_rod_diff_fused.exe
-total =4214.451128, time per call = 8.535700 ms
+total =4214.451128, time per call = 10.330900 ms
 ./ba_rod_diff_fused_dps.exe
-total =4214.451128, time per call = 6.399200 ms
+total =4214.451128, time per call = 7.235300 ms
 1211
 ./ba_rod_tap_rev.exe
-total =8453.201533, time per call = 222.670898 ms
+total =8453.201533, time per call = 243.680591 ms
 ./ba_rod_tap_for.exe
-total =8453.201533, time per call = 101.085797 ms
+total =8453.201533, time per call = 120.784399 ms
+./ba_rod_diff_fused_nomotion.exe
+total =8453.201533, time per call = 59.133301 ms
 ./ba_rod_diff_fused.exe
-total =8453.201533, time per call = 33.263400 ms
+total =8453.201533, time per call = 38.611099 ms
 ./ba_rod_diff_fused_dps.exe
-total =8453.201533, time per call = 23.360001 ms
+total =8453.201533, time per call = 28.105399 ms
 2411
 ./ba_rod_tap_rev.exe
-total =16937.166794, time per call = 905.458691 ms
+total =16937.166794, time per call = 994.189844 ms
 ./ba_rod_tap_for.exe
-total =16937.166794, time per call = 415.879297 ms
+total =16937.166794, time per call = 469.869824 ms
+./ba_rod_diff_fused_nomotion.exe
+total =16937.166794, time per call = 234.966089 ms
 ./ba_rod_diff_fused.exe
-total =16937.166794, time per call = 142.676001 ms
+total =16937.166794, time per call = 153.395398 ms
 ./ba_rod_diff_fused_dps.exe
-total =16937.166794, time per call = 107.095300 ms
+total =16937.166794, time per call = 108.427295 ms
 4811
 ./ba_rod_tap_rev.exe
-total =33740.222788, time per call = 4450.173828 ms
+total =33740.222788, time per call = 4110.164062 ms
 ./ba_rod_tap_for.exe
-total =33740.222788, time per call = 1853.782031 ms
+total =33740.222788, time per call = 1871.562109 ms
+./ba_rod_diff_fused_nomotion.exe
+total =33740.222788, time per call = 959.063574 ms
 ./ba_rod_diff_fused.exe
-total =33740.222788, time per call = 748.097119 ms
+total =33740.222788, time per call = 618.082324 ms
 ./ba_rod_diff_fused_dps.exe
-total =33740.222788, time per call = 450.795020 ms
+total =33740.222788, time per call = 431.877490 ms

@@ -27,6 +27,8 @@ all : ba_rod
 
 ba_rod :
 	clang -O3 micro-main.c -DBUMP -DBA_ROD -DFUSED -o ba_rod_diff_fused.exe
+	clang -O3 micro-main.c -DBUMP -DBA_ROD -DFUSED -DNOUNROLL -o ba_rod_diff_fused_nounroll.exe
+	clang -O3 micro-main.c -DBUMP -DBA_ROD -DFUSED -DNOMOTION -o ba_rod_diff_fused_nomotion.exe
 	clang -O3 micro-main.c -DBUMP -DBA_ROD -DFUSED -DDPS -o ba_rod_diff_fused_dps.exe
 	clang -O3 micro-main.c -DBUMP -DBA_ROD -DTAPENADE -o ba_rod_tap_for.exe
 	clang -O3 micro-main.c -DBUMP -DBA_ROD -DTAPENADE -DREV_MODE $(FLIB) -o ba_rod_tap_rev.exe

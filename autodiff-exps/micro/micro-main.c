@@ -13,8 +13,12 @@
     #else
       #include "../tapanade/submitted/9/ba_rod_d-all.h"
     #endif
+  #elif defined FUSED && defined NOUNROLL
+    #include "../diffsmooth/ba_rod_jac_nounroll.h"
   #elif defined FUSED && defined DPS
     #include "../diffsmooth/ba_rod_jac_aos_dps.h"
+  #elif defined FUSED && defined NOMOTION
+    #include "../diffsmooth/ba_rod_jac_nomotion.h"
   #elif defined FUSED
     #include "../diffsmooth/ba_rod_jac_aos.h"
   #endif
