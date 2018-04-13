@@ -166,34 +166,33 @@ array_number_t nmf_uv(array_number_t u, array_number_t v, array_array_number_t A
 //   }
 //   return x23596;
 // }
-  index_t x16463 = (u)->length;
-  index_t x16479 = (v)->length;
-  array_number_t x16481 = (array_number_t)storage_alloc(sizeof(int) * 2);x16481->length=x16463;x16481->arr = (number_t*)storage_alloc(sizeof(number_t) * x16463);
-  for(int i = 0; i < x16481->length; i++){
-    number_t x16465 = (u->arr[i]);
-    number_t x16480 = 0;
-    for (int x15208 = 0; x15208 < x16479; x15208++) {
-      number_t x15316 = x16480;
-      number_t x16464 = (v->arr[x15208]);
-      number_t x16466 = (x16464) * (x16465);
-      number_t x16469 = (x16465) * (x16464);
-      number_t x16470 = (x16464) / (x16469);
-      array_number_t x16471 = (AA->arr[x15208]);
-      number_t x16472 = (x16471->arr[i]);
-      number_t x16473 = (x16472) * (x16464);
-      number_t x16474 = -(x16473);
-      number_t x16475 = (x16466) * (x16466);
-      number_t x16476 = (x16474) / (x16475);
-      number_t x16477 = (x16470) + (x16476);
-      number_t x16478 = (x15316) + (x16477);
-      x15316 = x16478;
-      x16480 = x15316;
+  index_t x23562 = (u)->length;
+  index_t x23577 = (v)->length;
+  array_number_t x23579 = (array_number_t)storage_alloc(sizeof(int) * 2);x23579->length=x23562;x23579->arr = (number_t*)storage_alloc(sizeof(number_t) * x23562);
+  for(int i = 0; i < x23579->length; i++){
+    number_t x23564 = (u->arr[i]);
+    number_t x23568 = (1) / (x23564);
+    number_t x23578 = 0;
+    for (int x22307 = 0; x22307 < x23577; x22307++) {
+      number_t x22415 = x23578;
+      number_t x23563 = (v->arr[x22307]);
+      number_t x23565 = (x23563) * (x23564);
+      array_number_t x23569 = (AA->arr[x22307]);
+      number_t x23570 = (x23569->arr[i]);
+      number_t x23571 = (x23570) * (x23563);
+      number_t x23572 = -(x23571);
+      number_t x23573 = (x23565) * (x23565);
+      number_t x23574 = (x23572) / (x23573);
+      number_t x23575 = (x23568) + (x23574);
+      number_t x23576 = (x22415) + (x23575);
+      x22415 = x23576;
+      x23578 = x22415;
     }
     
-    x16481->arr[i] = x16480;
+    x23579->arr[i] = x23578;
     
   }
-  return x16481;
+  return x23579;
 }
 
 
@@ -220,22 +219,33 @@ array_number_t nmf_uv_dps(storage_t s, array_number_t u, array_number_t v, array
 //   return x20434;
 // }
 /* */
-  array_number_t x20434 = (array_number_t)s;
-  for(int i = 0; i < x20434->length; i++){
-    number_t x20433 = 0;
-    for (int x19178 = 0; x19178 < (v)->length; x19178++) {
-      number_t x19286 = x20433;
-      number_t x20430 = (v->arr[x19178]);
-      number_t x20432 = (x20430) * ((u->arr[i]));
-      number_t x20428 = (v->arr[x19178]);
-      x19286 = (x19286) + (((x20428) / ((x20428) * ((u->arr[i])))) + (((0) - ((((AA->arr[x19178])->arr[i])) * (x20430))) / ((x20432) * (x20432))));
-      x20433 = x19286;
+  index_t x23562 = (u)->length;
+  index_t x23577 = (v)->length;
+  array_number_t x23579 = (array_number_t)s;
+  for(int i = 0; i < x23579->length; i++){
+    number_t x23564 = (u->arr[i]);
+    number_t x23568 = (1) / (x23564);
+    number_t x23578 = 0;
+    for (int x22307 = 0; x22307 < x23577; x22307++) {
+      number_t x22415 = x23578;
+      number_t x23563 = (v->arr[x22307]);
+      number_t x23565 = (x23563) * (x23564);
+      array_number_t x23569 = (AA->arr[x22307]);
+      number_t x23570 = (x23569->arr[i]);
+      number_t x23571 = (x23570) * (x23563);
+      number_t x23572 = -(x23571);
+      number_t x23573 = (x23565) * (x23565);
+      number_t x23574 = (x23572) / (x23573);
+      number_t x23575 = (x23568) + (x23574);
+      number_t x23576 = (x22415) + (x23575);
+      x22415 = x23576;
+      x23578 = x22415;
     }
     
-    x20434->arr[i] = x20433;
+    x23579->arr[i] = x23578;
     
   }
-  return x20434;
+  return x23579;
 }
 
 array_number_t nmf_uv_poisson(array_number_t u, array_number_t v, array_array_number_t AA) {
