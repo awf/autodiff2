@@ -21,3 +21,21 @@ double nmfMain(int m, int n, double* u, double* v, double** AA) {
   }
   return x21122;
 }
+
+double nmfMain_poisson(int m, int n, double* u, double* v, double** AA) {
+  double x23990 = 0;
+  for (int idx = 0; idx < n; idx++) {
+    double acc = x23990;
+    double x23989 = 0;
+    for (int idx0 = 0; idx0 < m; idx0++) {
+      double acc0 = x23989;
+      acc0 = (acc0) + ((((v[idx])) * ((u[idx0]))) - ((((AA[idx])[idx0])) * (log(((v[idx])) * ((u[idx0]))))));
+      x23989 = acc0;
+    }
+    
+    acc = (acc) + (x23989);
+    x23990 = acc;
+  }
+  
+  return x23990;
+}

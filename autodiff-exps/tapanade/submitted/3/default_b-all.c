@@ -46,3 +46,42 @@ void nmfMain_b(int m, int n, double *u, double *ub, double *v, double **AA,
         x21122b = accb;
     }
 }
+
+
+/*
+  Differentiation of nmfMain_poisson in reverse (adjoint) mode:
+   gradient     of useful results: *u nmfMain_poisson
+   with respect to varying inputs: *u
+   RW status of diff variables: *u:incr nmfMain_poisson:in-killed
+   Plus diff mem management of: u:in
+*/
+void nmfMain_poisson_b(int m, int n, double *u, double *ub, double *v, double 
+        **AA, double nmfMain_poissonb) {
+    double x23990 = 0;
+    double x23990b = 0.0;
+    double nmfMain_poisson;
+    for (int idx = 0; idx < n; ++idx) {
+        double acc = x23990;
+        double x23989 = 0;
+        for (int idx0 = 0; idx0 < m; ++idx0) {
+            double acc0 = x23989;
+        }
+    }
+    x23990b = nmfMain_poissonb;
+    for (int idx = n-1; idx > -1; --idx) {
+        double acc = x23990;
+        double accb = 0.0;
+        double x23989 = 0;
+        double x23989b = 0.0;
+        accb = x23990b;
+        x23989b = accb;
+        for (int idx0 = m-1; idx0 > -1; --idx0) {
+            double acc0 = x23989;
+            double acc0b = 0.0;
+            acc0b = x23989b;
+            ub[idx0] = ub[idx0] + (v[idx]-AA[idx][idx0]/u[idx0])*acc0b;
+            x23989b = acc0b;
+        }
+        x23990b = accb;
+    }
+}

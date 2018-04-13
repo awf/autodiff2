@@ -39,3 +39,42 @@ double nmfMain_d(int m, int n, double *u, double *ud, double *v, double **AA,
     *nmfMain = x21122;
     return x21122d;
 }
+
+/*
+  Differentiation of nmfMain_poisson in forward (tangent) mode:
+   variations   of useful results: nmfMain_poisson
+   with respect to varying inputs: *u
+   RW status of diff variables: *u:in nmfMain_poisson:out
+   Plus diff mem management of: u:in
+*/
+double nmfMain_poisson_d(int m, int n, double *u, double *ud, double *v, 
+        double **AA, double *nmfMain_poisson) {
+    double x23990 = 0;
+    double x23990d;
+    x23990d = 0.0;
+    for (int idx = 0; idx < n; ++idx) {
+        double acc = x23990;
+        double accd = x23990d;
+        double x23989 = 0;
+        double x23989d;
+        x23989d = 0.0;
+        for (int idx0 = 0; idx0 < m; ++idx0) {
+            double acc0 = x23989;
+            double acc0d = x23989d;
+            double arg1;
+            double arg1d;
+            arg1d = v[idx]*ud[idx0];
+            arg1 = v[idx]*u[idx0];
+            acc0d = acc0d + v[idx]*ud[idx0] - AA[idx][idx0]*arg1d/arg1;
+            acc0 = acc0 + (v[idx]*u[idx0] - AA[idx][idx0]*log(arg1));
+            x23989d = acc0d;
+            x23989 = acc0;
+        }
+        accd = accd + x23989d;
+        acc = acc + x23989;
+        x23990d = accd;
+        x23990 = acc;
+    }
+    *nmfMain_poisson = x23990;
+    return x23990d;
+}

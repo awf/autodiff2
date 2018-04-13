@@ -111,25 +111,43 @@ void test_nmf(card_t M, card_t N, card_t K, card_t iters)
       #if defined TAPENADE
         #if defined REV_MODE
           double eb = 1;
-          nmfMain_b(N, M, H->arr[0]->arr, ud->arr, v->arr, A_arr, eb);
+          #if defined POISSON
+            nmfMain_poisson_b(N, M, H->arr[0]->arr, ud->arr, v->arr, A_arr, eb);
+          #else
+            nmfMain_b(N, M, H->arr[0]->arr, ud->arr, v->arr, A_arr, eb);
+          #endif
           total += vector_sum(ud);
         #else
           double sum = 0;
           double tmp;
           for(int i = 0; i<N; i++) {
             ud->arr[i] = 1;
-            sum += nmfMain_d(N, M, H->arr[0]->arr, ud->arr, v->arr, A_arr, &tmp);
+            #if defined POISSON
+              sum += nmfMain_poisson_d(N, M, H->arr[0]->arr, ud->arr, v->arr, A_arr, &tmp);
+            #else
+              sum += nmfMain_d(N, M, H->arr[0]->arr, ud->arr, v->arr, A_arr, &tmp);
+            #endif
             ud->arr[i] = 0;
           }
           total += sum;
         #endif
       #else
         #if defined DPS
-          total += vector_sum(nmf_uv_dps(s, N, M, H->arr[0], v, A));
+          array_number_t tmp = 
+            #if defined POISSON
+              nmf_uv_poisson_dps(s, H->arr[0], v, A); 
+            #else
+              nmf_uv_dps(s, H->arr[0], v, A); 
+            #endif
         #else
-          array_number_t tmp = nmf_uv(H->arr[0], v, A);
-          total += vector_sum(tmp);
+          array_number_t tmp = 
+            #if defined POISSON
+              nmf_uv_poisson(H->arr[0], v, A);
+            #else
+              nmf_uv(H->arr[0], v, A);
+            #endif
         #endif
+        total += vector_sum(tmp);
       #endif
     } else {
       // total += matrixSum(update3(H, W, A));
