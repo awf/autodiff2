@@ -115,6 +115,24 @@ void matrix_print(array_array_number_t arr) {
 	printf("]\n");
 }
 
+void array_tuple_print(array_tuple_number_t_number_t arr) {
+	printf("[");
+	for (int i = 0; i < arr->length; i++) {
+		printf("(%f, %f)", arr->arr[i]._1, arr->arr[i]._2);
+		if (i != arr->length - 1)
+			printf(", ");
+	}
+	printf("]\n");
+}
+
+array_number_t array_tuple_2(array_tuple_number_t_number_t arr) {
+	array_number_t res = vector_alloc(arr->length);
+	for (int i = 0; i < arr->length; i++) {
+		res->arr[i] = arr->arr[i]._2;
+	}
+	return res;
+}
+
 array_array_number_t matrix_read_s(storage_t storage, string_t name, int start_line, int rows, int cols) {
 	// printf("reading from file `%s` starting line %d, %d rows\n", name, start_line, rows);
 	FILE * fp;

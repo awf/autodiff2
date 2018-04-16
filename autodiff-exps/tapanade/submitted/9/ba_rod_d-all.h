@@ -90,6 +90,7 @@ void ba_rod_single_d(double *rot, double *rotd, double *pt, double *ptd,
     sqthetad = sqsum_d(3, rot, rotd, &sqtheta);
     thetad = (sqtheta == 0.0 ? 0.0 : sqthetad/(2.0*sqrt(sqtheta)));
     theta = sqrt(sqtheta);
+    // printf("theta %f, %f\n", theta, thetad);
     costhetad = -(thetad*sin(theta));
     costheta = cos(theta);
     sinthetad = thetad*cos(theta);
@@ -100,15 +101,36 @@ void ba_rod_single_d(double *rot, double *rotd, double *pt, double *ptd,
         wd[i] = rotd[i]*theta_inverse + rot[i]*theta_inversed;
         w[i] = rot[i]*theta_inverse;
     }
+    // printf("thetai %f\n", theta_inversed);
     cross_d0(w, wd, pt, ptd, cross_, cross_d);
+    // // printf("[");
+    // for (int i = 0; i < 3; i++) {
+    //   // printf("(%f, %f)", cross_[i], cross_d[i]);
+    //   // printf("sub %f, %f\n", pt[i], ptd[i]);
+    //   // printf("w %f, %f\n", w[i], wd[i]);
+    //   // printf("rot %f, %f\n", rot[i], rotd[i]);
+    //   // printf("w %f\n", wd[i]);
+    //   // if (i != 3 - 1)
+    //   //   printf(", ");
+    // }
+    // // printf("]\n");
     result1d = dot_prod_d(3, w, wd, pt, ptd, &result1);
     tmpd = result1d*(1.-costheta) - result1*costhetad;
     tmp = result1*(1.-costheta);
+    // printf("dot %f, %f\n", result1, result1d);
+    // printf("tmp %f, %f\n", tmp, tmpd);
     for (i = 0; i < 3; ++i) {
         rotatedPtd[i] = ptd[i]*costheta + pt[i]*costhetad + cross_d[i]*
             sintheta + cross_[i]*sinthetad + wd[i]*tmp + w[i]*tmpd;
         rotatedPt[i] = pt[i]*costheta + cross_[i]*sintheta + w[i]*tmp;
     }
+    // printf("[");
+    // for (int i = 0; i < 3; i++) {
+    //   printf("(%f, %f)", rotatedPt[i], rotatedPtd[i]);
+    //   if (i != 3 - 1)
+    //     printf(", ");
+    // }
+    // printf("]\n");
     free(wd);
     free(w);
     free(cross_d);
@@ -144,9 +166,11 @@ void radial_distort_d(double *rad_params, double *rad_paramsd, double *proj,
     double rsq, L;
     double rsqd, Ld;
     rsqd = sqsum_d(2, proj, projd, &rsq);
+    // printf("rsq %f, %f\n", rsq, rsqd);
     Ld = rad_paramsd[0]*rsq + rad_params[0]*rsqd + rad_paramsd[1]*(rsq*rsq) + 
         rad_params[1]*(rsqd*rsq+rsq*rsqd);
     L = 1 + rad_params[0]*rsq + rad_params[1]*rsq*rsq;
+    // printf("L %f, %f\n", L, Ld);
     resd[0] = projd[0]*L + proj[0]*Ld;
     res[0] = proj[0]*L;
     resd[1] = projd[1]*L + proj[1]*Ld;
@@ -200,6 +224,17 @@ void project_d(double *cam, double *camd, double *X, double *Xd, double *proj,
         Xo[i] = X[i] - C[i];
     }
     ba_rod_single_d(&cam[0], &camd[0], Xo, Xod, Xcam, Xcamd);
+    // printf("[");
+    // // for (int i = 0; i < 14; i++) {
+    // for (int i = 0; i < 3; i++) {
+    //   printf("(%f, %f)", Xcam[i], Xcamd[i]);
+    //   // printf("(%f, %f)", Xo[i], Xod[i]);
+    //   // printf("%f", camd[i]);
+    //   // if (i != 14 - 1)
+    //   if (i != 3 - 1)
+    //     printf(", ");
+    // }
+    // printf("]\n");
     proj2d[0] = (Xcamd[0]*Xcam[2]-Xcam[0]*Xcamd[2])/(Xcam[2]*Xcam[2]);
     proj2[0] = Xcam[0]/Xcam[2];
     proj2d[1] = (Xcamd[1]*Xcam[2]-Xcam[1]*Xcamd[2])/(Xcam[2]*Xcam[2]);
@@ -209,6 +244,13 @@ void project_d(double *cam, double *camd, double *X, double *Xd, double *proj,
         projd[i] = proj3d[i]*cam[6] + proj3[i]*camd[6] + camd[7 + i];
         proj[i] = proj3[i]*cam[6] + cam[7 + i];
     }
+    // printf("[");
+    // for (int i = 0; i < 2; i++) {
+    //   printf("(%f, %f)", proj[i], projd[i]);
+    //   if (i != 2 - 1)
+    //     printf(", ");
+    // }
+    // printf("]\n");
     free(Xod);
     free(Xo);
     free(Xcamd);

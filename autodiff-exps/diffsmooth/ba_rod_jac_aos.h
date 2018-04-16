@@ -219,361 +219,361 @@ array_array_array_number_t ba_rod_jac(array_number_t xs, index_t n) {
 }
 
 array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
-  number_t x6230 = (xs->arr[0]);
-  number_t x6232 = (x6230) * (x6230);
-  number_t x6233 = (xs->arr[1]);
-  number_t x6235 = (x6233) * (x6233);
-  number_t x6236 = (xs->arr[2]);
-  number_t x6238 = (x6232) + (x6235);
-  number_t x6239 = (x6236) * (x6236);
-  number_t x6240 = (x6238) + (x6239);
-  number_t x6241 = sqrt(x6240);
-  number_t x6243 = (1) / (x6241);
-  number_t x6244 = (xs->arr[5]);
-  number_t x6245 = (x6233) * (x6243);
-  number_t x6248 = (xs->arr[4]);
-  number_t x6249 = (x6236) * (x6243);
-  number_t x6252 = (xs->arr[3]);
-  number_t x6257 = (x6230) * (x6243);
-  number_t x6278 = cos(x6241);
-  number_t x6279 = (1) - (x6278);
-  number_t x6280 = (xs->arr[9]);
-  number_t x6281 = (xs->arr[10]);
-  number_t x6282 = (xs->arr[6]);
-  index_t x6284 = (xs)->length;
-  number_t x6309 = (x6243) * (0.5);
-  number_t x6314 = (x6241) * (x6241);
-  number_t x6405 = sin(x6241);
-  number_t x6406 = -(x6405);
-  array_array_array_number_t x6679 = (array_array_array_number_t)storage_alloc(sizeof(int) * 2);x6679->length=x6284;x6679->arr = (array_array_number_t*)storage_alloc(sizeof(array_array_number_t) * x6284);
-  for(int i = 0; i < x6679->length; i++){
-    index_t x6285 = (i) == (0);
-    index_t x6286;
-    if (x6285) {
-      x6286 = 1;
-    } else {
-      x6286 = 0;
-    }
-    number_t x6289 = (x6286) * (x6230);
-    number_t x6290 = (x6230) * (x6286);
-    number_t x6291 = (x6289) + (x6290);
-    index_t x6292 = (i) == (1);
-    index_t x6293;
-    if (x6292) {
-      x6293 = 1;
-    } else {
-      x6293 = 0;
-    }
-    number_t x6296 = (x6293) * (x6233);
-    number_t x6297 = (x6233) * (x6293);
-    number_t x6298 = (x6296) + (x6297);
-    index_t x6299 = (i) == (2);
-    index_t x6300;
-    if (x6299) {
-      x6300 = 1;
-    } else {
-      x6300 = 0;
-    }
-    number_t x6303 = (x6291) + (x6298);
-    number_t x6304 = (x6300) * (x6236);
-    number_t x6305 = (x6236) * (x6300);
-    number_t x6306 = (x6304) + (x6305);
-    number_t x6307 = (x6303) + (x6306);
-    number_t x6310 = (x6307) * (x6309);
-    number_t x6313 = -(x6310);
-    number_t x6315 = (x6313) / (x6314);
-    index_t x6316 = (i) == (5);
-    index_t x6317;
-    if (x6316) {
-      x6317 = 1;
-    } else {
-      x6317 = 0;
-    }
-    number_t x6318 = (x6293) * (x6243);
-    number_t x6319 = (x6233) * (x6315);
-    number_t x6320 = (x6318) + (x6319);
-    index_t x6326 = (i) == (4);
-    index_t x6327;
-    if (x6326) {
-      x6327 = 1;
-    } else {
-      x6327 = 0;
-    }
-    number_t x6328 = (x6300) * (x6243);
-    number_t x6329 = (x6236) * (x6315);
-    number_t x6330 = (x6328) + (x6329);
-    index_t x6336 = (i) == (3);
-    index_t x6337;
-    if (x6336) {
-      x6337 = 1;
-    } else {
-      x6337 = 0;
-    }
-    number_t x6348 = (x6286) * (x6243);
-    number_t x6349 = (x6230) * (x6315);
-    number_t x6350 = (x6348) + (x6349);
-    number_t x6407 = (x6310) * (x6406);
-    number_t x6408 = -(x6407);
-    index_t x6409 = (i) == (9);
-    index_t x6410;
-    if (x6409) {
-      x6410 = 1;
-    } else {
-      x6410 = 0;
-    }
-    index_t x6411 = (i) == (10);
-    index_t x6412;
-    if (x6411) {
-      x6412 = 1;
-    } else {
-      x6412 = 0;
-    }
-    index_t x6413 = (i) == (6);
-    index_t x6414;
-    if (x6413) {
-      x6414 = 1;
-    } else {
-      x6414 = 0;
-    }
-    number_t x6543 = (x6310) * (x6278);
-    array_array_number_t x6678 = (array_array_number_t)storage_alloc(sizeof(int) * 2);x6678->length=n;x6678->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * n);
-    for(int i0 = 0; i0 < x6678->length; i0++){
-      index_t x6417 = (3) * (i0);
-      index_t x6418 = (11) + (x6417);
-      index_t x6419 = (2) + (x6418);
-      number_t x6420 = (xs->arr[x6419]);
-      index_t x6421 = (i) == (x6419);
-      index_t x6422;
-      if (x6421) {
-        x6422 = 1;
-      } else {
-        x6422 = 0;
-      }
-      number_t x6423 = (x6420) - (x6244);
-      index_t x6424 = (x6422) - (x6317);
-      index_t x6426 = (1) + (x6418);
-      number_t x6427 = (xs->arr[x6426]);
-      index_t x6428 = (i) == (x6426);
-      index_t x6429;
-      if (x6428) {
-        x6429 = 1;
-      } else {
-        x6429 = 0;
-      }
-      number_t x6430 = (x6427) - (x6248);
-      index_t x6431 = (x6429) - (x6327);
-      number_t x6432 = (x6245) * (x6423);
-      number_t x6433 = (x6320) * (x6423);
-      number_t x6434 = (x6245) * (x6424);
-      number_t x6435 = (x6433) + (x6434);
-      number_t x6436 = (x6249) * (x6430);
-      number_t x6437 = (x6330) * (x6430);
-      number_t x6438 = (x6249) * (x6431);
-      number_t x6439 = (x6437) + (x6438);
-      number_t x6441 = (xs->arr[x6418]);
-      index_t x6442 = (i) == (x6418);
-      index_t x6443;
-      if (x6442) {
-        x6443 = 1;
-      } else {
-        x6443 = 0;
-      }
-      number_t x6444 = (x6441) - (x6252);
-      index_t x6445 = (x6443) - (x6337);
-      number_t x6453 = (x6249) * (x6444);
-      number_t x6454 = (x6330) * (x6444);
-      number_t x6455 = (x6249) * (x6445);
-      number_t x6456 = (x6454) + (x6455);
-      number_t x6457 = (x6257) * (x6423);
-      number_t x6458 = (x6350) * (x6423);
-      number_t x6459 = (x6257) * (x6424);
-      number_t x6460 = (x6458) + (x6459);
-      number_t x6474 = (x6257) * (x6430);
-      number_t x6475 = (x6350) * (x6430);
-      number_t x6476 = (x6257) * (x6431);
-      number_t x6477 = (x6475) + (x6476);
-      number_t x6478 = (x6245) * (x6444);
-      number_t x6479 = (x6320) * (x6444);
-      number_t x6480 = (x6245) * (x6445);
-      number_t x6481 = (x6479) + (x6480);
-      number_t x6482 = (x6432) - (x6436);
-      number_t x6483 = (x6435) - (x6439);
-      tuple_number_t_number_t x6484 = (tuple_number_t_number_t){._1=x6482, ._2=x6483};
-      number_t x6485 = (x6453) - (x6457);
-      number_t x6486 = (x6456) - (x6460);
-      tuple_number_t_number_t x6487 = (tuple_number_t_number_t){._1=x6485, ._2=x6486};
-      number_t x6488 = (x6474) - (x6478);
-      number_t x6489 = (x6477) - (x6481);
-      tuple_number_t_number_t x6490 = (tuple_number_t_number_t){._1=x6488, ._2=x6489};
-      array_tuple_number_t_number_t x6491 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);x6491->length=3;x6491->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 3);
-      x6491->arr[0] = x6484;
-      x6491->arr[1] = x6487;
-      x6491->arr[2] = x6490;
-      number_t x6498 = (x6257) * (x6444);
-      number_t x6499 = (x6350) * (x6444);
-      number_t x6500 = (x6257) * (x6445);
-      number_t x6501 = (x6499) + (x6500);
-      number_t x6509 = (x6245) * (x6430);
-      number_t x6510 = (x6320) * (x6430);
-      number_t x6511 = (x6245) * (x6431);
-      number_t x6512 = (x6510) + (x6511);
-      number_t x6520 = (x6498) + (x6509);
-      number_t x6521 = (x6501) + (x6512);
-      number_t x6522 = (x6249) * (x6423);
-      number_t x6523 = (x6330) * (x6423);
-      number_t x6524 = (x6249) * (x6424);
-      number_t x6525 = (x6523) + (x6524);
-      number_t x6526 = (x6520) + (x6522);
-      number_t x6527 = (x6521) + (x6525);
-      number_t x6548 = (x6526) * (x6279);
-      number_t x6549 = (x6527) * (x6279);
-      number_t x6550 = (x6526) * (x6408);
-      number_t x6551 = (x6549) + (x6550);
-      array_tuple_number_t_number_t x6589 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);x6589->length=3;x6589->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 3);
-      for(int x5793 = 0; x5793 < x6589->length; x5793++){
-        index_t x6552 = (x5793) + (x6418);
-        index_t x6553 = (x5793) + (3);
-        number_t x6554 = (xs->arr[x6552]);
-        index_t x6555 = (i) == (x6552);
-        index_t x6556;
-        if (x6555) {
-          x6556 = 1;
-        } else {
-          x6556 = 0;
-        }
-        number_t x6557 = (xs->arr[x6553]);
-        index_t x6558 = (i) == (x6553);
-        index_t x6559;
-        if (x6558) {
-          x6559 = 1;
-        } else {
-          x6559 = 0;
-        }
-        number_t x6560 = (x6554) - (x6557);
-        index_t x6561 = (x6556) - (x6559);
-        tuple_number_t_number_t x6562 = (x6491->arr[x5793]);
-        number_t x6563 = (x6562)._1;
-        number_t x6564 = (x6562)._2;
-        number_t x6565 = (x6560) * (x6278);
-        number_t x6566 = (x6561) * (x6278);
-        number_t x6567 = (x6560) * (x6407);
-        number_t x6568 = (x6566) + (x6567);
-        number_t x6569 = (x6563) * (x6405);
-        number_t x6570 = (x6564) * (x6405);
-        number_t x6571 = (x6563) * (x6543);
-        number_t x6572 = (x6570) + (x6571);
-        number_t x6573 = (xs->arr[x5793]);
-        index_t x6574 = (i) == (x5793);
-        index_t x6575;
-        if (x6574) {
-          x6575 = 1;
-        } else {
-          x6575 = 0;
-        }
-        number_t x6576 = (x6573) * (x6243);
-        number_t x6577 = (x6575) * (x6243);
-        number_t x6578 = (x6573) * (x6315);
-        number_t x6579 = (x6577) + (x6578);
-        number_t x6580 = (x6565) + (x6569);
-        number_t x6581 = (x6568) + (x6572);
-        number_t x6582 = (x6576) * (x6548);
-        number_t x6583 = (x6579) * (x6548);
-        number_t x6584 = (x6576) * (x6551);
-        number_t x6585 = (x6583) + (x6584);
-        number_t x6586 = (x6580) + (x6582);
-        number_t x6587 = (x6581) + (x6585);
-        tuple_number_t_number_t x6588 = (tuple_number_t_number_t){._1=x6586, ._2=x6587};
-        x6589->arr[x5793] = x6588;
+//   number_t x6230 = (xs->arr[0]);
+//   number_t x6232 = (x6230) * (x6230);
+//   number_t x6233 = (xs->arr[1]);
+//   number_t x6235 = (x6233) * (x6233);
+//   number_t x6236 = (xs->arr[2]);
+//   number_t x6238 = (x6232) + (x6235);
+//   number_t x6239 = (x6236) * (x6236);
+//   number_t x6240 = (x6238) + (x6239);
+//   number_t x6241 = sqrt(x6240);
+//   number_t x6243 = (1) / (x6241);
+//   number_t x6244 = (xs->arr[5]);
+//   number_t x6245 = (x6233) * (x6243);
+//   number_t x6248 = (xs->arr[4]);
+//   number_t x6249 = (x6236) * (x6243);
+//   number_t x6252 = (xs->arr[3]);
+//   number_t x6257 = (x6230) * (x6243);
+//   number_t x6278 = cos(x6241);
+//   number_t x6279 = (1) - (x6278);
+//   number_t x6280 = (xs->arr[9]);
+//   number_t x6281 = (xs->arr[10]);
+//   number_t x6282 = (xs->arr[6]);
+//   index_t x6284 = (xs)->length;
+//   number_t x6309 = (x6243) * (0.5);
+//   number_t x6314 = (x6241) * (x6241);
+//   number_t x6405 = sin(x6241);
+//   number_t x6406 = -(x6405);
+//   array_array_array_number_t x6679 = (array_array_array_number_t)storage_alloc(sizeof(int) * 2);x6679->length=x6284;x6679->arr = (array_array_number_t*)storage_alloc(sizeof(array_array_number_t) * x6284);
+//   for(int i = 0; i < x6679->length; i++){
+//     index_t x6285 = (i) == (0);
+//     index_t x6286;
+//     if (x6285) {
+//       x6286 = 1;
+//     } else {
+//       x6286 = 0;
+//     }
+//     number_t x6289 = (x6286) * (x6230);
+//     number_t x6290 = (x6230) * (x6286);
+//     number_t x6291 = (x6289) + (x6290);
+//     index_t x6292 = (i) == (1);
+//     index_t x6293;
+//     if (x6292) {
+//       x6293 = 1;
+//     } else {
+//       x6293 = 0;
+//     }
+//     number_t x6296 = (x6293) * (x6233);
+//     number_t x6297 = (x6233) * (x6293);
+//     number_t x6298 = (x6296) + (x6297);
+//     index_t x6299 = (i) == (2);
+//     index_t x6300;
+//     if (x6299) {
+//       x6300 = 1;
+//     } else {
+//       x6300 = 0;
+//     }
+//     number_t x6303 = (x6291) + (x6298);
+//     number_t x6304 = (x6300) * (x6236);
+//     number_t x6305 = (x6236) * (x6300);
+//     number_t x6306 = (x6304) + (x6305);
+//     number_t x6307 = (x6303) + (x6306);
+//     number_t x6310 = (x6307) * (x6309);
+//     number_t x6313 = -(x6310);
+//     number_t x6315 = (x6313) / (x6314);
+//     index_t x6316 = (i) == (5);
+//     index_t x6317;
+//     if (x6316) {
+//       x6317 = 1;
+//     } else {
+//       x6317 = 0;
+//     }
+//     number_t x6318 = (x6293) * (x6243);
+//     number_t x6319 = (x6233) * (x6315);
+//     number_t x6320 = (x6318) + (x6319);
+//     index_t x6326 = (i) == (4);
+//     index_t x6327;
+//     if (x6326) {
+//       x6327 = 1;
+//     } else {
+//       x6327 = 0;
+//     }
+//     number_t x6328 = (x6300) * (x6243);
+//     number_t x6329 = (x6236) * (x6315);
+//     number_t x6330 = (x6328) + (x6329);
+//     index_t x6336 = (i) == (3);
+//     index_t x6337;
+//     if (x6336) {
+//       x6337 = 1;
+//     } else {
+//       x6337 = 0;
+//     }
+//     number_t x6348 = (x6286) * (x6243);
+//     number_t x6349 = (x6230) * (x6315);
+//     number_t x6350 = (x6348) + (x6349);
+//     number_t x6407 = (x6310) * (x6406);
+//     number_t x6408 = -(x6407);
+//     index_t x6409 = (i) == (9);
+//     index_t x6410;
+//     if (x6409) {
+//       x6410 = 1;
+//     } else {
+//       x6410 = 0;
+//     }
+//     index_t x6411 = (i) == (10);
+//     index_t x6412;
+//     if (x6411) {
+//       x6412 = 1;
+//     } else {
+//       x6412 = 0;
+//     }
+//     index_t x6413 = (i) == (6);
+//     index_t x6414;
+//     if (x6413) {
+//       x6414 = 1;
+//     } else {
+//       x6414 = 0;
+//     }
+//     number_t x6543 = (x6310) * (x6278);
+//     array_array_number_t x6678 = (array_array_number_t)storage_alloc(sizeof(int) * 2);x6678->length=n;x6678->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * n);
+//     for(int i0 = 0; i0 < x6678->length; i0++){
+//       index_t x6417 = (3) * (i0);
+//       index_t x6418 = (11) + (x6417);
+//       index_t x6419 = (2) + (x6418);
+//       number_t x6420 = (xs->arr[x6419]);
+//       index_t x6421 = (i) == (x6419);
+//       index_t x6422;
+//       if (x6421) {
+//         x6422 = 1;
+//       } else {
+//         x6422 = 0;
+//       }
+//       number_t x6423 = (x6420) - (x6244);
+//       index_t x6424 = (x6422) - (x6317);
+//       index_t x6426 = (1) + (x6418);
+//       number_t x6427 = (xs->arr[x6426]);
+//       index_t x6428 = (i) == (x6426);
+//       index_t x6429;
+//       if (x6428) {
+//         x6429 = 1;
+//       } else {
+//         x6429 = 0;
+//       }
+//       number_t x6430 = (x6427) - (x6248);
+//       index_t x6431 = (x6429) - (x6327);
+//       number_t x6432 = (x6245) * (x6423);
+//       number_t x6433 = (x6320) * (x6423);
+//       number_t x6434 = (x6245) * (x6424);
+//       number_t x6435 = (x6433) + (x6434);
+//       number_t x6436 = (x6249) * (x6430);
+//       number_t x6437 = (x6330) * (x6430);
+//       number_t x6438 = (x6249) * (x6431);
+//       number_t x6439 = (x6437) + (x6438);
+//       number_t x6441 = (xs->arr[x6418]);
+//       index_t x6442 = (i) == (x6418);
+//       index_t x6443;
+//       if (x6442) {
+//         x6443 = 1;
+//       } else {
+//         x6443 = 0;
+//       }
+//       number_t x6444 = (x6441) - (x6252);
+//       index_t x6445 = (x6443) - (x6337);
+//       number_t x6453 = (x6249) * (x6444);
+//       number_t x6454 = (x6330) * (x6444);
+//       number_t x6455 = (x6249) * (x6445);
+//       number_t x6456 = (x6454) + (x6455);
+//       number_t x6457 = (x6257) * (x6423);
+//       number_t x6458 = (x6350) * (x6423);
+//       number_t x6459 = (x6257) * (x6424);
+//       number_t x6460 = (x6458) + (x6459);
+//       number_t x6474 = (x6257) * (x6430);
+//       number_t x6475 = (x6350) * (x6430);
+//       number_t x6476 = (x6257) * (x6431);
+//       number_t x6477 = (x6475) + (x6476);
+//       number_t x6478 = (x6245) * (x6444);
+//       number_t x6479 = (x6320) * (x6444);
+//       number_t x6480 = (x6245) * (x6445);
+//       number_t x6481 = (x6479) + (x6480);
+//       number_t x6482 = (x6432) - (x6436);
+//       number_t x6483 = (x6435) - (x6439);
+//       tuple_number_t_number_t x6484 = (tuple_number_t_number_t){._1=x6482, ._2=x6483};
+//       number_t x6485 = (x6453) - (x6457);
+//       number_t x6486 = (x6456) - (x6460);
+//       tuple_number_t_number_t x6487 = (tuple_number_t_number_t){._1=x6485, ._2=x6486};
+//       number_t x6488 = (x6474) - (x6478);
+//       number_t x6489 = (x6477) - (x6481);
+//       tuple_number_t_number_t x6490 = (tuple_number_t_number_t){._1=x6488, ._2=x6489};
+//       array_tuple_number_t_number_t x6491 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);x6491->length=3;x6491->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 3);
+//       x6491->arr[0] = x6484;
+//       x6491->arr[1] = x6487;
+//       x6491->arr[2] = x6490;
+//       number_t x6498 = (x6257) * (x6444);
+//       number_t x6499 = (x6350) * (x6444);
+//       number_t x6500 = (x6257) * (x6445);
+//       number_t x6501 = (x6499) + (x6500);
+//       number_t x6509 = (x6245) * (x6430);
+//       number_t x6510 = (x6320) * (x6430);
+//       number_t x6511 = (x6245) * (x6431);
+//       number_t x6512 = (x6510) + (x6511);
+//       number_t x6520 = (x6498) + (x6509);
+//       number_t x6521 = (x6501) + (x6512);
+//       number_t x6522 = (x6249) * (x6423);
+//       number_t x6523 = (x6330) * (x6423);
+//       number_t x6524 = (x6249) * (x6424);
+//       number_t x6525 = (x6523) + (x6524);
+//       number_t x6526 = (x6520) + (x6522);
+//       number_t x6527 = (x6521) + (x6525);
+//       number_t x6548 = (x6526) * (x6279);
+//       number_t x6549 = (x6527) * (x6279);
+//       number_t x6550 = (x6526) * (x6408);
+//       number_t x6551 = (x6549) + (x6550);
+//       array_tuple_number_t_number_t x6589 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);x6589->length=3;x6589->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 3);
+//       for(int x5793 = 0; x5793 < x6589->length; x5793++){
+//         index_t x6552 = (x5793) + (x6418);
+//         index_t x6553 = (x5793) + (3);
+//         number_t x6554 = (xs->arr[x6552]);
+//         index_t x6555 = (i) == (x6552);
+//         index_t x6556;
+//         if (x6555) {
+//           x6556 = 1;
+//         } else {
+//           x6556 = 0;
+//         }
+//         number_t x6557 = (xs->arr[x6553]);
+//         index_t x6558 = (i) == (x6553);
+//         index_t x6559;
+//         if (x6558) {
+//           x6559 = 1;
+//         } else {
+//           x6559 = 0;
+//         }
+//         number_t x6560 = (x6554) - (x6557);
+//         index_t x6561 = (x6556) - (x6559);
+//         tuple_number_t_number_t x6562 = (x6491->arr[x5793]);
+//         number_t x6563 = (x6562)._1;
+//         number_t x6564 = (x6562)._2;
+//         number_t x6565 = (x6560) * (x6278);
+//         number_t x6566 = (x6561) * (x6278);
+//         number_t x6567 = (x6560) * (x6407);
+//         number_t x6568 = (x6566) + (x6567);
+//         number_t x6569 = (x6563) * (x6405);
+//         number_t x6570 = (x6564) * (x6405);
+//         number_t x6571 = (x6563) * (x6543);
+//         number_t x6572 = (x6570) + (x6571);
+//         number_t x6573 = (xs->arr[x5793]);
+//         index_t x6574 = (i) == (x5793);
+//         index_t x6575;
+//         if (x6574) {
+//           x6575 = 1;
+//         } else {
+//           x6575 = 0;
+//         }
+//         number_t x6576 = (x6573) * (x6243);
+//         number_t x6577 = (x6575) * (x6243);
+//         number_t x6578 = (x6573) * (x6315);
+//         number_t x6579 = (x6577) + (x6578);
+//         number_t x6580 = (x6565) + (x6569);
+//         number_t x6581 = (x6568) + (x6572);
+//         number_t x6582 = (x6576) * (x6548);
+//         number_t x6583 = (x6579) * (x6548);
+//         number_t x6584 = (x6576) * (x6551);
+//         number_t x6585 = (x6583) + (x6584);
+//         number_t x6586 = (x6580) + (x6582);
+//         number_t x6587 = (x6581) + (x6585);
+//         tuple_number_t_number_t x6588 = (tuple_number_t_number_t){._1=x6586, ._2=x6587};
+//         x6589->arr[x5793] = x6588;
         
-      }
-      array_tuple_number_t_number_t x6590 = x6589;
-      tuple_number_t_number_t x6591 = (x6590->arr[2]);
-      number_t x6592 = (x6591)._1;
-      number_t x6593 = (x6591)._2;
-      tuple_number_t_number_t x6594 = (x6590->arr[0]);
-      number_t x6595 = (x6594)._1;
-      number_t x6596 = (x6594)._2;
-      number_t x6597 = (1) / (x6592);
-      number_t x6598 = -(x6593);
-      number_t x6599 = (x6592) * (x6592);
-      number_t x6600 = (x6598) / (x6599);
-      number_t x6601 = (x6595) * (x6597);
-      number_t x6602 = (x6596) * (x6597);
-      number_t x6603 = (x6595) * (x6600);
-      number_t x6604 = (x6602) + (x6603);
-      number_t x6609 = (x6601) * (x6601);
-      number_t x6610 = (x6604) * (x6601);
-      number_t x6611 = (x6601) * (x6604);
-      number_t x6612 = (x6610) + (x6611);
-      tuple_number_t_number_t x6613 = (x6590->arr[1]);
-      number_t x6614 = (x6613)._1;
-      number_t x6615 = (x6613)._2;
-      number_t x6620 = (x6614) * (x6597);
-      number_t x6621 = (x6615) * (x6597);
-      number_t x6622 = (x6614) * (x6600);
-      number_t x6623 = (x6621) + (x6622);
-      number_t x6628 = (x6620) * (x6620);
-      number_t x6629 = (x6623) * (x6620);
-      number_t x6630 = (x6620) * (x6623);
-      number_t x6631 = (x6629) + (x6630);
-      number_t x6632 = (x6609) + (x6628);
-      number_t x6633 = (x6612) + (x6631);
-      number_t x6634 = (x6280) * (x6632);
-      number_t x6635 = (x6410) * (x6632);
-      number_t x6636 = (x6280) * (x6633);
-      number_t x6637 = (x6635) + (x6636);
-      number_t x6640 = (x6281) * (x6632);
-      number_t x6641 = (x6412) * (x6632);
-      number_t x6642 = (x6281) * (x6633);
-      number_t x6643 = (x6641) + (x6642);
-      number_t x6646 = (1) + (x6634);
-      number_t x6647 = (x6640) * (x6632);
-      number_t x6648 = (x6643) * (x6632);
-      number_t x6649 = (x6640) * (x6633);
-      number_t x6650 = (x6648) + (x6649);
-      number_t x6651 = (x6646) + (x6647);
-      number_t x6652 = (x6637) + (x6650);
-      array_number_t x6677 = (array_number_t)storage_alloc(sizeof(int) * 2);x6677->length=2;x6677->arr = (number_t*)storage_alloc(sizeof(number_t) * 2);
-      for(int i00 = 0; i00 < x6677->length; i00++){
-        index_t x6654 = (i00) + (7);
-        tuple_number_t_number_t x6655 = (x6590->arr[i00]);
-        number_t x6656 = (x6655)._1;
-        number_t x6657 = (x6655)._2;
-        number_t x6658 = (x6656) * (x6282);
-        number_t x6659 = (x6657) * (x6282);
-        number_t x6660 = (x6656) * (x6414);
-        number_t x6661 = (x6659) + (x6660);
-        number_t x6662 = (x6658) * (x6651);
-        number_t x6663 = (x6661) * (x6651);
-        number_t x6664 = (x6658) * (x6652);
-        number_t x6665 = (x6663) + (x6664);
-        number_t x6666 = (xs->arr[x6654]);
-        index_t x6667 = (i) == (x6654);
-        index_t x6668;
-        if (x6667) {
-          x6668 = 1;
-        } else {
-          x6668 = 0;
-        }
-        number_t x6669 = (x6662) * (x6282);
-        number_t x6670 = (x6665) * (x6282);
-        number_t x6671 = (x6662) * (x6414);
-        number_t x6672 = (x6670) + (x6671);
-        number_t x6673 = (x6666) + (x6669);
-        number_t x6674 = (x6668) + (x6672);
-        tuple_number_t_number_t x6675 = (tuple_number_t_number_t){._1=x6673, ._2=x6674};
-        number_t x6676 = (x6675)._2;
-        x6677->arr[i00] = x6676;
+//       }
+//       array_tuple_number_t_number_t x6590 = x6589;
+//       tuple_number_t_number_t x6591 = (x6590->arr[2]);
+//       number_t x6592 = (x6591)._1;
+//       number_t x6593 = (x6591)._2;
+//       tuple_number_t_number_t x6594 = (x6590->arr[0]);
+//       number_t x6595 = (x6594)._1;
+//       number_t x6596 = (x6594)._2;
+//       number_t x6597 = (1) / (x6592);
+//       number_t x6598 = -(x6593);
+//       number_t x6599 = (x6592) * (x6592);
+//       number_t x6600 = (x6598) / (x6599);
+//       number_t x6601 = (x6595) * (x6597);
+//       number_t x6602 = (x6596) * (x6597);
+//       number_t x6603 = (x6595) * (x6600);
+//       number_t x6604 = (x6602) + (x6603);
+//       number_t x6609 = (x6601) * (x6601);
+//       number_t x6610 = (x6604) * (x6601);
+//       number_t x6611 = (x6601) * (x6604);
+//       number_t x6612 = (x6610) + (x6611);
+//       tuple_number_t_number_t x6613 = (x6590->arr[1]);
+//       number_t x6614 = (x6613)._1;
+//       number_t x6615 = (x6613)._2;
+//       number_t x6620 = (x6614) * (x6597);
+//       number_t x6621 = (x6615) * (x6597);
+//       number_t x6622 = (x6614) * (x6600);
+//       number_t x6623 = (x6621) + (x6622);
+//       number_t x6628 = (x6620) * (x6620);
+//       number_t x6629 = (x6623) * (x6620);
+//       number_t x6630 = (x6620) * (x6623);
+//       number_t x6631 = (x6629) + (x6630);
+//       number_t x6632 = (x6609) + (x6628);
+//       number_t x6633 = (x6612) + (x6631);
+//       number_t x6634 = (x6280) * (x6632);
+//       number_t x6635 = (x6410) * (x6632);
+//       number_t x6636 = (x6280) * (x6633);
+//       number_t x6637 = (x6635) + (x6636);
+//       number_t x6640 = (x6281) * (x6632);
+//       number_t x6641 = (x6412) * (x6632);
+//       number_t x6642 = (x6281) * (x6633);
+//       number_t x6643 = (x6641) + (x6642);
+//       number_t x6646 = (1) + (x6634);
+//       number_t x6647 = (x6640) * (x6632);
+//       number_t x6648 = (x6643) * (x6632);
+//       number_t x6649 = (x6640) * (x6633);
+//       number_t x6650 = (x6648) + (x6649);
+//       number_t x6651 = (x6646) + (x6647);
+//       number_t x6652 = (x6637) + (x6650);
+//       array_number_t x6677 = (array_number_t)storage_alloc(sizeof(int) * 2);x6677->length=2;x6677->arr = (number_t*)storage_alloc(sizeof(number_t) * 2);
+//       for(int i00 = 0; i00 < x6677->length; i00++){
+//         index_t x6654 = (i00) + (7);
+//         tuple_number_t_number_t x6655 = (x6590->arr[i00]);
+//         number_t x6656 = (x6655)._1;
+//         number_t x6657 = (x6655)._2;
+//         number_t x6658 = (x6656) * (x6282);
+//         number_t x6659 = (x6657) * (x6282);
+//         number_t x6660 = (x6656) * (x6414);
+//         number_t x6661 = (x6659) + (x6660);
+//         number_t x6662 = (x6658) * (x6651);
+//         number_t x6663 = (x6661) * (x6651);
+//         number_t x6664 = (x6658) * (x6652);
+//         number_t x6665 = (x6663) + (x6664);
+//         number_t x6666 = (xs->arr[x6654]);
+//         index_t x6667 = (i) == (x6654);
+//         index_t x6668;
+//         if (x6667) {
+//           x6668 = 1;
+//         } else {
+//           x6668 = 0;
+//         }
+//         number_t x6669 = (x6662) * (x6282);
+//         number_t x6670 = (x6665) * (x6282);
+//         number_t x6671 = (x6662) * (x6414);
+//         number_t x6672 = (x6670) + (x6671);
+//         number_t x6673 = (x6666) + (x6669);
+//         number_t x6674 = (x6668) + (x6672);
+//         tuple_number_t_number_t x6675 = (tuple_number_t_number_t){._1=x6673, ._2=x6674};
+//         number_t x6676 = (x6675)._2;
+//         x6677->arr[i00] = x6676;
         
-      }
-      x6678->arr[i0] = x6677;
+//       }
+//       x6678->arr[i0] = x6677;
       
-    }
-    x6679->arr[i] = x6678;
+//     }
+//     x6679->arr[i] = x6678;
     
-  }
-  return x6679;
-}
+//   }
+//   return x6679;
+// }
 //   array_array_array_tuple_number_t_number_t m = (array_array_array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);m->length=(xs)->length;m->arr = (array_array_tuple_number_t_number_t*)storage_alloc(sizeof(array_array_tuple_number_t_number_t) * (xs)->length);
 //   for(int ii = 0; ii < m->length; ii++){
 //     index_t n0 = (xs)->length;
@@ -634,6 +634,7 @@ array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
       
 //       number_t x5517 = sqrt((sqtheta)._1);
 //       tuple_number_t_number_t theta = (tuple_number_t_number_t){._1=x5517, ._2=((sqtheta)._2) / ((2) * (x5517))};
+//       // printf("theta %f, %f\n", theta._1, theta._2);
 //       number_t x5533 = (theta)._1;
 //       tuple_number_t_number_t costheta = (tuple_number_t_number_t){._1=cos(x5533), ._2=((theta)._2) * (-(sin(x5533)))};
 //       number_t x5585 = (theta)._1;
@@ -807,10 +808,12 @@ array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
 //       w_cross_X->arr[0] = x6237;
 //       w_cross_X->arr[1] = x6239;
 //       w_cross_X->arr[2] = x6241;
+//       // array_tuple_print(w_cross_X);
 //       tuple_index_t_index_t x6242 = (tuple_index_t_index_t){._1=3, ._2=0};
 //       tuple_index_t_index_t l0 = (tuple_index_t_index_t){._1=(x6242)._1, ._2=0};
 //       tuple_number_t_number_t x6245 = (tuple_number_t_number_t){._1=0, ._2=0};
 //       tuple_number_t_number_t x5714 = x6245;
+//       // printf("thetai %f\n", (theta_inv)._2);
 //       for (int x5809 = 0; x5809 < (l0)._1; x5809++) {
 //         tuple_number_t_number_t x5808 = x5714;
 //         tuple_index_t_index_t idx0 = (tuple_index_t_index_t){._1=x5809, ._2=0};
@@ -819,7 +822,7 @@ array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
 //         index_t x6094 = (xs_d->arr[(idx0)._1])._2;
 //         number_t x6097 = (theta_inv)._1;
 //         number_t x6095 = (theta_inv)._2;
-//         tuple_number_t_index_t x0010 = (tuple_number_t_index_t){._1=(x6096) * (x6097), ._2=((x6094) * (x6097)) + ((x6096) * (x6095))};
+//         tuple_number_t_number_t x0010 = (tuple_number_t_number_t){._1=(x6096) * (x6097), ._2=((x6094) * (x6097)) + ((x6096) * (x6095))};
 //         index_t x6120 = (idx0)._1;
 //         index_t x6118 = (idx0)._2;
 //         index_t x6121 = (offset)._1;
@@ -838,6 +841,9 @@ array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
 //         number_t x6169 = (y010)._1;
 //         index_t x6167 = (y010)._2;
 //         tuple_number_t_number_t y0000 = (tuple_number_t_number_t){._1=(x6168) - (x6169), ._2=(x6166) - (x6167)};
+//         // printf("sub %f, %f\n", y0000._1, y0000._2);
+//         // printf("w %f\n", ((x6094) * (x6097)) + ((x6096) * (x6095)));
+//         // printf("rot %f, %d\n", x6096, x6094);
 //         number_t x6180 = (x0010)._1;
 //         number_t x6178 = (x0010)._2;
 //         number_t x6181 = (y0000)._1;
@@ -851,6 +857,8 @@ array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
 //         x5808 = x6244;
 //         x5714 = x5808;
 //       }
+//       // printf("dot %f, %f\n", x5714._1, x5714._2);
+//       // printf("tmp %f, %f\n", tmp, tmpd);
       
 //       tuple_index_t_index_t x5800 = (tuple_index_t_index_t){._1=1, ._2=0};
 //       index_t x5804 = (x5800)._1;
@@ -920,6 +928,9 @@ array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
         
 //       }
 //       array_tuple_number_t_number_t Xcam = x6248;
+//       // array_tuple_print(Xcam);
+//       // array_print(array_tuple_2(xs_d));
+//       // printf("Xcam created!\t");
 //       tuple_index_t_index_t x5500 = (tuple_index_t_index_t){._1=1, ._2=0};
 //       tuple_index_t_index_t x6249 = (tuple_index_t_index_t){._1=2, ._2=0};
 //       tuple_number_t_number_t x5501 = (Xcam->arr[(x6249)._1]);
@@ -954,7 +965,8 @@ array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
 //         x5512 = x6251;
 //         rsq = x5512;
 //       }
-      
+//       // printf("rsq %f, %f\n", rsq._1, rsq._2);
+//       // printf("rsq created!\t");
 //       tuple_index_t_index_t x5552 = (tuple_index_t_index_t){._1=1, ._2=0};
 //       tuple_index_t_index_t i0 = (tuple_index_t_index_t){._1=9, ._2=0};
 //       tuple_number_t_index_t x5576 = (xs_d->arr[(i0)._1]);
@@ -987,8 +999,9 @@ array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
 //       tuple_number_t_number_t L = (tuple_number_t_number_t){._1=(x5528) + (x5529), ._2=(x5526) + (x5527)};
 //       tuple_index_t_index_t x6253 = (tuple_index_t_index_t){._1=6, ._2=0};
 //       tuple_number_t_index_t y010 = (xs_d->arr[(x6253)._1]);
+//       // printf("L %f, %f\n", L._1, L._2);
 //       array_tuple_number_t_number_t m2 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);m2->length=2;m2->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 2);
-//       for(int x5587 = 0; x5587 < m->length; x5587++){
+//       for(int x5587 = 0; x5587 < m2->length; x5587++){
 //         tuple_index_t_index_t i = (tuple_index_t_index_t){._1=x5587, ._2=0};
 //         tuple_index_t_index_t x5655 = (tuple_index_t_index_t){._1=7, ._2=0};
 //         index_t x5658 = (i)._1;
@@ -1021,11 +1034,15 @@ array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
 //         m2->arr[x5587] = x6254;
         
 //       }
+//       array_tuple_print(m2);
+//       // printf("m2 created!\n");
 //       x6255->arr[x5469] = m2;
 //     }
+//     // printf("m computed!\n");
 //     m->arr[ii] = x6255;
-    
+//     // printf("m assigned!\n");
 //   }
+//   // printf("here!\n");
 //   array_array_array_number_t x6258 = (array_array_array_number_t)storage_alloc(sizeof(int) * 2);x6258->length=(m)->length;x6258->arr = (array_array_number_t*)storage_alloc(sizeof(array_array_number_t) * (m)->length);
 //   for(int i = 0; i < x6258->length; i++){
 //     array_array_tuple_number_t_number_t m0 = (m->arr[i]);
@@ -1046,3 +1063,722 @@ array_array_array_number_t ba_proj_jac(array_number_t xs, index_t n) {
 //   }
 //   return x6258;
 // }
+//   array_array_array_tuple_number_t_number_t m = (array_array_array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);m->length=(xs)->length;m->arr = (array_array_tuple_number_t_number_t*)storage_alloc(sizeof(array_array_tuple_number_t_number_t) * (xs)->length);
+//   for(int ii = 0; ii < m->length; ii++){
+//     index_t x6281 = (xs)->length;
+//     array_index_t x6331 = (array_index_t)storage_alloc(sizeof(int) * 2);x6331->length=x6281;x6331->arr = (index_t*)storage_alloc(sizeof(index_t) * x6281);
+//     for(int j = 0; j < x6331->length; j++){
+//       index_t x7230;
+//       if ((ii) == (j)) {
+//         x7230 = 1;
+//       } else {
+//         x7230 = 0;
+//       }
+//       x6331->arr[j] = x7230;
+      
+//     }
+//     array_tuple_number_t_index_t x6345 = (array_tuple_number_t_index_t)storage_alloc(sizeof(int) * 2);x6345->length=(xs)->length;x6345->arr = (tuple_number_t_index_t*)storage_alloc(sizeof(tuple_number_t_index_t) * (xs)->length);
+//     for(int j = 0; j < x6345->length; j++){
+//       tuple_number_t_index_t x7231 = (tuple_number_t_index_t){._1=(xs->arr[j]), ._2=(x6331->arr[j])};
+//       x6345->arr[j] = x7231;
+      
+//     }
+//     index_t n_d = n;
+//     array_array_tuple_number_t_number_t x7252 = (array_array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);x7252->length=n_d;x7252->arr = (array_tuple_number_t_number_t*)storage_alloc(sizeof(array_tuple_number_t_number_t) * n_d);
+//     for(int x5469 = 0; x5469 < x7252->length; x5469++){
+//       index_t x5481 = (3) * (x5469);
+//       index_t x5479 = ((0) * (x5469)) + ((3) * (0));
+//       tuple_number_t_number_t x7233 = (tuple_number_t_number_t){._1=0, ._2=0};
+//       tuple_number_t_number_t x6279 = x7233;
+//       for (int x5509 = 0; x5509 < 3; x5509++) {
+//         tuple_number_t_number_t x5508 = x6279;
+//         tuple_number_t_index_t x10 = (x6345->arr[x5509]);
+//         number_t x5624 = (x10)._1;
+//         index_t x5622 = (x10)._2;
+//         number_t x5625 = (x10)._1;
+//         index_t x5623 = (x10)._2;
+//         number_t x5636 = (x5508)._1;
+//         number_t x5634 = (x5508)._2;
+//         number_t x5637 = (x5624) * (x5625);
+//         number_t x5635 = ((x5622) * (x5625)) + ((x5624) * (x5623));
+//         tuple_number_t_number_t x7232 = (tuple_number_t_number_t){._1=(x5636) + (x5637), ._2=(x5634) + (x5635)};
+//         x5508 = x7232;
+//         x6279 = x5508;
+//       }
+      
+//       number_t x6329 = sqrt((x6279)._1);
+//       number_t x6343 = ((x6279)._2) / ((2) * (x6329));
+//       tuple_number_t_index_t x6357 = (x6345->arr[1]);
+//       number_t x6369 = (x6357)._1;
+//       index_t x6381 = (x6357)._2;
+//       number_t x6393 = (1) / (x6329);
+//       number_t x6405 = (((0) * (x6329)) - ((1) * (x6343))) / ((x6329) * (x6329));
+//       index_t x6417 = (11) + (x5481);
+//       index_t x6429 = (0) + (x5479);
+//       tuple_index_t_index_t x7234 = (tuple_index_t_index_t){._1=(2) + (x6417), ._2=(0) + (x6429)};
+//       tuple_number_t_index_t x6441 = (x6345->arr[(x7234)._1]);
+//       tuple_number_t_index_t x6453 = (x6345->arr[5]);
+//       number_t x6465 = (x6441)._1;
+//       index_t x6477 = (x6441)._2;
+//       number_t x6489 = (x6453)._1;
+//       index_t x6501 = (x6453)._2;
+//       number_t x6513 = (x6369) * (x6393);
+//       number_t x6525 = ((x6381) * (x6393)) + ((x6369) * (x6405));
+//       number_t x6537 = (x6465) - (x6489);
+//       index_t x6549 = (x6477) - (x6501);
+//       tuple_number_t_index_t x6561 = (x6345->arr[2]);
+//       number_t x6573 = (x6561)._1;
+//       index_t x6585 = (x6561)._2;
+//       number_t x6597 = (1) / (x6329);
+//       number_t x6605 = (((0) * (x6329)) - ((1) * (x6343))) / ((x6329) * (x6329));
+//       index_t x6613 = (11) + (x5481);
+//       index_t x6621 = (0) + (x5479);
+//       tuple_index_t_index_t x7235 = (tuple_index_t_index_t){._1=(1) + (x6613), ._2=(0) + (x6621)};
+//       tuple_number_t_index_t x6629 = (x6345->arr[(x7235)._1]);
+//       tuple_number_t_index_t x6637 = (x6345->arr[4]);
+//       number_t x6645 = (x6629)._1;
+//       index_t x6653 = (x6629)._2;
+//       number_t x6661 = (x6637)._1;
+//       index_t x6669 = (x6637)._2;
+//       number_t x6677 = (x6573) * (x6597);
+//       number_t x6685 = ((x6585) * (x6597)) + ((x6573) * (x6605));
+//       number_t x6693 = (x6645) - (x6661);
+//       index_t x6701 = (x6653) - (x6669);
+//       number_t x6709 = (x6513) * (x6537);
+//       number_t x6717 = ((x6525) * (x6537)) + ((x6513) * (x6549));
+//       number_t x6725 = (x6677) * (x6693);
+//       number_t x6733 = ((x6685) * (x6693)) + ((x6677) * (x6701));
+//       tuple_number_t_index_t x6741 = (x6345->arr[2]);
+//       number_t x6749 = (x6741)._1;
+//       index_t x6757 = (x6741)._2;
+//       number_t x6765 = (1) / (x6329);
+//       number_t x6773 = (((0) * (x6329)) - ((1) * (x6343))) / ((x6329) * (x6329));
+//       tuple_number_t_index_t x6781 = (x6345->arr[(11) + (x5481)]);
+//       tuple_number_t_index_t x6789 = (x6345->arr[3]);
+//       number_t x6797 = (x6781)._1;
+//       index_t x6805 = (x6781)._2;
+//       number_t x6813 = (x6789)._1;
+//       index_t x6821 = (x6789)._2;
+//       number_t x6829 = (x6749) * (x6765);
+//       number_t x6837 = ((x6757) * (x6765)) + ((x6749) * (x6773));
+//       number_t x6845 = (x6797) - (x6813);
+//       index_t x6853 = (x6805) - (x6821);
+//       tuple_number_t_index_t x6861 = (x6345->arr[0]);
+//       number_t x6869 = (x6861)._1;
+//       index_t x6877 = (x6861)._2;
+//       number_t x6885 = (1) / (x6329);
+//       number_t x6893 = (((0) * (x6329)) - ((1) * (x6343))) / ((x6329) * (x6329));
+//       index_t x6901 = (11) + (x5481);
+//       index_t x6909 = (0) + (x5479);
+//       tuple_index_t_index_t x7236 = (tuple_index_t_index_t){._1=(2) + (x6901), ._2=(0) + (x6909)};
+//       tuple_number_t_index_t x6917 = (x6345->arr[(x7236)._1]);
+//       tuple_number_t_index_t x6925 = (x6345->arr[5]);
+//       number_t x6933 = (x6917)._1;
+//       index_t x6941 = (x6917)._2;
+//       number_t x6949 = (x6925)._1;
+//       index_t x6957 = (x6925)._2;
+//       number_t x6965 = (x6869) * (x6885);
+//       number_t x6973 = ((x6877) * (x6885)) + ((x6869) * (x6893));
+//       number_t x6981 = (x6933) - (x6949);
+//       index_t x6989 = (x6941) - (x6957);
+//       number_t x6997 = (x6829) * (x6845);
+//       number_t x7005 = ((x6837) * (x6845)) + ((x6829) * (x6853));
+//       number_t x7013 = (x6965) * (x6981);
+//       number_t x7021 = ((x6973) * (x6981)) + ((x6965) * (x6989));
+//       tuple_number_t_index_t x7029 = (x6345->arr[0]);
+//       number_t x7037 = (x7029)._1;
+//       index_t x7045 = (x7029)._2;
+//       number_t x7053 = (1) / (x6329);
+//       number_t x7061 = (((0) * (x6329)) - ((1) * (x6343))) / ((x6329) * (x6329));
+//       index_t x7069 = (11) + (x5481);
+//       index_t x7077 = (0) + (x5479);
+//       tuple_index_t_index_t x7237 = (tuple_index_t_index_t){._1=(1) + (x7069), ._2=(0) + (x7077)};
+//       tuple_number_t_index_t x7085 = (x6345->arr[(x7237)._1]);
+//       tuple_number_t_index_t x7093 = (x6345->arr[4]);
+//       number_t x7101 = (x7085)._1;
+//       index_t x7109 = (x7085)._2;
+//       number_t x7117 = (x7093)._1;
+//       index_t x7125 = (x7093)._2;
+//       number_t x7133 = (x7037) * (x7053);
+//       number_t x7141 = ((x7045) * (x7053)) + ((x7037) * (x7061));
+//       number_t x7149 = (x7101) - (x7117);
+//       index_t x7157 = (x7109) - (x7125);
+//       tuple_number_t_index_t x7165 = (x6345->arr[1]);
+//       number_t x7173 = (x7165)._1;
+//       index_t x7181 = (x7165)._2;
+//       number_t x7189 = (1) / (x6329);
+//       number_t x7197 = (((0) * (x6329)) - ((1) * (x6343))) / ((x6329) * (x6329));
+//       tuple_number_t_index_t x7205 = (x6345->arr[(11) + (x5481)]);
+//       tuple_number_t_index_t x7213 = (x6345->arr[3]);
+//       number_t x7221 = (x7205)._1;
+//       index_t x7201 = (x7205)._2;
+//       number_t x7209 = (x7213)._1;
+//       index_t x7217 = (x7213)._2;
+//       tuple_number_t_number_t x7238 = (tuple_number_t_number_t){._1=(x6709) - (x6725), ._2=(x6717) - (x6733)};
+//       tuple_number_t_number_t x7239 = (tuple_number_t_number_t){._1=(x6997) - (x7013), ._2=(x7005) - (x7021)};
+//       number_t x5804 = (x7173) * (x7189);
+//       number_t x5802 = ((x7181) * (x7189)) + ((x7173) * (x7197));
+//       number_t x5805 = (x7221) - (x7209);
+//       index_t x5803 = (x7201) - (x7217);
+//       number_t x5696 = (x7133) * (x7149);
+//       number_t x5694 = ((x7141) * (x7149)) + ((x7133) * (x7157));
+//       number_t x5697 = (x5804) * (x5805);
+//       number_t x5695 = ((x5802) * (x5805)) + ((x5804) * (x5803));
+//       tuple_number_t_number_t x7240 = (tuple_number_t_number_t){._1=(x5696) - (x5697), ._2=(x5694) - (x5695)};
+//       array_tuple_number_t_number_t w_cross_X = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);w_cross_X->length=3;w_cross_X->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 3);
+//       w_cross_X->arr[0] = x7238;
+//       w_cross_X->arr[1] = x7239;
+//       w_cross_X->arr[2] = x7240;
+//       tuple_number_t_number_t x7243 = (tuple_number_t_number_t){._1=0, ._2=0};
+//       tuple_number_t_number_t x5740 = x7243;
+//       for (int x5859 = 0; x5859 < 3; x5859++) {
+//         tuple_number_t_number_t x5858 = x5740;
+//         number_t x6098 = (x6345->arr[x5859])._1;
+//         index_t x6096 = (x6345->arr[x5859])._2;
+//         number_t x6099 = (1) / (x6329);
+//         number_t x6097 = (((0) * (x6329)) - ((1) * (x6343))) / ((x6329) * (x6329));
+//         index_t x6247 = (11) + (x5481);
+//         index_t x6297 = (0) + (x5479);
+//         tuple_index_t_index_t x7241 = (tuple_index_t_index_t){._1=(x5859) + (x6247), ._2=(0) + (x6297)};
+//         tuple_number_t_index_t x000 = (x6345->arr[(x7241)._1]);
+//         index_t x6132 = 0;
+//         index_t x6133 = 0;
+//         tuple_number_t_index_t y0 = (x6345->arr[(x5859) + (3)]);
+//         number_t x6170 = (x000)._1;
+//         index_t x6168 = (x000)._2;
+//         number_t x6171 = (y0)._1;
+//         index_t x6169 = (y0)._2;
+//         number_t x6182 = (x6098) * (x6099);
+//         number_t x6180 = ((x6096) * (x6099)) + ((x6098) * (x6097));
+//         number_t x6183 = (x6170) - (x6171);
+//         index_t x6181 = (x6168) - (x6169);
+//         number_t x6194 = (x5858)._1;
+//         number_t x6192 = (x5858)._2;
+//         number_t x6195 = (x6182) * (x6183);
+//         number_t x6193 = ((x6180) * (x6183)) + ((x6182) * (x6181));
+//         tuple_number_t_number_t x7242 = (tuple_number_t_number_t){._1=(x6194) + (x6195), ._2=(x6192) + (x6193)};
+//         x5858 = x7242;
+//         x5740 = x5858;
+//       }
+      
+//       number_t x5855 = cos(x6329);
+//       number_t x5853 = (((x6279)._2) / ((2) * (x6329))) * (-(sin(x6329)));
+//       number_t x5744 = (x5740)._1;
+//       number_t x5742 = (x5740)._2;
+//       number_t x5745 = (1) - (x5855);
+//       number_t x5743 = (0) - (x5853);
+//       array_tuple_number_t_number_t x7246 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);x7246->length=3;x7246->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 3);
+//       for(int x5843 = 0; x5843 < x7246->length; x5843++){
+//         index_t x6241 = (11) + (x5481);
+//         index_t x6291 = (0) + (x5479);
+//         tuple_index_t_index_t x7244 = (tuple_index_t_index_t){._1=(x5843) + (x6241), ._2=(0) + (x6291)};
+//         tuple_number_t_index_t x00 = (x6345->arr[(x7244)._1]);
+//         index_t x6000 = 0;
+//         index_t x6001 = 0;
+//         tuple_number_t_index_t y0 = (x6345->arr[(x5843) + (3)]);
+//         number_t x6086 = (x00)._1;
+//         index_t x6084 = (x00)._2;
+//         number_t x6087 = (y0)._1;
+//         index_t x6085 = (y0)._2;
+//         number_t x6110 = (x6086) - (x6087);
+//         index_t x6108 = (x6084) - (x6085);
+//         number_t x6111 = cos(x6329);
+//         number_t x6109 = (((x6279)._2) / ((2) * (x6329))) * (-(sin(x6329)));
+//         tuple_number_t_number_t xi0 = (w_cross_X->arr[x5843]);
+//         number_t x6146 = (xi0)._1;
+//         number_t x6144 = (xi0)._2;
+//         number_t x6147 = sin(x6329);
+//         number_t x6145 = (((x6279)._2) / ((2) * (x6329))) * (cos(x6329));
+//         number_t x6158 = (x6110) * (x6111);
+//         number_t x6156 = ((x6108) * (x6111)) + ((x6110) * (x6109));
+//         number_t x6159 = (x6146) * (x6147);
+//         number_t x6157 = ((x6144) * (x6147)) + ((x6146) * (x6145));
+//         tuple_number_t_index_t xi1 = (x6345->arr[x5843]);
+//         number_t x6206 = (xi1)._1;
+//         index_t x6204 = (xi1)._2;
+//         number_t x6207 = (1) / (x6329);
+//         number_t x6205 = (((0) * (x6329)) - ((1) * (x6343))) / ((x6329) * (x6329));
+//         number_t x6218 = (x6206) * (x6207);
+//         number_t x6216 = ((x6204) * (x6207)) + ((x6206) * (x6205));
+//         number_t x6219 = (x5744) * (x5745);
+//         number_t x6217 = ((x5742) * (x5745)) + ((x5744) * (x5743));
+//         number_t x6230 = (x6158) + (x6159);
+//         number_t x6228 = (x6156) + (x6157);
+//         number_t x6231 = (x6218) * (x6219);
+//         number_t x6229 = ((x6216) * (x6219)) + ((x6218) * (x6217));
+//         tuple_number_t_number_t x7245 = (tuple_number_t_number_t){._1=(x6230) + (x6231), ._2=(x6228) + (x6229)};
+//         x7246->arr[x5843] = x7245;
+        
+//       }
+//       array_tuple_number_t_number_t Xcam = x7246;
+//       tuple_number_t_number_t x6235 = (Xcam->arr[2]);
+//       number_t x6285 = (x6235)._1;
+//       number_t x6335 = (x6235)._2;
+//       tuple_number_t_number_t x7248 = (tuple_number_t_number_t){._1=0, ._2=0};
+//       tuple_number_t_number_t x6349 = x7248;
+//       for (int x5519 = 0; x5519 < 2; x5519++) {
+//         tuple_number_t_number_t x5518 = x6349;
+//         tuple_number_t_number_t xi = (Xcam->arr[x5519]);
+//         number_t x5648 = (xi)._1;
+//         number_t x5646 = (xi)._2;
+//         number_t x5649 = (1) / (x6285);
+//         number_t x5647 = (((0) * (x6285)) - ((1) * (x6335))) / ((x6285) * (x6285));
+//         number_t x5732 = (x5648) * (x5649);
+//         number_t x5730 = ((x5646) * (x5649)) + ((x5648) * (x5647));
+//         number_t x5733 = (x5648) * (x5649);
+//         number_t x5731 = ((x5646) * (x5649)) + ((x5648) * (x5647));
+//         number_t x5840 = (x5518)._1;
+//         number_t x5838 = (x5518)._2;
+//         number_t x5841 = (x5732) * (x5733);
+//         number_t x5839 = ((x5730) * (x5733)) + ((x5732) * (x5731));
+//         tuple_number_t_number_t x7247 = (tuple_number_t_number_t){._1=(x5840) + (x5841), ._2=(x5838) + (x5839)};
+//         x5518 = x7247;
+//         x6349 = x5518;
+//       }
+      
+//       tuple_number_t_index_t x6361 = (x6345->arr[9]);
+//       number_t x6373 = (x6361)._1;
+//       index_t x6385 = (x6361)._2;
+//       number_t x6397 = (x6349)._1;
+//       number_t x6409 = (x6349)._2;
+//       number_t x6421 = (x6373) * (x6397);
+//       number_t x6433 = ((x6385) * (x6397)) + ((x6373) * (x6409));
+//       tuple_number_t_index_t x6445 = (x6345->arr[10]);
+//       number_t x6457 = (x6445)._1;
+//       index_t x6469 = (x6445)._2;
+//       number_t x6481 = (x6349)._1;
+//       number_t x6493 = (x6349)._2;
+//       number_t x6505 = (x6457) * (x6481);
+//       number_t x6517 = ((x6469) * (x6481)) + ((x6457) * (x6493));
+//       number_t x6529 = (x6349)._1;
+//       number_t x6541 = (x6349)._2;
+//       number_t x6553 = (1) + (x6421);
+//       number_t x6565 = (0) + (x6433);
+//       number_t x6577 = (x6505) * (x6529);
+//       number_t x6589 = ((x6517) * (x6529)) + ((x6505) * (x6541));
+//       array_tuple_number_t_number_t x7250 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);x7250->length=2;x7250->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 2);
+//       for(int x5553 = 0; x5553 < x7250->length; x5553++){
+//         tuple_number_t_number_t xi = (Xcam->arr[x5553]);
+//         number_t x5720 = (xi)._1;
+//         number_t x5718 = (xi)._2;
+//         number_t x5721 = (1) / (x6285);
+//         number_t x5719 = (((0) * (x6285)) - ((1) * (x6335))) / ((x6285) * (x6285));
+//         number_t x5828 = (x5720) * (x5721);
+//         number_t x5826 = ((x5718) * (x5721)) + ((x5720) * (x5719));
+//         number_t x5829 = (x6553) + (x6577);
+//         number_t x5827 = (x6565) + (x6589);
+//         tuple_number_t_number_t x7249 = (tuple_number_t_number_t){._1=(x5828) * (x5829), ._2=((x5826) * (x5829)) + ((x5828) * (x5827))};
+//         x7250->arr[x5553] = x7249;
+        
+//       }
+//       array_tuple_number_t_number_t distorted = x7250;
+//       tuple_number_t_index_t y = (x6345->arr[6]);
+//       array_tuple_number_t_number_t m2 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);m2->length=2;m2->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 2);
+//       for(int x5511 = 0; x5511 < m2->length; x5511++){
+//         index_t x5532 = 0;
+//         index_t x5533 = 0;
+//         tuple_number_t_index_t x00 = (x6345->arr[(x5511) + (7)]);
+//         tuple_number_t_number_t xi = (distorted->arr[x5511]);
+//         number_t x5660 = (xi)._1;
+//         number_t x5658 = (xi)._2;
+//         number_t x5661 = (y)._1;
+//         index_t x5659 = (y)._2;
+//         number_t x5708 = (x00)._1;
+//         index_t x5706 = (x00)._2;
+//         number_t x5709 = (x5660) * (x5661);
+//         number_t x5707 = ((x5658) * (x5661)) + ((x5660) * (x5659));
+//         tuple_number_t_number_t x7251 = (tuple_number_t_number_t){._1=(x5708) + (x5709), ._2=(x5706) + (x5707)};
+//         m2->arr[x5511] = x7251;
+        
+//       }
+//       x7252->arr[x5469] = m2;
+      
+//     }
+//     m->arr[ii] = x7252;
+    
+//   }
+//   array_array_array_number_t x7255 = (array_array_array_number_t)storage_alloc(sizeof(int) * 2);x7255->length=(m)->length;x7255->arr = (array_array_number_t*)storage_alloc(sizeof(array_array_number_t) * (m)->length);
+//   for(int i = 0; i < x7255->length; i++){
+//     array_array_tuple_number_t_number_t m0 = (m->arr[i]);
+//     array_array_number_t x7254 = (array_array_number_t)storage_alloc(sizeof(int) * 2);x7254->length=(m0)->length;x7254->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * (m0)->length);
+//     for(int i0 = 0; i0 < x7254->length; i0++){
+//       array_tuple_number_t_number_t v = (m0->arr[i0]);
+//       array_number_t x7253 = (array_number_t)storage_alloc(sizeof(int) * 2);x7253->length=(v)->length;x7253->arr = (number_t*)storage_alloc(sizeof(number_t) * (v)->length);
+//       for(int i00 = 0; i00 < x7253->length; i00++){
+//         tuple_number_t_number_t s = (v->arr[i00]);
+//         x7253->arr[i00] = (s)._2;
+        
+//       }
+//       x7254->arr[i0] = x7253;
+      
+//     }
+//     x7255->arr[i] = x7254;
+    
+//   }
+//   return x7255;
+// }
+  number_t x6232 = (xs->arr[0]);
+  number_t x6234 = (x6232) * (x6232);
+  number_t x6235 = (xs->arr[1]);
+  number_t x6237 = (x6235) * (x6235);
+  number_t x6238 = (xs->arr[2]);
+  number_t x6240 = (x6234) + (x6237);
+  number_t x6241 = (x6238) * (x6238);
+  number_t x6242 = (x6240) + (x6241);
+  number_t x6243 = sqrt(x6242);
+  number_t x6245 = (1) / (x6243);
+  number_t x6246 = (xs->arr[5]);
+  number_t x6247 = (x6235) * (x6245);
+  number_t x6250 = (xs->arr[4]);
+  number_t x6251 = (x6238) * (x6245);
+  number_t x6254 = (xs->arr[3]);
+  number_t x6259 = (x6232) * (x6245);
+  number_t x6280 = cos(x6243);
+  number_t x6281 = (1) - (x6280);
+  number_t x6282 = (xs->arr[9]);
+  number_t x6283 = (xs->arr[10]);
+  number_t x6284 = (xs->arr[6]);
+  index_t x6285 = (xs)->length;
+  number_t x6310 = (x6245) * (0.5);
+  number_t x6315 = (x6243) * (x6243);
+  number_t x6406 = sin(x6243);
+  number_t x6407 = -(x6406);
+  array_array_array_number_t x6689 = (array_array_array_number_t)storage_alloc(sizeof(int) * 2);x6689->length=x6285;x6689->arr = (array_array_number_t*)storage_alloc(sizeof(array_array_number_t) * x6285);
+  for(int i = 0; i < x6689->length; i++){
+    index_t x6286 = (i) == (0);
+    index_t x6287;
+    if (x6286) {
+      x6287 = 1;
+    } else {
+      x6287 = 0;
+    }
+    number_t x6290 = (x6287) * (x6232);
+    number_t x6291 = (x6232) * (x6287);
+    number_t x6292 = (x6290) + (x6291);
+    index_t x6293 = (i) == (1);
+    index_t x6294;
+    if (x6293) {
+      x6294 = 1;
+    } else {
+      x6294 = 0;
+    }
+    number_t x6297 = (x6294) * (x6235);
+    number_t x6298 = (x6235) * (x6294);
+    number_t x6299 = (x6297) + (x6298);
+    index_t x6300 = (i) == (2);
+    index_t x6301;
+    if (x6300) {
+      x6301 = 1;
+    } else {
+      x6301 = 0;
+    }
+    number_t x6304 = (x6292) + (x6299);
+    number_t x6305 = (x6301) * (x6238);
+    number_t x6306 = (x6238) * (x6301);
+    number_t x6307 = (x6305) + (x6306);
+    number_t x6308 = (x6304) + (x6307);
+    number_t x6311 = (x6308) * (x6310);
+    number_t x6314 = -(x6311);
+    number_t x6316 = (x6314) / (x6315);
+    index_t x6317 = (i) == (5);
+    index_t x6318;
+    if (x6317) {
+      x6318 = 1;
+    } else {
+      x6318 = 0;
+    }
+    number_t x6319 = (x6294) * (x6245);
+    number_t x6320 = (x6235) * (x6316);
+    number_t x6321 = (x6319) + (x6320);
+    index_t x6327 = (i) == (4);
+    index_t x6328;
+    if (x6327) {
+      x6328 = 1;
+    } else {
+      x6328 = 0;
+    }
+    number_t x6329 = (x6301) * (x6245);
+    number_t x6330 = (x6238) * (x6316);
+    number_t x6331 = (x6329) + (x6330);
+    index_t x6337 = (i) == (3);
+    index_t x6338;
+    if (x6337) {
+      x6338 = 1;
+    } else {
+      x6338 = 0;
+    }
+    number_t x6349 = (x6287) * (x6245);
+    number_t x6350 = (x6232) * (x6316);
+    number_t x6351 = (x6349) + (x6350);
+    number_t x6408 = (x6311) * (x6407);
+    number_t x6409 = -(x6408);
+    index_t x6410 = (i) == (9);
+    index_t x6411;
+    if (x6410) {
+      x6411 = 1;
+    } else {
+      x6411 = 0;
+    }
+    index_t x6412 = (i) == (10);
+    index_t x6413;
+    if (x6412) {
+      x6413 = 1;
+    } else {
+      x6413 = 0;
+    }
+    index_t x6414 = (i) == (6);
+    index_t x6415;
+    if (x6414) {
+      x6415 = 1;
+    } else {
+      x6415 = 0;
+    }
+    number_t x6542 = (x6311) * (x6280);
+    array_array_number_t x6688 = (array_array_number_t)storage_alloc(sizeof(int) * 2);x6688->length=n;x6688->arr = (array_number_t*)storage_alloc(sizeof(array_number_t) * n);
+    for(int i0 = 0; i0 < x6688->length; i0++){
+      index_t x6416 = (3) * (i0);
+      index_t x6417 = (11) + (x6416);
+      index_t x6418 = (2) + (x6417);
+      number_t x6419 = (xs->arr[x6418]);
+      index_t x6420 = (i) == (x6418);
+      index_t x6421;
+      if (x6420) {
+        x6421 = 1;
+      } else {
+        x6421 = 0;
+      }
+      number_t x6422 = (x6419) - (x6246);
+      index_t x6423 = (x6421) - (x6318);
+      index_t x6425 = (1) + (x6417);
+      number_t x6426 = (xs->arr[x6425]);
+      index_t x6427 = (i) == (x6425);
+      index_t x6428;
+      if (x6427) {
+        x6428 = 1;
+      } else {
+        x6428 = 0;
+      }
+      number_t x6429 = (x6426) - (x6250);
+      index_t x6430 = (x6428) - (x6328);
+      number_t x6431 = (x6247) * (x6422);
+      number_t x6432 = (x6321) * (x6422);
+      number_t x6433 = (x6247) * (x6423);
+      number_t x6434 = (x6432) + (x6433);
+      number_t x6435 = (x6251) * (x6429);
+      number_t x6436 = (x6331) * (x6429);
+      number_t x6437 = (x6251) * (x6430);
+      number_t x6438 = (x6436) + (x6437);
+      number_t x6440 = (xs->arr[x6417]);
+      index_t x6441 = (i) == (x6417);
+      index_t x6442;
+      if (x6441) {
+        x6442 = 1;
+      } else {
+        x6442 = 0;
+      }
+      number_t x6443 = (x6440) - (x6254);
+      index_t x6444 = (x6442) - (x6338);
+      number_t x6452 = (x6251) * (x6443);
+      number_t x6453 = (x6331) * (x6443);
+      number_t x6454 = (x6251) * (x6444);
+      number_t x6455 = (x6453) + (x6454);
+      number_t x6456 = (x6259) * (x6422);
+      number_t x6457 = (x6351) * (x6422);
+      number_t x6458 = (x6259) * (x6423);
+      number_t x6459 = (x6457) + (x6458);
+      number_t x6473 = (x6259) * (x6429);
+      number_t x6474 = (x6351) * (x6429);
+      number_t x6475 = (x6259) * (x6430);
+      number_t x6476 = (x6474) + (x6475);
+      number_t x6477 = (x6247) * (x6443);
+      number_t x6478 = (x6321) * (x6443);
+      number_t x6479 = (x6247) * (x6444);
+      number_t x6480 = (x6478) + (x6479);
+      number_t x6481 = (x6431) - (x6435);
+      number_t x6482 = (x6434) - (x6438);
+      tuple_number_t_number_t x6483 = (tuple_number_t_number_t){._1=x6481, ._2=x6482};
+      number_t x6484 = (x6452) - (x6456);
+      number_t x6485 = (x6455) - (x6459);
+      tuple_number_t_number_t x6486 = (tuple_number_t_number_t){._1=x6484, ._2=x6485};
+      number_t x6487 = (x6473) - (x6477);
+      number_t x6488 = (x6476) - (x6480);
+      tuple_number_t_number_t x6489 = (tuple_number_t_number_t){._1=x6487, ._2=x6488};
+      array_tuple_number_t_number_t x6490 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);x6490->length=3;x6490->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 3);
+      x6490->arr[0] = x6483;
+      x6490->arr[1] = x6486;
+      x6490->arr[2] = x6489;
+      number_t x6497 = (x6259) * (x6443);
+      number_t x6498 = (x6351) * (x6443);
+      number_t x6499 = (x6259) * (x6444);
+      number_t x6500 = (x6498) + (x6499);
+      number_t x6508 = (x6247) * (x6429);
+      number_t x6509 = (x6321) * (x6429);
+      number_t x6510 = (x6247) * (x6430);
+      number_t x6511 = (x6509) + (x6510);
+      number_t x6519 = (x6497) + (x6508);
+      number_t x6520 = (x6500) + (x6511);
+      number_t x6521 = (x6251) * (x6422);
+      number_t x6522 = (x6331) * (x6422);
+      number_t x6523 = (x6251) * (x6423);
+      number_t x6524 = (x6522) + (x6523);
+      number_t x6525 = (x6519) + (x6521);
+      number_t x6526 = (x6520) + (x6524);
+      number_t x6547 = (x6525) * (x6281);
+      number_t x6548 = (x6526) * (x6281);
+      number_t x6549 = (x6525) * (x6409);
+      number_t x6550 = (x6548) + (x6549);
+      array_tuple_number_t_number_t x6588 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);x6588->length=3;x6588->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 3);
+      for(int x5843 = 0; x5843 < x6588->length; x5843++){
+        index_t x6551 = (x5843) + (x6417);
+        index_t x6552 = (x5843) + (3);
+        number_t x6553 = (xs->arr[x6551]);
+        index_t x6554 = (i) == (x6551);
+        index_t x6555;
+        if (x6554) {
+          x6555 = 1;
+        } else {
+          x6555 = 0;
+        }
+        number_t x6556 = (xs->arr[x6552]);
+        index_t x6557 = (i) == (x6552);
+        index_t x6558;
+        if (x6557) {
+          x6558 = 1;
+        } else {
+          x6558 = 0;
+        }
+        number_t x6559 = (x6553) - (x6556);
+        index_t x6560 = (x6555) - (x6558);
+        tuple_number_t_number_t x6561 = (x6490->arr[x5843]);
+        number_t x6562 = (x6561)._1;
+        number_t x6563 = (x6561)._2;
+        number_t x6564 = (x6559) * (x6280);
+        number_t x6565 = (x6560) * (x6280);
+        number_t x6566 = (x6559) * (x6408);
+        number_t x6567 = (x6565) + (x6566);
+        number_t x6568 = (x6562) * (x6406);
+        number_t x6569 = (x6563) * (x6406);
+        number_t x6570 = (x6562) * (x6542);
+        number_t x6571 = (x6569) + (x6570);
+        number_t x6572 = (xs->arr[x5843]);
+        index_t x6573 = (i) == (x5843);
+        index_t x6574;
+        if (x6573) {
+          x6574 = 1;
+        } else {
+          x6574 = 0;
+        }
+        number_t x6575 = (x6572) * (x6245);
+        number_t x6576 = (x6574) * (x6245);
+        number_t x6577 = (x6572) * (x6316);
+        number_t x6578 = (x6576) + (x6577);
+        number_t x6579 = (x6564) + (x6568);
+        number_t x6580 = (x6567) + (x6571);
+        number_t x6581 = (x6575) * (x6547);
+        number_t x6582 = (x6578) * (x6547);
+        number_t x6583 = (x6575) * (x6550);
+        number_t x6584 = (x6582) + (x6583);
+        number_t x6585 = (x6579) + (x6581);
+        number_t x6586 = (x6580) + (x6584);
+        tuple_number_t_number_t x6587 = (tuple_number_t_number_t){._1=x6585, ._2=x6586};
+        x6588->arr[x5843] = x6587;
+        
+      }
+      array_tuple_number_t_number_t x6589 = x6588;
+      tuple_number_t_number_t x6590 = (x6589->arr[2]);
+      number_t x6591 = (x6590)._1;
+      number_t x6592 = (x6590)._2;
+      tuple_number_t_number_t x6593 = (x6589->arr[0]);
+      number_t x6594 = (x6593)._1;
+      number_t x6595 = (x6593)._2;
+      number_t x6596 = (1) / (x6591);
+      number_t x6597 = -(x6592);
+      number_t x6598 = (x6591) * (x6591);
+      number_t x6599 = (x6597) / (x6598);
+      number_t x6600 = (x6594) * (x6596);
+      number_t x6601 = (x6595) * (x6596);
+      number_t x6602 = (x6594) * (x6599);
+      number_t x6603 = (x6601) + (x6602);
+      number_t x6608 = (x6600) * (x6600);
+      number_t x6609 = (x6603) * (x6600);
+      number_t x6610 = (x6600) * (x6603);
+      number_t x6611 = (x6609) + (x6610);
+      tuple_number_t_number_t x6612 = (x6589->arr[1]);
+      number_t x6613 = (x6612)._1;
+      number_t x6614 = (x6612)._2;
+      number_t x6619 = (x6613) * (x6596);
+      number_t x6620 = (x6614) * (x6596);
+      number_t x6621 = (x6613) * (x6599);
+      number_t x6622 = (x6620) + (x6621);
+      number_t x6627 = (x6619) * (x6619);
+      number_t x6628 = (x6622) * (x6619);
+      number_t x6629 = (x6619) * (x6622);
+      number_t x6630 = (x6628) + (x6629);
+      number_t x6631 = (x6608) + (x6627);
+      number_t x6632 = (x6611) + (x6630);
+      number_t x6633 = (x6282) * (x6631);
+      number_t x6634 = (x6411) * (x6631);
+      number_t x6635 = (x6282) * (x6632);
+      number_t x6636 = (x6634) + (x6635);
+      number_t x6639 = (x6283) * (x6631);
+      number_t x6640 = (x6413) * (x6631);
+      number_t x6641 = (x6283) * (x6632);
+      number_t x6642 = (x6640) + (x6641);
+      number_t x6645 = (1) + (x6633);
+      number_t x6646 = (x6639) * (x6631);
+      number_t x6647 = (x6642) * (x6631);
+      number_t x6648 = (x6639) * (x6632);
+      number_t x6649 = (x6647) + (x6648);
+      number_t x6654 = (x6645) + (x6646);
+      number_t x6655 = (x6636) + (x6649);
+      array_tuple_number_t_number_t x6669 = (array_tuple_number_t_number_t)storage_alloc(sizeof(int) * 2);x6669->length=2;x6669->arr = (tuple_number_t_number_t*)storage_alloc(sizeof(tuple_number_t_number_t) * 2);
+      for(int x5553 = 0; x5553 < x6669->length; x5553++){
+        tuple_number_t_number_t x6657 = (x6589->arr[x5553]);
+        number_t x6658 = (x6657)._1;
+        number_t x6659 = (x6657)._2;
+        number_t x6660 = (x6658) * (x6596);
+        number_t x6661 = (x6659) * (x6596);
+        number_t x6662 = (x6658) * (x6599);
+        number_t x6663 = (x6661) + (x6662);
+        number_t x6664 = (x6660) * (x6654);
+        number_t x6665 = (x6663) * (x6654);
+        number_t x6666 = (x6660) * (x6655);
+        number_t x6667 = (x6665) + (x6666);
+        tuple_number_t_number_t x6668 = (tuple_number_t_number_t){._1=x6664, ._2=x6667};
+        x6669->arr[x5553] = x6668;
+        
+      }
+      array_tuple_number_t_number_t x6670 = x6669;
+      array_number_t x6687 = (array_number_t)storage_alloc(sizeof(int) * 2);x6687->length=2;x6687->arr = (number_t*)storage_alloc(sizeof(number_t) * 2);
+      for(int i00 = 0; i00 < x6687->length; i00++){
+        index_t x6672 = (i00) + (7);
+        tuple_number_t_number_t x6673 = (x6670->arr[i00]);
+        number_t x6674 = (x6673)._1;
+        number_t x6675 = (x6673)._2;
+        number_t x6676 = (xs->arr[x6672]);
+        index_t x6677 = (i) == (x6672);
+        index_t x6678;
+        if (x6677) {
+          x6678 = 1;
+        } else {
+          x6678 = 0;
+        }
+        number_t x6679 = (x6674) * (x6284);
+        number_t x6680 = (x6675) * (x6284);
+        number_t x6681 = (x6674) * (x6415);
+        number_t x6682 = (x6680) + (x6681);
+        number_t x6683 = (x6676) + (x6679);
+        number_t x6684 = (x6678) + (x6682);
+        tuple_number_t_number_t x6685 = (tuple_number_t_number_t){._1=x6683, ._2=x6684};
+        number_t x6686 = (x6685)._2;
+        x6687->arr[i00] = x6686;
+        
+      }
+      x6688->arr[i0] = x6687;
+      
+    }
+    x6689->arr[i] = x6688;
+    
+  }
+  return x6689;
+}
