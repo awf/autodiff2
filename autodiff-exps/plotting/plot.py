@@ -30,6 +30,7 @@ DiffSmooth = 'dF~'
 DiffSmoothMotion = 'dF~ + Code Motion'
 DiffSmoothMotionDPS = 'dF~ + Code Motion + DPS'
 DiffSmoothDPS = 'dF~ + DPS'
+Theano = 'Theano'
 
 colors = {}
 colors[TapenadeR] = 'r'
@@ -40,6 +41,7 @@ colors[DiffSmooth] = 'g'
 colors[DiffSmoothDPS] = 'c'
 colors[DiffSmoothMotion] = 'm'
 colors[DiffSmoothMotionDPS] = 'c'
+colors[Theano] = 'm'
 
 markers = {}
 markers[TapenadeR] = 's'
@@ -50,8 +52,9 @@ markers[DiffSmooth] = 'o'
 markers[DiffSmoothDPS] = 'o'
 markers[DiffSmoothMotion] = 'o'
 markers[DiffSmoothMotionDPS] = 'o'
+markers[Theano] = 's'
 
-def plot(file, title, variants):
+def plot(file, title, variants, xlabel = 'Vector Dimension'):
 	data_file = file + ".csv"
 	if(os.path.isfile(data_file)):
 		names_val = ['x']
@@ -68,7 +71,7 @@ def plot(file, title, variants):
 		ax1 = fig.add_subplot(111)
 
 		ax1.set_title(title)    
-		ax1.set_xlabel('Vector Dimension')
+		ax1.set_xlabel(xlabel)
 		ax1.set_ylabel('Run time (ms)')
 
 		ax1.set_xscale("log", nonposx='clip')
@@ -96,4 +99,15 @@ def plot(file, title, variants):
 		plt.savefig(figure_name, bbox_extra_artists=(leg,), bbox_inches='tight')
 		plt.close()
 
-plot('ba_proj', "Jacobian of Project in Bundle Adjustment", [TapenadeR, TapenadeF, DiffSmooth, DiffSmoothMotion, DiffSmoothMotionDPS])
+plot('data/ba_proj', "Jacobian of Project in Bundle Adjustment", [TapenadeR, TapenadeF, DiffSmooth, DiffSmoothMotion, DiffSmoothMotionDPS])
+plot('data/add', "Jacobian of Vector Addition w.r.t. the First Vector", [TapenadeR, TapenadeF, DiffSmooth, DiffSmoothDPS])
+plot('data/mults', "Gradient of Vector-Scalar Multiplication w.r.t. Scalar", [TapenadeR, TapenadeF, DiffSmooth, DiffSmoothDPS])
+plot('data/dot', "Gradient of Vector Dot Product w.r.t. the First Vector", [TapenadeR, TapenadeF, DiffSmooth, DiffSmoothDPS])
+plot('data/max', "Gradient of Vector Max w.r.t. the Input Vector", [TapenadeR, TapenadeF, DiffSmooth, DiffSmoothDPS])
+plot('data/lse', "Gradient of Log-Sum-Exp", [TapenadeR, TapenadeF, TapenadeRFused, TapenadeFFused, DiffSmooth, DiffSmoothDPS])
+plot('data/nmf_1', "Non-Negative Matrix Factorization -- Dimension of A: 100 x K", 
+	[TapenadeR, TapenadeF, TapenadeRFused, TapenadeFFused, Theano, DiffSmooth, DiffSmoothDPS],
+	xlabel = 'Dimension (K)')
+plot('data/nmf_2', "Non-Negative Matrix Factorization -- Dimension of A: K x 100", 
+	[TapenadeR, TapenadeF, TapenadeRFused, TapenadeFFused, Theano, DiffSmooth, DiffSmoothDPS],
+	xlabel = 'Dimension (K)')
