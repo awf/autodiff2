@@ -5,8 +5,9 @@ declare -a files=(
 	# "./max_tap_rev.exe" "./max_tap_for.exe" "./max_diff.exe" "./max_diff_dps.exe"
 	# "./lse_tap_rev.exe" "./lse_tap_for.exe" "./lse_tap_fused_rev.exe" "./lse_tap_fused_for.exe" 
 	# "./lse_diff.exe" "./lse_diff_dps.exe"
-	"./ba_rod_tap_rev.exe" "./ba_rod_tap_for.exe" #"./ba_rod_diff_fused_nounroll.exe" 
-	"./ba_rod_diff_fused_nomotion.exe" "./ba_rod_diff_fused.exe" "./ba_rod_diff_fused_dps.exe"
+	# "./ba_rod_tap_rev.exe" "./ba_rod_tap_for.exe" #"./ba_rod_diff_fused_nounroll.exe" 
+	# "./ba_rod_diff_fused_nomotion.exe" "./ba_rod_diff_fused.exe" "./ba_rod_diff_fused_dps.exe"
+	"./ba_proj_diff_fused.exe" "./ba_proj_tap_for.exe" "./ba_proj_tap_rev.exe"
 	)
 
 declare -a params=(

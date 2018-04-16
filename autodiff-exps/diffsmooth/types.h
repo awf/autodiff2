@@ -48,6 +48,24 @@ typedef struct array_tuple_number_t_number_t_struct {
 	tuple_number_t_number_t* arr;
 	int length;
 }* array_tuple_number_t_number_t;
+typedef struct array_array_tuple_number_t_number_t_struct {
+	array_tuple_number_t_number_t* arr;
+	int length;
+}* array_array_tuple_number_t_number_t;
+typedef struct array_array_array_tuple_number_t_number_t_struct {
+	array_array_tuple_number_t_number_t* arr;
+	int length;
+}* array_array_array_tuple_number_t_number_t;
+
+typedef struct array_tuple_number_t_index_t_struct {
+	tuple_number_t_index_t* arr;
+	int length;
+}* array_tuple_number_t_index_t;
+
+typedef struct array_index_t_struct {
+	index_t* arr;
+	int length;
+}* array_index_t;
 
 typedef union value_t {
 	card_t card_t_value;
