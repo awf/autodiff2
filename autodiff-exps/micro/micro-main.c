@@ -675,7 +675,11 @@ void test_micro(card_t DIM, card_t iters)
     }
     // ba_proj_native(3, vec1->arr, OUT_N, mat4_result_st);
     #elif defined DPS
-    ba_rod_jac_dps(mat3_result, vec1, OUT_N);
+    #if defined BA_ROD
+        ba_rod_jac_dps(mat3_result, vec1, OUT_N);
+      #else
+        ba_proj_jac_dps(mat3_result, vec1, OUT_N);
+      #endif
     #else
       #if defined BA_ROD
         mat3_result = ba_rod_jac(vec1, OUT_N);

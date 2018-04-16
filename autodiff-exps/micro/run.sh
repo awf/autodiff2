@@ -7,7 +7,8 @@ declare -a files=(
 	# "./lse_diff.exe" "./lse_diff_dps.exe"
 	# "./ba_rod_tap_rev.exe" "./ba_rod_tap_for.exe" #"./ba_rod_diff_fused_nounroll.exe" 
 	# "./ba_rod_diff_fused_nomotion.exe" "./ba_rod_diff_fused.exe" "./ba_rod_diff_fused_dps.exe"
-	"./ba_proj_diff_fused.exe" "./ba_proj_tap_for.exe" "./ba_proj_tap_rev.exe"
+	"./ba_proj_tap_rev.exe" "./ba_proj_tap_for.exe"
+	"./ba_proj_diff_fused_nomotion.exe" "./ba_proj_diff_fused.exe" "./ba_proj_diff_fused_dps.exe"
 	)
 
 declare -a params=(
