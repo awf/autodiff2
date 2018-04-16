@@ -1,49 +1,77 @@
 86
-./ba_proj_diff_fused.exe
-total =-1847664485843.544678, time per call = 0.321200 ms
-./ba_proj_tap_for.exe
-total =-875281310579946.875000, time per call = 1.556600 ms
 ./ba_proj_tap_rev.exe
-total =-875281310579946.625000, time per call = 1.612500 ms
+total =-875281310579946.625000, time per call = 1.884400 ms
+./ba_proj_tap_for.exe
+total =-875281310579946.875000, time per call = 1.806900 ms
+./ba_proj_diff_fused_nomotion.exe
+total =-875281310579946.750000, time per call = 0.478200 ms
+./ba_proj_diff_fused.exe
+total =-875281310579946.750000, time per call = 0.336000 ms
+./ba_proj_diff_fused_dps.exe
+total =-875281310579946.750000, time per call = 0.308700 ms
 161
-./ba_proj_diff_fused.exe
-total =-1052488478584.146484, time per call = 0.820800 ms
-./ba_proj_tap_for.exe
-total =-1184795625900468.750000, time per call = 5.434300 ms
 ./ba_proj_tap_rev.exe
-total =-1184795625900468.750000, time per call = 6.190900 ms
+total =-1184795625900468.750000, time per call = 7.788900 ms
+./ba_proj_tap_for.exe
+total =-1184795625900468.750000, time per call = 6.477500 ms
+./ba_proj_diff_fused_nomotion.exe
+total =-1184795625900468.750000, time per call = 1.754200 ms
+./ba_proj_diff_fused.exe
+total =-1184795625900468.750000, time per call = 1.266300 ms
+./ba_proj_diff_fused_dps.exe
+total =-1184795625900468.750000, time per call = 1.186200 ms
 311
-./ba_proj_diff_fused.exe
-total =-1591235048708.021973, time per call = 3.174800 ms
-./ba_proj_tap_for.exe
-total =-2849642630896499.500000, time per call = 20.288499 ms
 ./ba_proj_tap_rev.exe
-total =-2849642630896498.500000, time per call = 24.770799 ms
+total =-2849642630896498.500000, time per call = 32.092401 ms
+./ba_proj_tap_for.exe
+total =-2849642630896499.500000, time per call = 25.401100 ms
+./ba_proj_diff_fused_nomotion.exe
+total =-2849642630896499.000000, time per call = 7.324700 ms
+./ba_proj_diff_fused.exe
+total =-2849642630896499.000000, time per call = 5.170000 ms
+./ba_proj_diff_fused_dps.exe
+total =-2849642630896499.000000, time per call = 4.490200 ms
 611
-./ba_proj_diff_fused.exe
-total =1333390301142509420544.000000, time per call = 13.770300 ms
-./ba_proj_tap_for.exe
-total =-39587972274079152287514624.000000, time per call = 80.605298 ms
 ./ba_proj_tap_rev.exe
-total =-39587972274079169467383808.000000, time per call = 101.678900 ms
+total =-39587972274079169467383808.000000, time per call = 127.733704 ms
+./ba_proj_tap_for.exe
+total =-39587972274079152287514624.000000, time per call = 96.952899 ms
+./ba_proj_diff_fused_nomotion.exe
+total =-39587972274079135107645440.000000, time per call = 27.142801 ms
+./ba_proj_diff_fused.exe
+total =-39587972274079135107645440.000000, time per call = 19.363000 ms
+./ba_proj_diff_fused_dps.exe
+total =-39587972274079135107645440.000000, time per call = 16.590100 ms
 1211
-./ba_proj_diff_fused.exe
-total =1339034695243218550784.000000, time per call = 53.437097 ms
-./ba_proj_tap_for.exe
-total =-39655984285695522780479488.000000, time per call = 325.794995 ms
 ./ba_proj_tap_rev.exe
-total =-39655984285695557140217856.000000, time per call = 422.594092 ms
+total =-39655984285695557140217856.000000, time per call = 502.585400 ms
+./ba_proj_tap_for.exe
+total =-39655984285695522780479488.000000, time per call = 380.114697 ms
+./ba_proj_diff_fused_nomotion.exe
+total =-39655984285695505600610304.000000, time per call = 106.727405 ms
+./ba_proj_diff_fused.exe
+total =-39655984285695505600610304.000000, time per call = 75.377502 ms
+./ba_proj_diff_fused_dps.exe
+total =-39655984285695505600610304.000000, time per call = 64.725201 ms
 2411
-./ba_proj_diff_fused.exe
-total =1338243327287539007488.000000, time per call = 209.597607 ms
-./ba_proj_tap_for.exe
-total =-39660519193932978282561536.000000, time per call = 1300.462402 ms
 ./ba_proj_tap_rev.exe
-total =-39660519193932978282561536.000000, time per call = 1712.092383 ms
+total =-39660519193932978282561536.000000, time per call = 2050.227539 ms
+./ba_proj_tap_for.exe
+total =-39660519193932978282561536.000000, time per call = 1567.989258 ms
+./ba_proj_diff_fused_nomotion.exe
+total =-39660519193932943922823168.000000, time per call = 439.681689 ms
+./ba_proj_diff_fused.exe
+total =-39660519193932943922823168.000000, time per call = 301.916699 ms
+./ba_proj_diff_fused_dps.exe
+total =-39660519193932943922823168.000000, time per call = 257.934009 ms
 4811
-./ba_proj_diff_fused.exe
-total =89285157753660163227648.000000, time per call = 1037.536426 ms
-./ba_proj_tap_for.exe
-total =-5166360921370050683354480640.000000, time per call = 5726.687109 ms
 ./ba_proj_tap_rev.exe
-total =-5166360921370044086284713984.000000, time per call = 7346.928906 ms
+total =-5166360921370044086284713984.000000, time per call = 8497.656250 ms
+./ba_proj_tap_for.exe
+total =-5166360921370050683354480640.000000, time per call = 6156.973437 ms
+./ba_proj_diff_fused_nomotion.exe
+total =-5166360921370052882377736192.000000, time per call = 1828.085938 ms
+./ba_proj_diff_fused.exe
+total =-5166360921370052882377736192.000000, time per call = 1197.152539 ms
+./ba_proj_diff_fused_dps.exe
+total =-5166360921370052882377736192.000000, time per call = 1078.708496 ms

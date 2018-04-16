@@ -5,8 +5,8 @@ object ExtractCSV {
   val MICRO_BENCH = "MICRO"
   val NMF_BENCH = "NMF"
   // val bench = GMM_BENCH
-  // val bench = MICRO_BENCH
-  val bench = NMF_BENCH
+  val bench = MICRO_BENCH
+  // val bench = NMF_BENCH
   val TIME = "time per call = "
   var currentType: String = _
   var currentMet: String = _
