@@ -54,7 +54,7 @@ markers[DiffSmoothMotion] = 'o'
 markers[DiffSmoothMotionDPS] = 'o'
 markers[Theano] = 's'
 
-def plot(file, title, variants, xlabel = 'Vector Dimension'):
+def plot(file, title, variants, xlabel = 'Vector Dimension', legpos = 'upper left'):
 	data_file = file + ".csv"
 	if(os.path.isfile(data_file)):
 		names_val = ['x']
@@ -93,10 +93,16 @@ def plot(file, title, variants, xlabel = 'Vector Dimension'):
 		# ax1.plot(data['x'], data['y1'], c='r', marker="o", label=variants[1])
 		ax1.set_xlim(left=min(data['x']), right=max(data['x']))
 
-		leg = plt.legend(loc='upper left');
-		# plt.show()
 		figure_name = file + '.png'
-		plt.savefig(figure_name, bbox_extra_artists=(leg,), bbox_inches='tight')
+
+		if (legpos != '') :
+			if (legpos == 'upper left'):
+				leg = ax1.legend(loc=legpos);
+			else:
+				leg = ax1.legend(loc=legpos, bbox_to_anchor=(1, 0.5))
+			plt.savefig(figure_name, bbox_extra_artists=(leg,), bbox_inches='tight')
+		else:
+			plt.savefig(figure_name, bbox_extra_artists=(), bbox_inches='tight')
 		plt.close()
 
 plot('data/ba_proj', "Jacobian of Project in Bundle Adjustment", [TapenadeR, TapenadeF, DiffSmooth, DiffSmoothMotion, DiffSmoothMotionDPS])
@@ -104,10 +110,11 @@ plot('data/add', "Jacobian of Vector Addition w.r.t. the First Vector", [Tapenad
 plot('data/mults', "Gradient of Vector-Scalar Multiplication w.r.t. Scalar", [TapenadeR, TapenadeF, DiffSmooth, DiffSmoothDPS])
 plot('data/dot', "Gradient of Vector Dot Product w.r.t. the First Vector", [TapenadeR, TapenadeF, DiffSmooth, DiffSmoothDPS])
 plot('data/max', "Gradient of Vector Max w.r.t. the Input Vector", [TapenadeR, TapenadeF, DiffSmooth, DiffSmoothDPS])
-plot('data/lse', "Gradient of Log-Sum-Exp", [TapenadeR, TapenadeF, TapenadeRFused, TapenadeFFused, DiffSmooth, DiffSmoothDPS])
+plot('data/lse', "Gradient of Log-Sum-Exp", [TapenadeR, TapenadeF, TapenadeRFused, TapenadeFFused, DiffSmooth, DiffSmoothDPS], 
+	legpos = 'center left')
 plot('data/nmf_1', "Non-Negative Matrix Factorization -- Dimension of A: 100 x K", 
 	[TapenadeR, TapenadeF, TapenadeRFused, TapenadeFFused, Theano, DiffSmooth, DiffSmoothDPS],
-	xlabel = 'Dimension (K)')
+	xlabel = 'Dimension (K)', legpos = '')
 plot('data/nmf_2', "Non-Negative Matrix Factorization -- Dimension of A: K x 100", 
 	[TapenadeR, TapenadeF, TapenadeRFused, TapenadeFFused, Theano, DiffSmooth, DiffSmoothDPS],
-	xlabel = 'Dimension (K)')
+	xlabel = 'Dimension (K)', legpos = 'center left')
