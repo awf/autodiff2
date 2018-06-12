@@ -4,6 +4,9 @@
 
 #include "usecases_ba.h"
 
+#include "../autodiff/rodrigues.h"
+#include "../autodiff/dot.h"
+
 Vec2<Real> radial_distort(Vec2<Real> rad_params, Vec2<Real> proj)
 {
     Real rsq = sumsq(proj);
@@ -11,6 +14,7 @@ Vec2<Real> radial_distort(Vec2<Real> rad_params, Vec2<Real> proj)
     return proj * L;
 }
 
+#if 1
 Vec3<Real> rodrigues_rotate_point(Vec3<Real> rot, Vec3<Real> x)
 {
     Real sqtheta = sumsq(rot);
@@ -29,6 +33,13 @@ Vec3<Real> rodrigues_rotate_point(Vec3<Real> rot, Vec3<Real> x)
     else
         return x + cross(rot, x);
 }
+#else
+Vec3<Real> rodrigues_rotate_point(Vec3<Real> rot, Vec3<Real> x)
+{
+	return exp2mat(rot) * x;
+}
+#endif
+
 
 Vec2<Real> project(VecF<Real, N_CAM_PARAMS> cam, Vec3<Real> x)
 {
