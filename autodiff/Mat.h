@@ -115,6 +115,22 @@ Mat<T, N, M> operator*(Mat<T, N, C> const& a, Mat<T, C, M> const& b)
   return ret;
 }
 
+template <class T, size_t N, size_t M>
+Vec<T, N> operator*(Mat<T, N, M> const& a, Vec<T, M> const& b)
+{
+	size_t N_ = a.rows();
+	size_t M_ = a.cols();
+	assert(a.cols() == b.size());
+	Vec<T, N> ret{ N_ };
+	for (int i = 0; i < N_; ++i) {
+		T accum = 0;
+		for (int k = 0; k < M_; ++k)
+			accum += a(i,k) * b[k];
+		ret[i] = accum;
+	}
+	return ret;
+}
+
 
 template <class T, size_t M, size_t N>
 Vec<T, M> getRow(Mat<T, M, N> const& m, size_t i)                 { 

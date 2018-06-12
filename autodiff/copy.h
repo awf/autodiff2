@@ -1,6 +1,6 @@
 #pragma once
 
-// variadic copy functions
+// Variadic copy functions
 
 template <typename Iter, typename T>
 void vcopy(Iter p, T t)

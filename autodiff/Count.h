@@ -1,5 +1,6 @@
+#pragma once
 
-
+// Count number of parameters in a parameter pack
 
 template <typename T, typename... Ts>
 struct Count {
