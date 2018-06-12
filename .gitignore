@@ -163,3 +163,5 @@ awf-build/
 adept-1.1/
 *.out
 *.o
+
+results_ad/
