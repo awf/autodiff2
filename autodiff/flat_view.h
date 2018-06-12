@@ -135,13 +135,15 @@ BOOST_AUTO_TEST_CASE(test_nested_iterator)
 
   std::list<int> a = { 1, 2 };
   std::list<int> b = { 3,4,5 };
+  // vector of list of int
   typedef std::vector<std::list<int>> veclist;
   auto c = veclist{ a,b };
   auto d = veclist{ b,a };
-  typedef std::list<veclist> A;
-  A l = { c,d };
+  // list of vector of list of int
+  typedef std::list<veclist> list_of_veclist;
+  list_of_veclist l = { c,d };
 
-  define_flat_view<A, 3> fv{ l };
+  define_flat_view<list_of_veclist, 3> fv{ l };
 
   std::vector<int> all;
   for (auto i : fv)

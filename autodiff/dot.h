@@ -30,7 +30,7 @@
 // There are a few ways to indicate this: you can pass the depths of the 
 // containers, as done in the auxiliary Dotter class below, or, sometimes
 // more conveniently, you can pass a third argument of type C1<Real>. 
-// As our primary usage is for mplementing the chain rule on containers, 
+// As our primary usage is for implementing the chain rule on containers, 
 // you will probably have an instance of C1<Real> anyway, arising from a call 
 // sequence like this:
 //   C1<Real> x;
@@ -97,7 +97,8 @@ struct Dotter {
   typedef typename Dotter<N - 1, M, RestOfC1_of_C2_of_Real, C2_of_C3>::dot_t RestOfC1_of_C3_Real;
 
   // Type of dot(a, b)
-  typedef decltype(std::declval<C1_of_C2>().shape_clone<RestOfC1_of_C3_Real>()) dot_t;
+  static auto x() { return std::declval<C1_of_C2>().shape_clone<RestOfC1_of_C3_Real>(); }
+  typedef decltype(x()) dot_t;
 
   // Function dot: Third arg is already-constructed output type
   static void dot3(C1_of_C2 const& a, C2_of_C3 const& b, dot_t* out)

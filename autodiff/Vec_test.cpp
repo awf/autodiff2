@@ -46,6 +46,5 @@ BOOST_AUTO_TEST_CASE(test_vec)
 
   Mat3x3<Real> m { vec(vec(1.,2.,3.), vec(4.,5.,6.), vec(7.,8.,9.)) };
 
-  assert(transpose(m)[1][0] == m[0][1]);
-
+  BOOST_CHECK_EQUAL(transpose(m)[1][0], m[0][1]);
 }

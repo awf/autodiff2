@@ -46,7 +46,7 @@ auto shape_clone(Vec<T, Size, CT> const& that) ->
   return ret;
 }
 
-//decltype(shape_clone<Vec3<Real>>(Vec3<Vec3<Real>>())) a = 3;
+
 ASSERT_SAME_TYPE(decltype(shape_clone<Vec3<Real>>(Vec3<Vec3<Real>>())), Vec3<Vec3<Vec3<Real>>>);
 
 // ENDGROUP: shape_clone
@@ -147,6 +147,9 @@ Vec3<Real> grad_f(Vec3<Real> const& x)
 
 
 
+#if 1
+
+#define BOOST_CHECK_CLOSE_VECS(a,b,tol) BOOST_CHECK_SMALL(sumsq(a-b), tol)
 
 BOOST_AUTO_TEST_CASE(test_chain_rule) 
 {
@@ -158,7 +161,7 @@ BOOST_AUTO_TEST_CASE(test_chain_rule)
   Vec3<Real> grad_fd = grad_finite_difference<Real, Vec3<Real>>(f, x);
   std::cout << "GRAD_FD = " << grad_fd << "\n";
 
-  BOOST_CHECK_CLOSE(grad, grad_fd, 1e-3);
+  BOOST_CHECK_CLOSE_VECS(grad, grad_fd, 1e-3);
 }
 
 Real grad_sin(Real x)
@@ -185,7 +188,7 @@ Real grad_sinc(Real x)
     return (cos(x)*x - sin(x))/(x*x); // slightly more stable numerically, but really need taylor.
 }
 
-#if 1
+//#if 0
 
 // -------------------  Test gdot with containers
 #define DECLARE_CONTAINER(Name)\
@@ -313,7 +316,7 @@ BOOST_AUTO_TEST_CASE(test_mmul)
   Mat3x3<Real> A{ vec(vec(1.1,1.2,1.3), vec(7.,5.,11.), vec(13.,17.,19.)) };
   Vec3<Real> b = vec(2.1, 3.2, 3.3);
   Vec3<Real> Ab = vec(67.6100, 74.6200, 100.6300);
-  BOOST_CHECK_CLOSE(mmul(A, b), Ab, 1e-8);
+  BOOST_CHECK_CLOSE_VECS(mmul(A, b), Ab, 1e-8);
 }
 
 // Define gradients of mmul, with respect to arguments 1 and 2
@@ -417,7 +420,7 @@ Vec3<Real> grad_f6(Vec3<Real> const& x)
   auto grad_fx = grad_f2(x);
   auto result = dot(fx, fx);
   auto gres = gdot(grad_fx, grad1_dot(fx, fx), x) + gdot(grad_fx, grad1_dot(fx, fx), x);
-  BOOST_CHECK_CLOSE(gres, gdot(grad_fx, grad_sumsq(fx), fx), 1e-4);
+  BOOST_CHECK_CLOSE_VECS(gres, gdot(grad_fx, grad_sumsq(fx), fx), 1e-4);
   return gres;
 }
 
@@ -427,7 +430,7 @@ void test_fd(std::string const& tag, Out f(In const&  x), OutGrad grad_f(In cons
   auto hand = grad_f(x);
   auto fd = grad_finite_difference<Out, In>(f, x);
   double tol = std::max(1.0, sqrt(sumsq(fd))) * 1e-4;
-  BOOST_CHECK_CLOSE(hand, fd, tol);
+  BOOST_CHECK_CLOSE_VECS(hand, fd, tol);
 }
 
 BOOST_AUTO_TEST_CASE(test_mmul2)

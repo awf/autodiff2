@@ -1,6 +1,6 @@
 
-
 #include "Mat.h"
+#include "test.h"
 
 BOOST_AUTO_TEST_CASE(test_matrix)
 {
